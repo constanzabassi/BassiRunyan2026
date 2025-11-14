@@ -15,6 +15,7 @@ xlim([0 size(data,2)]);
 ylim([0 size(data,1)]);
 xlabel(plot_info.xlabel);
 ylabel(plot_info.ylabel);
+yticks([1 size(data,1)]);
 
 % axis square
 box off

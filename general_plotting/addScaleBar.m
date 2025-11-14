@@ -1,0 +1,194 @@
+function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
+%ADDSCALEBAR Draws X (and optional Y) scale bars outside an axis using annotations.
+%
+%   addScaleBar(ax, x_length, x_label, [], [])
+%
+%   INPUTS:
+%       ax        - Axis handle where to anchor the scalebar.
+%       x_length  - Length of the X-axis scalebar (in axis *data* units).
+%       x_label   - String for the X scalebar label (e.g. '1 sec').
+%       y_length  - (optional) Length of the Y-axis scalebar (in data units).
+%       y_label   - (optional) String for Y scalebar label.
+%       varargin  - Optional Name-Value pairs for the line(s), e.g.:
+%                   {'Color','k','LineWidth',1.5}
+%
+%   Notes:
+%       - The bar and label are drawn with annotation objects in figure
+%         normalized coordinates, so they do NOT affect axis limits.
+%       - x_length is respected in data units.
+
+    if nargin < 6 || isempty(varargin)
+        varargin = {'Color','k','LineWidth',.8};
+    end
+    
+    fig = ancestor(ax,'figure');
+    % --- 1) Axis limits in data units ---
+    xlims  = xlim(ax);
+    xrange = diff(xlims);
+    % --- 2) Get axes position in *normalized* units (critical fix) ---
+    old_units = ax.Units;
+    ax.Units  = 'normalized';
+    ax_pos    = ax.Position;   % [left bottom width height] in 0–1
+    ax.Units  = old_units;
+    if isempty(x_length) || x_length <= 0
+        return;
+    end
+    %% ---- Compute bar endpoints in DATA units (same logic as before) ----
+    % Place bar near the right side, a bit inside
+    x_end_data   = xlims(2) ;%- 0.05 * xrange;
+    x_start_data = x_end_data - x_length;
+    % Clamp in data space just in case
+    x_start_data = max(x_start_data, xlims(1));
+    x_end_data   = min(x_end_data,   xlims(2));
+    % ---- Convert to axis-fraction (0–1 within axes) ----
+    x_start_frac = (x_start_data - xlims(1)) / xrange;
+    x_end_frac   = (x_end_data   - xlims(1)) / xrange;
+    % ---- Convert to *figure* normalized coords for annotation ----
+    x_start_fig = ax_pos(1) + x_start_frac * ax_pos(3);
+    x_end_fig   = ax_pos(1) + x_end_frac   * ax_pos(3);
+    % Vertical positions: just below the axis (same idea as before)
+    bar_y_fig   = ax_pos(2) - 0.05*ax_pos(4);   % 5% of axis height below
+    label_y_fig = bar_y_fig - 0.015*ax_pos(4);   % a bit below the bar
+    % --- 3) Small safety clamp to keep everything in [0,1] ---
+    x_start_fig = max(0, min(1, x_start_fig));
+    x_end_fig   = max(0, min(1, x_end_fig));
+    bar_y_fig   = max(0, min(1, bar_y_fig));
+    label_y_fig = max(0, min(1, label_y_fig));
+    %% ---- Draw horizontal bar (annotation line) ----
+    hLine = annotation(fig, 'line', ...
+        [x_start_fig x_end_fig], [bar_y_fig bar_y_fig]);
+    set(hLine, varargin{:});
+    %% ---- Draw label (annotation textbox) ----
+    if ~isempty(x_label)
+        x_center_fig = (x_start_fig + x_end_fig)/2;
+        % Reasonable width so text doesn't wrap
+        box_width  = max(0.04, (x_end_fig - x_start_fig)*1.5);
+        box_height = 0.03;
+        x_box = x_center_fig - box_width/2;
+        y_box = label_y_fig - box_height/2;
+        % Clamp textbox rectangle to [0,1]
+        x_box = max(0, min(1 - box_width,  x_box));
+        y_box = max(0, min(1 - box_height, y_box));
+        annotation(fig, 'textbox', [x_box y_box box_width box_height], ...
+            'String', x_label, ...
+            'HorizontalAlignment', 'center', ...
+            'VerticalAlignment',   'top', ...
+            'FontSize',            7, ...
+            'LineStyle',           'none', ...
+            'Interpreter',         'none', ...
+            'FitBoxToText',        'on');
+    end
+end
+
+%     fig = ancestor(ax,'figure');
+% 
+%     % Axis limits (data space)
+%     xlims = xlim(ax);
+%     xrange = diff(xlims);
+% 
+%     % Axis position in figure-normalized units: [left bottom width height]
+%     ax_pos = get(ax, 'Position');
+% 
+%     %% ================== X SCALE BAR ==================
+%     if ~isempty(x_length) && x_length > 0
+% 
+%         % --- Choose bar endpoints in DATA units ---
+%         % Place bar near the right side, a bit inside
+%         x_end_data   = xlims(2) ;%- 0.05 * xrange;
+%         x_start_data = x_end_data - x_length;
+% 
+%         % Clamp just in case
+%         x_start_data = max(x_start_data, xlims(1));
+%         x_end_data   = min(x_end_data,   xlims(2));
+% 
+%         % --- Convert data x to axis-fraction ---
+%         x_start_frac = (x_start_data - xlims(1)) / xrange;   % 0–1 within axis
+%         x_end_frac   = (x_end_data   - xlims(1)) / xrange;
+% 
+%         % --- Convert to figure-normalized coords for annotation ---
+%         x_start_fig = ax_pos(1) + x_start_frac * ax_pos(3);
+%         x_end_fig   = ax_pos(1) + x_end_frac   * ax_pos(3);
+% 
+%         % Vertical positions: just below the axes
+%         bar_y_fig   = ax_pos(2) - 0.05*ax_pos(4);   % 5% of axis height below
+%         label_y_fig = bar_y_fig - 0.015*ax_pos(4);   % label a bit further down
+% 
+%         % ---- Draw horizontal bar (annotation line) ----
+%         hLine = annotation(fig, 'line', ...
+%             [x_start_fig x_end_fig], [bar_y_fig bar_y_fig]);
+%         set(hLine, varargin{:});
+% 
+%         % ---- Draw label (annotation textbox) ----
+%         if ~isempty(x_label)
+%             % Center of bar in figure coords
+%             x_center_fig = (x_start_fig + x_end_fig)/2;
+% 
+%             % Give the textbox a reasonable width so text doesn't wrap
+%             box_width  = max(0.03, (x_end_fig - x_start_fig)*1.5);
+%             box_height = 0.03;  % small height; FitBoxToText will adjust
+% 
+%             x_box = x_center_fig - box_width/2;
+%             y_box = label_y_fig - box_height/2;
+% 
+%             hTxt = annotation(fig, 'textbox', [x_box y_box box_width box_height], ...
+%                 'String', x_label, ...
+%                 'HorizontalAlignment', 'center', ...
+%                 'VerticalAlignment',   'top', ...
+%                 'FontSize',            7, ...
+%                 'LineStyle',           'none', ...
+%                 'Interpreter',         'none', ...
+%                 'FitBoxToText',        'on');
+%             % hTxt.Position can be tweaked further if needed
+%         end
+%     end
+% 
+%     %% ================== Y SCALE BAR (optional) ==================
+%     % If you want a y-scale bar outside the axis as well:
+%     if nargin >= 4 && ~isempty(y_length) && y_length > 0
+% 
+%         ylims  = ylim(ax);
+%         yrange = diff(ylims);
+% 
+%         % Place Y-bar near left side
+%         y_start_data = ylims(1) + 0.1 * yrange;
+%         y_end_data   = y_start_data + y_length;
+% 
+%         % clamp
+%         y_end_data = min(y_end_data, ylims(2));
+% 
+%         % Convert to axis-fraction
+%         y_start_frac = (y_start_data - ylims(1)) / yrange;
+%         y_end_frac   = (y_end_data   - ylims(1)) / yrange;
+% 
+%         % Convert to figure coords
+%         x_bar_fig = ax_pos(1) - 0.03 * ax_pos(3);  % a bit to the left of axis
+%         y_start_fig = ax_pos(2) + y_start_frac * ax_pos(4);
+%         y_end_fig   = ax_pos(2) + y_end_frac   * ax_pos(4);
+% 
+%         % vertical bar
+%         hV = annotation(fig, 'line', ...
+%             [x_bar_fig x_bar_fig], [y_start_fig y_end_fig]);
+%         set(hV, varargin{:});
+% 
+%         % label
+%         if ~isempty(y_label)
+%             y_center_fig = (y_start_fig + y_end_fig)/2;
+%             box_width  = 0.04;
+%             box_height = 0.08;
+% 
+%             x_box = x_bar_fig - box_width - 0.005;
+%             y_box = y_center_fig - box_height/2;
+% 
+%             annotation(fig, 'textbox', [x_box y_box box_width box_height], ...
+%                 'String', y_label, ...
+%                 'HorizontalAlignment', 'center', ...
+%                 'VerticalAlignment',   'middle', ...
+%                 'Rotation',            90, ...
+%                 'FontSize',            7, ...
+%                 'LineStyle',           'none', ...
+%                 'Interpreter',         'none', ...
+%                 'FitBoxToText',        'on');
+%         end
+%     end
+% end
+% 
