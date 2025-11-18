@@ -39,9 +39,9 @@ function [info, alignment, plot_info, bin_size,imaging_st,all_celltypes,imaging_
     plot_info.xlabel = [];
     plot_info.sorting_type = 1;
     plot_info.ylabel = 'Frames';
-    plot_info.xlabel_events = {'S1','S2','S3','turn','reward','ITI'};
+    plot_info.xlabel_events = {'S1  ','S2  ','S3  ','turn','reward','ITI'};
     plot_info.xlabel_events_stim_sound = {'S1 + Stim','S2','S3','turn','reward','ITI'};
-    plot_info.xlabel_events_spont = {'Stim','0mW LED'}; 
+    plot_info.xlabel_events_spont = {'Stim ','No Stim'}; 
     plot_info.max_decimal_value = 1000; %largest decimal showing to align y labels by
     
     % Note: define plot_info.colors_celltypes before using this function

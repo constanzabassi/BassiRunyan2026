@@ -121,17 +121,18 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
                 ylabel({alignment.title{ce}});
 
                 % colorbar styling (your original)
-                cb = colorbar(ax, 'eastoutside');
-                cb.FontSize = 6;
-
-                cb_pos = cb.Position;
-                cb_pos(3) = cb_pos(3) * 0.3;
-                cb.Position = cb_pos;
-
-                cb_pos(1) = cb_pos(1) + 0.16;
-                cb_pos(2) = cb_pos(2) + 0.05;
-                cb_pos(4) = cb_pos(4) - 0.05;
-                cb.Position = cb_pos;
+                cb = add_skinny_colorbar(ax, 6, [],.2,0.05);
+%                 cb = colorbar(ax, 'eastoutside');
+%                 cb.FontSize = 6;
+% 
+%                 cb_pos = cb.Position;
+%                 cb_pos(3) = cb_pos(3) * 0.3;
+%                 cb.Position = cb_pos;
+% 
+%                 cb_pos(1) = cb_pos(1) + 0.16;
+%                 cb_pos(2) = cb_pos(2) + 0.05;
+%                 cb_pos(4) = cb_pos(4) - 0.05;
+%                 cb.Position = cb_pos;
 
                 % Make NaNs transparent
                 hImg = findobj(gca, 'Type', 'Image');
@@ -260,16 +261,18 @@ else
             set(gca,'fontsize', 7,'FontName','Arial');
             ylabel({alignment.title{ce}});
 
-            cb = colorbar(ax, 'eastoutside');
-            cb.FontSize = 6;
-            cb_pos = cb.Position;
-            cb_pos(3) = cb_pos(3) * 0.3;
-            cb.Position = cb_pos;
 
-            cb_pos(1) = cb_pos(1) + 0.16;
-            cb_pos(2) = cb_pos(2) + 0.05;
-            cb_pos(4) = cb_pos(4) - 0.05;
-            cb.Position = cb_pos;
+            cb = add_skinny_colorbar(ax, 6, [],0.2,0.05);
+%             cb = colorbar(ax, 'eastoutside');
+%             cb.FontSize = 6;
+%             cb_pos = cb.Position;
+%             cb_pos(3) = cb_pos(3) * 0.3;
+%             cb.Position = cb_pos;
+% 
+%             cb_pos(1) = cb_pos(1) + 0.16;
+%             cb_pos(2) = cb_pos(2) + 0.05;
+%             cb_pos(4) = cb_pos(4) - 0.05;
+%             cb.Position = cb_pos;
 
             hImg = findobj(gca, 'Type','Image');
             set(hImg, 'AlphaData', ~isnan(out_data));
