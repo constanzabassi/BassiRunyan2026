@@ -78,13 +78,19 @@ else
     end
 end
 
-% Precompute fixed y-positions for significance bars (same for every panel)
+% data range you care about
+data_lower = minmax(1)*100;
+data_upper = minmax(2)*100;
+
+% If many comparisons, create extra headroom above the data
 max_sigs      = size(sorted_combinations,1);
-sig_top       = yupper - 0.02*(yupper-ylower); % 2% below top
-sig_bottom    = yupper - 0.20*(yupper-ylower); % 10% below top
-sig_positions = linspace(sig_bottom, sig_top, max_sigs);
-sig_positions = fliplr(sig_positions);         % first sig highest
-sig_ct        = 0;
+
+if max_sigs > 6
+    extra  = 0.15 * (data_upper);   % 15% of data span above
+    ylower = data_lower;
+    yupper = data_upper + extra;                 % e.g. 90 -> 90+4.5 = 94.5
+end
+
 
 %% ---- 6. Figure / boxplots ----
 figure(101); clf; set(gcf,'color','w'); hold on; 
@@ -131,32 +137,95 @@ for t = 1:length(tw)
     [KW_Test.celltypes_p_val, KW_Test.tbl, KW_Test.stats] = ...
         kruskalwallis(specified_mean_all(1:n_real,:)', 1:n_real, 'off');
 
-    %% ---- 8. Pairwise tests + significance bars ----
-    for c = 1:size(combos,1)
-        pair_data = [squeeze(specified_mean_all(combos(c,1),:)); ...
-                     squeeze(specified_mean_all(combos(c,2),:))];
+    nCombos = size(combos,1);
+alpha_bonf = 0.05 / nCombos;
 
-        [pval, observeddifference, effectsize] = ...
-            permutationTest(pair_data(1,:), pair_data(2,:), 10000);
+% First pass: compute all p-values and which ones are significant
+pvals   = nan(nCombos,1);
+is_sig  = false(nCombos,1);
 
-        plot_data{t,c}              = pval;
-        plot_data{length(tw)+2, c}  = combos(c,:);
-        svm_box_stats.observeddifference{t,c} = observeddifference;
-        svm_box_stats.effectsize{t,c}        = effectsize;
-        svm_box_stats.pval{t,c}              = pval;
-        svm_box_stats.combo{c}               = combos(c,:);
+for c = 1:nCombos
+    data_pair = [squeeze(specified_mean_all(combos(c,1),:)); ...
+                 squeeze(specified_mean_all(combos(c,2),:))];
 
-        x_line_vals = x_seq(combos(c,:)); % relative offsets
+    [pval, observeddifference, effectsize] = permutationTest(data_pair(1,:), data_pair(2,:), 10000);
 
-        if pval < 0.05/length(combos)
-            sig_ct = sig_ct + 1;
+    % store stats as before
+    plot_data{t,c}              = pval;
+    plot_data{length(tw)+2, c}  = combos(c,:);
+    svm_box_stats.observeddifference{t,c} = observeddifference;
+    svm_box_stats.effectsize{t,c}        = effectsize;
+    svm_box_stats.pval{t,c}              = pval;
+    svm_box_stats.combo{c}               = combos(c,:);
 
-            % fixed y-position for this significance bar
-            sig_y = sig_positions(sig_ct);
+    pvals(c)  = pval;
+    is_sig(c) = pval < alpha_bonf;
+end
 
-            utils.plot_pval_star(t, sig_y, pval, x_line_vals, 0.01);
-        end
+% How many comparisons are actually significant?
+n_sig = sum(is_sig);
+
+if n_sig > 0
+    % Define a band for sig bars (inside or partly above the data)
+    data_lower = minmax(1)*100;
+    data_upper = minmax(2)*100;
+    range_total = yupper - ylower;
+
+    if n_sig <= 4
+        % few sigs: stay inside data range near the top
+        sig_top    = data_upper - 0.02*(data_upper - data_lower);
+        sig_bottom = data_upper - 0.20*(data_upper - data_lower);
+        sig_positions = linspace(sig_bottom, sig_top, 4);
+    else
+        % many sigs: use band that extends into the extra headroom
+        sig_top    = yupper - 0.005*range_total;   
+        sig_bottom = yupper - 0.2*(yupper);
+        sig_positions = linspace(sig_bottom, sig_top, n_sig);
     end
+
+    
+    sig_positions = fliplr(sig_positions);  % first sig highest
+
+    % Second pass: draw only the significant comparisons, spaced nicely
+    sig_ct = 0;
+    for c = 1:nCombos
+        if ~is_sig(c), continue; end
+        sig_ct = sig_ct + 1;
+
+        x_line_vals = x_seq(combos(c,:));   % offsets for the two boxes
+        x_line_vals = [x_line_vals(1), x_line_vals(2)];
+
+        sig_y = sig_positions(sig_ct);
+        plot_pval_star(t, sig_y, pvals(c), x_line_vals, 0.01);
+    end
+end
+
+% %     %% ---- 8. Pairwise tests + significance bars ----
+% %     for c = 1:size(combos,1)
+% %         pair_data = [squeeze(specified_mean_all(combos(c,1),:)); ...
+% %                      squeeze(specified_mean_all(combos(c,2),:))];
+% % 
+% %         [pval, observeddifference, effectsize] = ...
+% %             permutationTest(pair_data(1,:), pair_data(2,:), 10000);
+% % 
+% %         plot_data{t,c}              = pval;
+% %         plot_data{length(tw)+2, c}  = combos(c,:);
+% %         svm_box_stats.observeddifference{t,c} = observeddifference;
+% %         svm_box_stats.effectsize{t,c}        = effectsize;
+% %         svm_box_stats.pval{t,c}              = pval;
+% %         svm_box_stats.combo{c}               = combos(c,:);
+% % 
+% %         x_line_vals = x_seq(combos(c,:)); % relative offsets
+% % 
+% %         if pval < 0.05/length(combos)
+% %             sig_ct = sig_ct + 1;
+% % 
+% %             % fixed y-position for this significance bar
+% %             sig_y = sig_positions(sig_ct);
+% % 
+% %             utils.plot_pval_star(t, sig_y, pval, x_line_vals, 0.01);
+% %         end
+% %     end
 end
 
 %% ---- 9. Real vs shuffle per celltype ----
@@ -374,12 +443,12 @@ svm_box_stats.KW     = KW_Test;
 
 if ~isempty(save_path)
     mkdir(save_path )
-    cd(save_path)
+%     cd(save_path)
 % %     saveas(101,strcat('boxplot_svm_alldatasets_',num2str(size(svm_mat,1)),save_str,'_bins',num2str(specified_window),'.svg'));
 %     saveas(101,strcat('boxplot_svm_alldatasets_',num2str(size(svm_mat,1)),save_str,'_bins',num2str(specified_window),'.png'));
-    exportgraphics(gcf,strcat('boxplot_svm_alldatasets_',num2str(size(svm_mat,1)),save_str,'_bins',num2str(specified_window),'.pdf'), 'ContentType', 'vector');
+    exportgraphics(gcf,fullfile(save_path,strcat('boxplot_svm_alldatasets_',num2str(size(svm_mat,1)),save_str,'_bins',num2str(specified_window),'.pdf')), 'ContentType', 'vector');
     string_to_save = strcat('boxplot_svm_alldatasets_',num2str(size(svm_mat,1)),save_str,'_bins',num2str(specified_window),'.mat');
-    save(string_to_save,"svm_box_stats");
+    save(fullfile(save_path,string_to_save),"svm_box_stats");
 
     table_fig2 = struct2table_recursive(unwrap_cells_in_struct(svm_box_stats),'',{'bootstat'});
     save(fullfile(save_path, strcat('table_fig2_bins',num2str(specified_window),'.mat')), 'table_fig2');
