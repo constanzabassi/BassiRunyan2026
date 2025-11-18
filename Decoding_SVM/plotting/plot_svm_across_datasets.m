@@ -96,7 +96,7 @@ end
 ylabel({'% Accuracy'})
 % xlabel('Time (s)')
 xlim([1 size(overall_mean,2)])
-[second_ticks,second_labels] = x_axis_sec_onset(mdl_param);
+[second_ticks,second_labels] = utils.x_axis_sec_onset(mdl_param);
 xticks([second_ticks]);
 xticklabels(second_labels);
 if ~isempty(minmax)

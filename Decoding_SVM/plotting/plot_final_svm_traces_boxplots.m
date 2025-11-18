@@ -1,6 +1,4 @@
-function plot_final_svm_traces_boxplots(version,event_type,do_passive,savepath)
-addpath(genpath('C:\Code\Github\behavior-analysis2\classifier'))
-addpath(genpath('C:\Code\Github\behavior-analysis2'))
+function plot_final_svm_traces_boxplots(version,event_type,do_passive,savepath,stim_ctrl_label)
 
 load('V:\Connie\results\opto_2024\context\data_info\info.mat');
 info.task_event_type = event_type;
@@ -30,7 +28,7 @@ if strcmp(version,'full') || strcmp(version,'nmatch') && do_passive == 0
     celltype_peak_comparison = 1; %which celltype max peak location to use (1 = pyr, 2 = som, 3 = pv, 4 = all, 5 = top pyr)
     wrapper_plot_accuracy_boxplots(svm_mat, svm_mat2,event_onsets, mdl_param, savepath, event_onsets(onset_id),bins_to_include,celltype_peak_comparison, [.45,.90]);
     wrapper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string, savepath, [.45,.85],svm_mat2,event_onsets);
-elseif strcmp(version,'nmatch') || do_passive == 1
+elseif strcmp(version,'nmatch') && do_passive == 1
     celltypes_to_comp = [4]; 
     celltype_peak_comparison = 1;
     save_string = info.task_event_type;
@@ -43,8 +41,8 @@ elseif strcmp(version,'stimctrl')
     % Boxplot of mean across datasets
     celltypes_to_comp = [4,5]; %(1 = pyr, 2 = som, 3 = pv, 4 = all, 5 = top pyr)
     celltype_peak_comparison = 1; %[concatenated 1,concatenated 2,concatenated 1 passive,concatenated 2 passive];
-    acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat, mdl_param, [save_string 'stimctrl_act'],savepath, [.45,.85],svm_mat2,event_onsets, celltypes_to_comp,celltype_peak_comparison, {'Stim','Ctrl'});
-    acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat_pass, mdl_param, [save_string 'stimctrl_pass'],savepath, [.45,.85],svm_mat_pass_ctrl,event_onsets, celltypes_to_comp,celltype_peak_comparison, {'Stim (P)','Ctrl (P)'});
+    acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat, mdl_param, [save_string 'stimctrl_act'],savepath, [.45,.85],svm_mat2,event_onsets, celltypes_to_comp,celltype_peak_comparison, stim_ctrl_label);
+    acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat_pass, mdl_param, [save_string 'stimctrl_pass'],savepath, [.45,.85],svm_mat_pass_ctrl,event_onsets, celltypes_to_comp,celltype_peak_comparison, stim_ctrl_label);
 %     acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat, mdl_param, [save_string 'actpass_stim'],savepath, [.45,.85],svm_mat_pass,event_onsets, celltypes_to_comp,celltype_peak_comparison);
 %     acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat2, mdl_param, [save_string 'actpass_ctrl'],savepath, [.45,.85],svm_mat_pass_ctrl,event_onsets, celltypes_to_comp,celltype_peak_comparison,{'Active Ctrl','Passive Ctrl'});
 
