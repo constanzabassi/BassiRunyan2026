@@ -42,7 +42,7 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
     for con = 1:length(alignment.conditions)
         figure(90); clf; hold on; colormap(viridis);
         t = tiledlayout(4,1,"TileSpacing","tight");
-        set(gcf,'Units','points','Position',[100 100 170 216]);
+        set(gcf,'Units','points','Position',plot_info.position); %[100 100 170 216]
         for ce = 1:ncelltypes
             celltype_all = alignment.cells(ce,:);
             mouse_data     = {};
@@ -114,7 +114,11 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
             end
             set(gca, 'box','off','xtick',[]);
             %add color bar
-            cb = add_skinny_colorbar(ax, 6, 0.3,0.2,0.06);
+            if active_passive == 2
+                cb = add_skinny_colorbar(ax, 6, 0.3,0.35,0.06);
+            else
+                cb = add_skinny_colorbar(ax, 6, 0.3,0.16,0.06);
+            end
             ylabel(alignment.title{ce},'FontSize',7);
             ax.Tag = sprintf('heat_ax_%d', ce);
         end
@@ -133,10 +137,21 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
         
         if strcmp(all_conditions{1, 3},'Control') && con == 1
             set(gca,'xtick', adjusted_event_onsets, 'xticklabel', plot_info.xlabel_events, 'xticklabelrotation',45);
+            
         else
             set(gca,'xtick', adjusted_event_onsets, 'xticklabel', plot_info.xlabel_events_stim_sound, 'xticklabelrotation',45);
+           
         end
-        addScaleBar(gca, 30, "1 sec")
+        
+        if active_passive == 2
+            plot_info.position = plot_info.position;
+            plot_info.position(2) = plot_info.position(2)*1.05;
+            plot_info.position(4) = plot_info.position(4) + (plot_info.position(2)*1.05 - plot_info.position(2));
+            set(gcf,'Units','points','Position',plot_info.position); %increase size bc of xtick labels are longer
+            addScaleBar(gca, 30, "1 sec",[],[],'LabelAlignment','right');
+        else
+            addScaleBar(gca, 30, "1 sec")
+        end
 
         %adjust previous plots
         adjust_y_label_position(4,1:3,10);

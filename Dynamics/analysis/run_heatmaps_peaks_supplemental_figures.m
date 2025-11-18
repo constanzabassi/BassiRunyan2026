@@ -16,15 +16,15 @@ load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separat
 load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\sig_mod_boot_thr.mat');
 
 %% HEATMAPS SORTED BY SPONT!!
-    save_path = 'W:/Connie/results/Bassi2025/fig3/avg_heatmap_across_entire_trial_stretched/';
-    load('V:\Connie\results\opto_sound_2025\context\mod\prepost\separate\sig_mod_boot_thr.mat');% get spontaneously defined modulated neurons
-    
-    load('V:\Connie\results\opto_sound_2025\context\data_info\context_data.mat'); %to plot spont context
+save_path = 'W:/Connie/results/Bassi2025/fig3/avg_heatmap_across_entire_trial_stretched_updated/';
+load('V:\Connie\results\opto_sound_2025\context\mod\prepost\separate\sig_mod_boot_thr.mat');% get spontaneously defined modulated neurons
+
+load('V:\Connie\results\opto_sound_2025\context\data_info\context_data.mat'); %to plot spont context
 % sorting_id_updated_datasets = get_sorting_indices_only(imaging_st, alignment, bin_size, sig_mod_boot, 0)
 plot_info.position = [100,100,131,155];
 sig_mod_boot = sig_mod_boot_thr(:,3);
 % [~,sorting_id_updated_datasets] = heatmaps_avg_combined_selected_cells_spont (context_data, plot_info,alignment,[],[save_path],1, sig_mod_boot,0);
-avg_across_datasets = 0; do_plot = 0; 
+avg_across_datasets = 0; do_plot = 1; 
 [~,sorting_id_updated_datasets] = heatmaps_avg_combined_selected_cells_spont_refactored( ...
         context_data, plot_info, alignment, [], ...
         save_path, [], sig_mod_boot, ...
@@ -39,7 +39,7 @@ alignment.number = [1:3]; %'reward','turn','stimulus'
 alignment.type = 'stimulus';        plot_info.position = [100,100,112,155];
 heatmaps_avg_combined_selected_cells_refactored (imaging_passive,plot_info,alignment,sorting_id_updated_datasets(2,:),[save_path  'photostim' '/sorted/passive/'],bin_size, sig_mod_boot,0,2);
 % 
-%% now do SOUNDS!
+% now do SOUNDS!
 load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\mod_indexm.mat');
 load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\sig_mod_boot.mat');
 load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\sig_mod_boot_thr.mat');
@@ -86,7 +86,7 @@ i
         %do passive
         alignment.number = [1:3]; %'reward','turn','stimulus'
         alignment.type = 'stimulus';
-        plot_info.position = [100,100,112,155];
+        plot_info.position = [100,100,117,145]; %had to adjust y for this because 
         heatmaps_avg_combined_selected_cells_refactored (imaging_passive,plot_info,alignment,sound_sorting(1,:),[save_path mod_params_plots.savestring '/passive/'],bin_size, sig_cells,0,2);
 end
 

@@ -18,24 +18,30 @@ function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
 %       - x_length is respected in data units.
 
 
-        % --- Detect LabelAlignment in varargin ---
+    % --- Detect LabelAlignment in varargin ---
     align = 'center';  % default
     idx = find(strcmpi(varargin, 'LabelAlignment'));
     if ~isempty(idx)
-        align = varargin{idx+1};       % <-- use user input
-        varargin(idx:idx+1) = [];      % <-- remove it so leftover args go to line properties
+        align = varargin{idx+1};
+        % Remove the two entries ('LabelAlignment', value)
+        varargin(idx:idx+1) = [];
     end
-    
-    % --- Parse remaining args (ONLY line properties) ---
+
     p = inputParser;
+    addParameter(p, 'LabelAlignment', 'center');  % NEW OPTION
     addParameter(p, 'Color', 'k');
     addParameter(p, 'LineWidth', .8);
     parse(p, varargin{:});
-    
-    % Extract line properties
+    align = p.Results.LabelAlignment;
+
+    % Line style NV pairs (exclude LabelAlignment)
     lineArgs = {};
-    lineArgs = [lineArgs {'Color', p.Results.Color}];
-    lineArgs = [lineArgs {'LineWidth', p.Results.LineWidth}];
+    if isfield(p.Results, 'Color')
+        lineArgs = [lineArgs {'Color', p.Results.Color}];
+    end
+    if isfield(p.Results, 'LineWidth')
+        lineArgs = [lineArgs {'LineWidth', p.Results.LineWidth}];
+    end
     
     fig = ancestor(ax,'figure');
     delete(findall(gcf, 'Type', 'annotation'));
@@ -65,8 +71,8 @@ function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
     x_start_fig = ax_pos(1) + x_start_frac * ax_pos(3);
     x_end_fig   = ax_pos(1) + x_end_frac   * ax_pos(3);
     % Vertical positions: just below the axis (same idea as before)
-    bar_y_fig   = ax_pos(2) - 0.075*ax_pos(4);   % 5% of axis height below
-    label_y_fig = bar_y_fig - 0.0175*ax_pos(4);   % a bit below the bar
+    bar_y_fig   = ax_pos(2) - 0.05*ax_pos(4);   % 5% of axis height below
+    label_y_fig = bar_y_fig - 0.015*ax_pos(4);   % a bit below the bar
     % --- 3) Small safety clamp to keep everything in [0,1] ---
     x_start_fig = max(0, min(1, x_start_fig));
     x_end_fig   = max(0, min(1, x_end_fig));
@@ -85,9 +91,9 @@ function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
     switch lower(align)
         case 'center'   % current behavior
             x_box = x_center_fig - box_width/2;
-        case 'right'     % text starts at the center
+        case 'left'     % text starts at the center
             x_box = x_center_fig;
-        case 'left'    % text ends at the center
+        case 'right'    % text ends at the center
             x_box = x_center_fig - box_width;
     end
 

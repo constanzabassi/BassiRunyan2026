@@ -1,7 +1,7 @@
 %% compare cellypes during active context
 event_names = {'sound_category','choice','outcome'};
 do_passive = 0;
-for event = 2:length(event_names)
+for event = 1:length(event_names)
     %full population plots
     
     savepath = ['W:\Connie\results\Bassi2025\fig2\SVM_1\full_population\' event_names{event} '\']; 

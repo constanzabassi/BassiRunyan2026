@@ -111,9 +111,9 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
                 ax = nexttile(ce); hold on;
 
                 if isempty(sorting_id)
-                    make_heatmap_sorted(out_data, plot_info, sorting_id_updated, adjusted_event_onsets);
+                    make_heatmap_sorted_task(out_data, plot_info, sorting_id_updated, adjusted_event_onsets);
                 else
-                    make_heatmap_sorted(out_data, plot_info, sorting_id{ce}, adjusted_event_onsets);
+                    make_heatmap_sorted_task(out_data, plot_info, sorting_id{ce}, adjusted_event_onsets);
                 end
 
                 set(gca, 'box', 'off', 'xtick', []);
