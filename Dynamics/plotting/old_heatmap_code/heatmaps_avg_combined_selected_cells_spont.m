@@ -1,10 +1,10 @@
 function [mouse_data_conditions,sorting_id_updated_datasets] = heatmaps_avg_combined_selected_cells_spont (context_data, plot_info,alignment,sorting_id,save_data_directory,bin_size,sig_mod_boot,avg_across_datasets )
 %% create grand avg plot!
 adjusted_event_onsets = 61;
-
+ncelltypes = size(alignment.cells,1);
 possible_conditions =  fields(context_data.dff{1,1});
-for conditions = 1:2
-    for celltypes = 1:3
+for conditions = 1:2 %stim/ctrl
+    for celltypes = 1:ncelltypes
         celltype = {alignment.cells{celltypes,:}};
         temp = [];
         for dataset = 1:length(sig_mod_boot)
@@ -28,7 +28,7 @@ if length(alignment.conditions) >= 1
         % Create a tiled layout
         t = tiledlayout(4,1,"TileSpacing","tight")
         set(gcf,'Units','points','Position',[100 100 170 216])
-        for ce = 1:3
+        for ce = 1:ncelltypes
             %Initialize variables
             celltype = {alignment.cells{ce,:}};
             mouse_data ={}; mouse_data_conditions ={};mouse_data_sort = {};
@@ -124,7 +124,7 @@ if length(alignment.conditions) >= 1
                 % Fourth tile: average trace plot for this condition
             ax = nexttile(4);  % tile 4 in this condition figure
             hold on
-            for ce = 1:3
+            for ce = 1:ncelltypes
                 if  avg_across_datasets == 0
                     data = mean_mouse_data_celltypes{ce};  % shape: [mice × time]
                     SEM = std(data, 'omitnan') / sqrt(size(data,1));
@@ -173,7 +173,7 @@ else
         t = tiledlayout(4,1,"TileSpacing","tight")
         set(gcf,'Units','points','Position',[100 100 170 216])
     
-        for ce = 1:3
+        for ce = 1:ncelltypes
         %find infor for each mouse and combine it
             for dataset = 1:length(sig_mod_boot)
                 c = alignment.conditions(con);

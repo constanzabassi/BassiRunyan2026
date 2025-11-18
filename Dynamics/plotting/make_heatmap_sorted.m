@@ -1,4 +1,4 @@
-function make_heatmap_sorted(data,plot_info,sorting_ids,varargin)
+function make_heatmap_sorted_task(data,plot_info,sorting_ids,varargin)
 
 data1= squeeze(data);
 

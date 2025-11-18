@@ -62,7 +62,7 @@ alignment.data_type = alignment_data_type_original;
 [binned_data_all, adjusted_onsets_bin, nan_pos_bin, num_nans, binss] = ...
     compute_grand_average_bins(imaging_st, alignment, bin_size, []);
 ax = nexttile(4);
-plot_grand_average(ax, binned_data_all, plot_info, adjusted_onsets_bin, nan_pos_bin, num_nans, [1 length(binss)]);
+plot_grand_average(ax, binned_data_all, plot_info, adjusted_onsets_bin, nan_pos_bin, num_nans, [1 length(binss)],alignment);
 set(gca,'xtick',adjusted_onsets_bin,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
 utils.set_current_fig(7);
 addScaleBar(gca, 30, "1 sec")

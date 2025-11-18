@@ -1,4 +1,4 @@
-function [info, alignment, plot_info, bin_size,imaging_st,all_celltypes] = get_alignment_config_dynamics(save_path, original_base_path, plot_info)
+function [info, alignment, plot_info, bin_size,imaging_st,all_celltypes,imaging_passive] = get_alignment_config_dynamics(save_path, original_base_path, plot_info, passive_path)
 %GET_ALIGNMENT_CONFIG  Configuration setup for alignment and plotting.
 %
 %   [info, alignment, plot_info, bin_size] = GET_ALIGNMENT_CONFIG()
@@ -6,10 +6,15 @@ function [info, alignment, plot_info, bin_size,imaging_st,all_celltypes] = get_a
 %   Loads data info, imaging data, and cell type definitions, then
 %   defines alignment and plotting parameters for analysis.
 
+    imaging_passive = [];
     % ---------- Load Data ----------
     load(strcat(original_base_path,'\info.mat'), 'info');
     load(strcat(original_base_path,'\imaging_st.mat'), 'imaging_st');
     load(strcat(original_base_path,'\all_celltypes.mat'), 'all_celltypes');
+
+    if ~isempty(passive_path)
+        imaging_passive = load(strcat(passive_path,'\imaging_st.mat'), 'imaging_st').imaging_st;
+    end
 
     % ---------- General Save Path ----------
     info.savepath = save_path;
@@ -35,6 +40,8 @@ function [info, alignment, plot_info, bin_size,imaging_st,all_celltypes] = get_a
     plot_info.sorting_type = 1;
     plot_info.ylabel = 'Frames';
     plot_info.xlabel_events = {'S1','S2','S3','turn','reward','ITI'};
+    plot_info.xlabel_events_stim_sound = {'S1 + Stim','S2','S3','turn','reward','ITI'};
+    plot_info.xlabel_events_spont = {'Stim','0mW LED'}; 
     plot_info.max_decimal_value = 1000; %largest decimal showing to align y labels by
     
     % Note: define plot_info.colors_celltypes before using this function

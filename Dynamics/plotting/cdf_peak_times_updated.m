@@ -137,15 +137,14 @@ if n_events>4
 else
     adjusted_event_onsets = dynamics_info.original_onsets;
 end
-new_onsets = find(histcounts(adjusted_event_onsets,dynamics_info.binns));
+new_onsets = find(histcounts(adjusted_event_onsets,dynamics_info.binss));
 set(gca,'xtick',new_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
 % set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', [1,1,1.2,1.2]);
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', [1,1,1.2*2,1.2]);
 
 
 % set(gcf,'position',[100,100,175,178])
-% utils.set_current_fig;
-set(gca,'FontSize',7);
+utils.set_current_fig(7);addScaleBar(gca, 30, "1 sec")
 
 % Add significance test...
 %permutation test
@@ -203,7 +202,6 @@ xlim([1 binss(end)]);
 set(gca,'xtick',dynamics_info.new_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
 set(gcf,'position',[100,100,250,250])
 utils.set_current_fig;
-set(gca,'FontSize',7);
 
 %histogram without shaded error bar
 figure(64); clf; hold on;
@@ -226,7 +224,7 @@ xlim([1 binss(end)]);
 set(gca,'xtick',dynamics_info.new_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
 set(gcf,'position',[100,100,250,250])
 utils.set_current_fig;
-set(gca,'FontSize',7);
+
 
 % %% === NEW FIGURE for BOX PLOTS of peak times per event ===
 % % === FRACTION OF NEURONS WITH PEAKS IN EACH EVENT WINDOW (for boxplot) ===
@@ -300,7 +298,7 @@ ylabel({'Fraction of Neurons Peaking'}) %Fraction of Neurons with Peak Activity%
 xlim([0.5 n_events + 0.5])
 set(gcf,'position',[100,100,250,250])
 box off
-utils.set_current_fig(10);
+utils.set_current_fig;
 
 
 figure(78); clf; hold on;
@@ -365,7 +363,7 @@ ylim([0,.55])
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', [1,1,1.25,1.2]);
 % set(gcf,'position',[100,100,250,250])
 box off
-% utils.set_current_fig(10);
+utils.set_current_fig(7);
 
 
 figure(79); clf; hold on;
@@ -435,7 +433,7 @@ ylim([0,.55])
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', [1,1,1.25,1.2]);
 % set(gcf,'position',[100,100,250,250])
 box off
-
+utils.set_current_fig(7);
 
 
 % save if needed
@@ -462,7 +460,8 @@ if ~isempty(info)
     exportgraphics(figure(79),fullfile(info.savepath, 'frc_dynamics/',sprintf('smaller_barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
 
     set(gca(figure(62)),  'Units', 'inches', 'Position', [1,1,1.25,1.2]); %.81 = height of 1.125
-    adjusted_event_onsets(4) = adjusted_event_onsets(4)-5;
+    adjusted_event_onsets(4) = adjusted_event_onsets(4)-5;addScaleBar(gca, 30, "1 sec")
+    addScaleBar(gca, 30, "1 sec")
     set(gca,'xtick',adjusted_event_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
 
     exportgraphics(figure(62),fullfile(info.savepath, 'frc_dynamics/',sprintf('smaller_cdf_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')

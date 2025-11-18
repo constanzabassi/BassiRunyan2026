@@ -1,4 +1,4 @@
-function [mouse_data_conditions, sorting_id_updated_datasets] = ...
+function [mouse_data_conditions, sorting_id_updated_datasets,mean_mouse_data_celltypes] = ...
     heatmaps_avg_combined_selected_cells_refactored(imaging_st, plot_info, alignment, sorting_id, save_data_directory, bin_size, sig_mod_boot, avg_across_datasets, active_passive)
 % Selected-cells version:
 %   - alignment.cells{ce,m} still gives the "pool" per cell type × mouse,
@@ -21,6 +21,7 @@ aligned0 = align_behavior_data(imaging_st{1,1}, ai0, af0, lp0, rp0, alignment, 1
 binss = 1:bin_size:(size(aligned0,3)-bin_size);
 event_onsets = determine_onsets(lp0, rp0, alignment.number);
 num_nans = 2;
+ncelltypes = size(alignment.cells,1);
 if numel(event_onsets) > 4
     adjusted_event_onsets = find(histcounts(event_onsets, binss));
     nan_insert_positions  = find(histcounts(101, binss));
@@ -35,12 +36,14 @@ end
 % ==== Build the heatmaps per condition ====
 sorting_id_updated_datasets = {};
 mouse_data_conditions = {};
+alignment.original_data_type =  alignment.data_type;
+alignment.data_type = 'z_dff';
 if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
     for con = 1:length(alignment.conditions)
         figure(90); clf; hold on; colormap(viridis);
         t = tiledlayout(4,1,"TileSpacing","tight");
         set(gcf,'Units','points','Position',[100 100 170 216]);
-        for ce = 1:3
+        for ce = 1:ncelltypes
             celltype_all = alignment.cells(ce,:);
             mouse_data     = {};
             mouse_data_sort= {};
@@ -92,46 +95,52 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
                 [~, sorting_id_updated] = sort(pk, 'ascend');
             end
             sorting_id_updated_datasets{con, ce} = sorting_id_updated;
+
+            %make plot
             ax = nexttile(ce); hold on;
+             data_to_plot =out_plot;
+            [data_to_plot, adjusted_onsets] = prepare_heatmap_data(data_to_plot, lp, rp, alignment.number);
+            event_onsets = determine_onsets(lp, rp, alignment.number);
+            if isempty(event_onsets), alignment_event_onset = 1; else, alignment_event_onset = adjusted_onsets; end
+            ax = nexttile(ce);
             if isempty(sorting_id)
-                make_heatmap_sorted(out_plot, plot_info, sorting_id_updated, adjusted_event_onsets); % using adjusted onsets from binned space
+                plot_heatmap_celltype(ax, data_to_plot, plot_info, sorting_id_updated, alignment_event_onset, adjusted_onsets);
             else
-                make_heatmap_sorted(out_plot, plot_info, sorting_id{ce}, adjusted_event_onsets);
+                plot_heatmap_celltype(ax, data_to_plot, plot_info, sorting_id{ce}, alignment_event_onset, adjusted_onsets);
             end
-            if length(alignment_event_onset)>4
+
+            if length(adjusted_event_onsets)>4
                 add_vertical_line_reward(ax,[adjusted_event_onsets(5)-1,adjusted_event_onsets(5)]);
             end
             set(gca, 'box','off','xtick',[]);
-            ylabel(alignment.title{ce});
             %add color bar
-            cb = add_skinny_colorbar(ax, 6, 0.3,0.05);
-            ylabel(alignment.title{ce});
-            %move y label to be aligned with first label
-            if size(data_to_plot,1) < plot_info.max_decimal_value
-                current_y_pos = ax.YLabel.Position;
-                ax.YLabel.Position = [-25.304563660938243, current_y_pos(2), current_y_pos(3)];
-            end
-            utils.set_current_fig(7);
+            cb = add_skinny_colorbar(ax, 6, 0.3,0.2,0.06);
+            ylabel(alignment.title{ce},'FontSize',7);
+            ax.Tag = sprintf('heat_ax_%d', ce);
         end
         % bottom tile: average trace for this condition
-        ax = nexttile(4); hold on;
-        for ce = 1:3
-            if avg_across_datasets == 0
-                data = mean_mouse_data_celltypes{ce}; % neurons×time concatenated across mice
-                % If you want mice×time, you’d need to stack per-mouse means separately.
-                % Here we just treat neurons as samples for visualization (same as your spont file’s approach).
-                mu  = mean(data, 1, 'omitnan');
-                sem = std(data, 0, 1, 'omitnan') ./ sqrt(size(data,1));
-                shadedErrorBar(1:size(data,2), mu, sem, ...
-                    'lineProps', {'color', plot_info.colors_celltype(ce,:), 'LineWidth',1.2});
-            else
-                % if you want strict mice×time SEM, compute via compute_grand_average_bins with selected-cells logic
-                warning('avg_across_datasets==1 path not implemented here; set to 0 or add a compute_grand_average_bins_selected.');
-            end
+        alignment.data_type = alignment.original_data_type;  
+        ax = nexttile(4); 
+        ax.Tag = sprintf('heat_ax_%d', 4);
+        hold on;
+
+         for ce = 1:ncelltypes
+             mean_mouse_data_celltypes{ce} = compute_avg_across_neurons_and_alignment(imaging_st, sig_mod_boot, con, alignment,{alignment.cells{ce,:}},active_passive,avg_across_datasets);
         end
-        set(gca,'xtick', adjusted_event_onsets, 'xticklabel', plot_info.xlabel_events, 'xticklabelrotation',45);
-        ylabel({'Mean';'activity'}); set(gca,'box','off'); utils.set_current_fig(7);
+        
+        if size(mean_mouse_data_celltypes{1},2) > nan_insert_positions;xlims = [1,size(mean_mouse_data_celltypes{1},2)+ length(nan_insert_positions)];else xlims = [1,size(mean_mouse_data_celltypes{1},2)];end
+        plot_grand_average(ax, mean_mouse_data_celltypes, plot_info, adjusted_event_onsets, nan_insert_positions, num_nans, xlims,alignment);
+        
+        if strcmp(all_conditions{1, 3},'Control') && con == 1
+            set(gca,'xtick', adjusted_event_onsets, 'xticklabel', plot_info.xlabel_events, 'xticklabelrotation',45);
+        else
+            set(gca,'xtick', adjusted_event_onsets, 'xticklabel', plot_info.xlabel_events_stim_sound, 'xticklabelrotation',45);
+        end
         addScaleBar(gca, 30, "1 sec")
+
+        %adjust previous plots
+        adjust_y_label_position(4,1:3,10);
+
         hold off;
         if ~isempty(save_data_directory)
             mkdir(save_data_directory);
@@ -139,10 +148,7 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
             exportgraphics(figure(90), fullfile(save_data_directory, [image_string '.pdf']), 'ContentType','vector');
         end
     end
-else
-    % no-conditions path can mirror above but concatenating all trials; omitted for brevity
-    warning('No-conditions path in selected-cells refactor is not implemented in this snippet.');
-end
+
 end
 % function [mouse_data_conditions, sorting_id_updated_datasets] = ...
 %     heatmaps_avg_combined_selected_cells_refactored(imaging_st, plot_info, alignment, sorting_id, save_data_directory, bin_size, sig_mod_boot, avg_across_datasets, active_passive)

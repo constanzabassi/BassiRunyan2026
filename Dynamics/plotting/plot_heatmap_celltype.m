@@ -4,7 +4,7 @@ axes(ax); hold(ax,'on');
 if isempty(sorting_id)
     make_heatmap(data_to_plot, plot_info, alignment_event_onset, adjusted_onsets);
 else
-    make_heatmap_sorted(data_to_plot, plot_info, sorting_id, alignment_event_onset);
+    make_heatmap_sorted_task(data_to_plot, plot_info, sorting_id, alignment_event_onset);
 end
 set(ax,'box','off','xtick',[]);
 utils.set_current_fig(7);

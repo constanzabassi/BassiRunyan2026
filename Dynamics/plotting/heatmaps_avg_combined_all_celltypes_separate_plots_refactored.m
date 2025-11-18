@@ -1,4 +1,4 @@
-function mouse_data_conditions = heatmaps_avg_combined_all_celltypes_separate_plots_refactored( ...
+function heatmaps_avg_combined_all_celltypes_separate_plots_refactored( ...
         imaging_st, plot_info, alignment, sorting_id, save_data_directory, bin_size)
 % Two separate figures:
 %   - Figure 90: 3 heatmaps (z_dff), tiled 3×1
@@ -15,7 +15,7 @@ alignment.data_type = 'z_dff';
 num_celltypes = 3;
 num_mice = size(imaging_st,2);
 num_nans = 2;
-last_left_pad = []; last_right_pad = [];
+last_left_pad = []; last_right_pad = [];ct = 0.03;
 for ce = 1:num_celltypes
     celltype_list = alignment.cells(ce,:);
     all_plot_data = cell(num_mice,1);
@@ -40,9 +40,10 @@ for ce = 1:num_celltypes
     end
     ylabel(alignment.title{ce});
     %add color bar
-    cb = add_skinny_colorbar(ax, 6, 0.3,0.15,0.05);
+%     cb = add_skinny_colorbar(ax, 6, 0.3,.16,.06); %.16,06 looks good but cut off
+    cb = add_skinny_colorbar2(ax, 6, 0.25,.205,ct,.05);
     ylabel(alignment.title{ce});
-
+    ct = ct+0.05;
     %move y label to be aligned with first label
     if ce == 1; yposition = ax.YLabel.Position(1);end %assuming pyr first!
     if size(data_to_plot,1) < plot_info.max_decimal_value %adjust plots so they align to the ylabel of the one showing most decimal
@@ -62,7 +63,7 @@ alignment.data_type = alignment_data_type_original;
     compute_grand_average_bins(imaging_st, alignment, bin_size, []);
 figure(91); clf;
 ax = axes;
-plot_grand_average(ax, binned_data_all, plot_info, adjusted_onsets_bin, nan_pos_bin, num_nans, [1 length(binss)]);
+plot_grand_average(ax, binned_data_all, plot_info, adjusted_onsets_bin, nan_pos_bin, num_nans, [1 length(binss)],alignment);
 if strcmp(alignment.data_type,'z_dff')
     ylabel({'Mean activity (z-scored)'},'FontSize', 7);
 end
