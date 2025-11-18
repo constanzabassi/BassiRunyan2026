@@ -25,7 +25,11 @@ function cb = add_skinny_colorbar(ax, fontsize, width_frac, lateral_sum, varargi
     % Make colorbar skinny
     ax_pos = get(ax,'Position');
     cb_pos = cb.Position;
-    cb_pos(3) = cb_pos(3) * width_frac;  % narrow width (0.3)
+    if isempty(width_frac)
+        cb_pos(3) = 0.0167; %default width
+    else
+        cb_pos(3) = cb_pos(3) * width_frac;  % narrow width (0.3)
+    end
 
     % Move colorbar closer and slightly resize vertically
 %     cb_pos(1) = cb_pos(1) + lateral_sum; %0.1
