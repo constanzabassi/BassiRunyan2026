@@ -33,10 +33,11 @@ xticks(1:3)
 xticklabels(labels)
 
 % Beautify axes
-set(gca, 'TickDir', 'out', 'Box', 'off', 'FontSize', 10)
+set(gca, 'TickDir', 'out', 'Box', 'off', 'FontSize', 7)
 ylim([0.7 1])
 pbaspect([1 1 1])
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
+utils.set_current_fig;
 
 if ~isempty(save_dir)
     mkdir([save_dir])

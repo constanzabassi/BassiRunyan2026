@@ -59,11 +59,7 @@ ylabel('Mean Projection');
 % legend({'Context 1', 'Context 2'});
 % title('Mean ± SEM of Sound Projection by Context');
 % Get current axis limits
-if strcmpi(axis_type,'context')
-    utils.place_text_labels(fliplr(legend_string), colorss([2 1], :),0.3, 6,'bottomright', 0.2, 0.1); %,'bottomright', [], 0.2
-else
-    utils.place_text_labels(fliplr(legend_string), colorss([2 1], :),0.15, 6,'bottomright', 0.2, 0.1); %,'bottomright', [], 0.2
-end
+utils.place_text_labels(fliplr(legend_string), colorss([2 1], :),0, 6); %,'bottomright', [], 0.2
 % % x_range = xlim;
 % % y_range = ylim;
 % % y_offset_base = .1;

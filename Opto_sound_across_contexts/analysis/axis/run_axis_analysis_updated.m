@@ -16,9 +16,9 @@ save_dir2 = 'W:\Connie\results\Bassi2025\fig5\updated_4cv_combined_eng\';%'V:\Co
 
 %% plot mean projection traces across datasets (finds means across splits first
 celltype = 4; %4 = all
-plot_proj_meansplits_traces([1:24],proj_norm_ctrl, 'sound',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir);
-plot_proj_meansplits_traces([1:24],proj_norm_ctrl, 'context',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir);
-plot_proj_meansplits_traces([1:24],proj_norm, 'stim',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir);
+plot_proj_meansplits_traces([1:24],proj_norm_ctrl, 'sound',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from sound onset (s)');
+plot_proj_meansplits_traces([1:24],proj_norm_ctrl, 'context',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stimulus onset (s)');
+plot_proj_meansplits_traces([1:24],proj_norm, 'stim',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir,'xlabel','Time from stim onset (s)');
 
 % plot_proj_mean_traces([1:24],squeeze(proj_ctrl(1,:,:,:)), 'sound',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},save_dir);
 

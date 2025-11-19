@@ -74,7 +74,7 @@ y_offsets = linspace(0, 0.1 * (num_labels - 1), num_labels); % Adjusted scaling
 % Place text labels
 for i = 1:num_labels
     text(text_x, text_y - y_offsets(i) * diff(y_range), legend_string{i}, ...
-         'Color',colorss(i,:), 'FontSize', 7);
+         'Color',colorss(i,:), 'FontSize', 6);
 end
 
 % Perform a permutation test to compare differences against zero
