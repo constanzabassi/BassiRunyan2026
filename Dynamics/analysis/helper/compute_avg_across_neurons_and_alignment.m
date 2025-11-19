@@ -15,9 +15,10 @@ for dataset = 1:length(sig_mod_boot)
     end
     aligned_imaging = align_behavior_data(imaging, ai, af, lp, rp, alignment, sel_cells);
 
-                                            
+    %get trials in this condition                        
+    trials_all = all_conditions{con,1}
     % Save trials used for sorting separately (for each mouse and con)
-    mouse_data{dataset,con} = aligned_imaging;
+    mouse_data{dataset,con} = aligned_imaging(trials_all,:,:);
 end
 
 mean_mouse_data = {}; 

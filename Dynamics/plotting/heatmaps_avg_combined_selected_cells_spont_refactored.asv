@@ -37,7 +37,8 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
         % (removed: hold on here – we'll hold per-axes where needed)
 
         % Keep your fixed figure size
-        set(f,'Units','points','Position',plot_info.position); %[100 100 170 216]
+%         set(f,'Units','points','Position',plot_info.position); %[100 100 170 216]
+        set(f,'Units','points','Position',[100 100 170 216]);
         %%% CHANGED: create 4 equal axes based on the figure size
         ax_all = equalSubplotsFromFigure(f, 4, 1);
         pos_all = zeros(numel(ax_all),4);
@@ -119,19 +120,19 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
             if do_plot
                 ax = ax_all(ce); %ax = nexttile(ce); 
                 hold on;
-                axes(ax); hold(ax,'on');
+
                 if isempty(sorting_id)
                     make_heatmap_sorted_task(out_data, plot_info, sorting_id_updated, adjusted_event_onsets);
                 else
                     make_heatmap_sorted_task(out_data, plot_info, sorting_id{ce}, adjusted_event_onsets);
                 end
 
-                set(ax, 'box', 'off', 'xtick', []);
-                set(ax,'fontsize', 7,'FontName','Arial');
+                set(gca, 'box', 'off', 'xtick', []);
+                set(gca,'fontsize', 7,'FontName','Arial');
                 ylabel({alignment.title{ce}});
 
                 % colorbar styling (your original)
-                cb = add_skinny_colorbar(ax, 6, [],.05);
+                cb = add_skinny_colorbar(ax, 6, [],.2,0.05);
 %                 cb = colorbar(ax, 'eastoutside');
 %                 cb.FontSize = 6;
 % 
@@ -177,7 +178,7 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
                 'xticklabel', plot_info.xlabel_events_spont{con}, 'xticklabelrotation', 45);
 
             set(gcf,'Units','points','Position',plot_info.position);
-            addScaleBar(gca, 30, "1 s")
+            addScaleBar(gca, 30, "1 sec")
 
             %adjust previous plots
             adjust_y_label_position(4,1:3,10);
@@ -304,7 +305,7 @@ else
                 'xticklabel', plot_info.xlabel_events_spont{con}, 'xticklabelrotation', 45);
 
             set(gcf,'Units','points','Position',plot_info.position);
-            addScaleBar(gca, 30, "1 s")
+            addScaleBar(gca, 30, "1 sec")
 
             %adjust previous plots
             adjust_y_label_position(4,1:3,10);
