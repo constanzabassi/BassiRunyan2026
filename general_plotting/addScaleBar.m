@@ -11,6 +11,12 @@ function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
 %       y_label   - (optional) String for Y scalebar label.
 %       varargin  - Optional Name-Value pairs for the line(s), e.g.:
 %                   {'Color','k','LineWidth',1.5}
+    %       'LabelAlignment'   - {'center','right','left'}
+    %       'Color'            - line color
+    %       'LineWidth'        - line width
+    %       'XOffsetFrac'      - vertical offset of bar below axis (default 0.075)
+    %       'LabelOffsetFrac'  - vertical offset of label below bar (default 0.0175)
+
 %
 %   Notes:
 %       - The bar and label are drawn with annotation objects in figure
@@ -24,6 +30,24 @@ function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
     if ~isempty(idx)
         align = varargin{idx+1};       % <-- use user input
         varargin(idx:idx+1) = [];      % <-- remove it so leftover args go to line properties
+    end
+
+    % --- Default values for new offsets ---
+    XOffsetFrac     = 0.075;
+    LabelOffsetFrac = 0.0175;
+
+    % --- Detect XOffsetFrac ---
+    idx = find(strcmpi(varargin, 'XOffsetFrac'));
+    if ~isempty(idx)
+        XOffsetFrac = varargin{idx+1};
+        varargin(idx:idx+1) = [];
+    end
+
+    % --- Detect LabelOffsetFrac ---
+    idx = find(strcmpi(varargin, 'LabelOffsetFrac'));
+    if ~isempty(idx)
+        LabelOffsetFrac = varargin{idx+1};
+        varargin(idx:idx+1) = [];
     end
     
     % --- Parse remaining args (ONLY line properties) ---
@@ -65,8 +89,8 @@ function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
     x_start_fig = ax_pos(1) + x_start_frac * ax_pos(3);
     x_end_fig   = ax_pos(1) + x_end_frac   * ax_pos(3);
     % Vertical positions: just below the axis (same idea as before)
-    bar_y_fig   = ax_pos(2) - 0.075*ax_pos(4);   % 5% of axis height below
-    label_y_fig = bar_y_fig - 0.0175*ax_pos(4);   % a bit below the bar
+    bar_y_fig   = ax_pos(2) - XOffsetFrac*ax_pos(4);   % 5% of axis height below
+    label_y_fig = bar_y_fig - LabelOffsetFrac*ax_pos(4);   % a bit below the bar
     % --- 3) Small safety clamp to keep everything in [0,1] ---
     x_start_fig = max(0, min(1, x_start_fig));
     x_end_fig   = max(0, min(1, x_end_fig));
