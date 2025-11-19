@@ -63,7 +63,10 @@ save([current_save_dir '\avg_ctrl_post'],'avg_ctrl_post');
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 params.plot_info = plot_info;
 [preavg_index_by_dataset,~] = unpack_modindexm(avg_pre,[],pooled_cell_types,[1:24]);
+plot_info.celltype_names = {'Sound-responsive','Photostim-responsive', 'S+P-responsive'
 preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse('W:\Connie\results\Bassi2025\fig4', preavg_index_by_dataset, [1:24],...
+          params.plot_info, [.1,.4],0,'Pre Mean (\DeltaF/F)');
+preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse([], preavg_index_by_dataset, [1:24],...
           params.plot_info, [.1,.4],0,'Pre Mean (\DeltaF/F)');
 
 %celltypes
@@ -73,6 +76,8 @@ plot_info.colors_celltypes = [0.37 0.75 0.49 %light green
 params.plot_info = plot_info;
 [preavg_index_by_dataset_ct,~] = unpack_modindexm(avg_pre,[],all_celltypes,[1:24]);
 preavg_stats_celltypes_dataset_ct = plot_connected_abs_mod_by_mouse('W:\Connie\results\Bassi2025\fig4/celltypes', preavg_index_by_dataset_ct, [1:24],...
+          plot_info, [0,.3],0,'Pre Mean (ΔF/F)');
+preavg_stats_celltypes_dataset_ct = plot_connected_abs_mod_by_mouse([], preavg_index_by_dataset_ct, [1:24],...
           plot_info, [0,.3],0,'Pre Mean (ΔF/F)');
 
 stats = {preavg_stats_celltypes_dataset,preavg_stats_celltypes_dataset_ct};
@@ -96,7 +101,7 @@ writetable(table_fig4_pre, fullfile('W:\Connie\results\Bassi2025\fig4\', strcat(
 % [all_bin_perf,errorbar_correct_stats] = plot_error_bars_response_vs_axis(1:24,avg_trial_ctrl_pre,correct_trials_ctrl,1,num_bins,0,current_save_dir,[0.5,0.5,0.5]);
 % 
 
-%% Make plots (scatter plot comparisons, pre vs post, difference pre vs post etc)
+%% Make plots
 %make scatter plots and save them!
 [pooled_cell_types_stim,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'unmodulated','sound','both','opto'},[1:24],plot_info, 1);
 
