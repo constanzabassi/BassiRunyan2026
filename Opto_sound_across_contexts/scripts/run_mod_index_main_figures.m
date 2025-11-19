@@ -137,6 +137,8 @@ overlap_labels = {'Act - Pass'}; %{'Active', 'Passive','Both'}; % {'Active', 'Pa
 savepath = 'W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\';
 mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:25];
+mod_params.min_cells = 1;
+
 params.info.chosen_mice = mod_params.chosen_mice;
 plot_info.y_lims = [-.3, .3];
 plot_info.behavioral_contexts = {'Engagement Index'}; %decide which contexts to plot
@@ -165,11 +167,19 @@ wrapper_avg_cell_type_traces_engagement(context_data.dff,all_celltypes,mod_index
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 params.plot_info = plot_info;
 params.info.chosen_mice = [1:24]; %because last dataset is control and should not be considered with photostim
+% plot_info.celltype_names = {'Sound','Photostim','S + P','Unmodulated'}; %// could say both or S&P?
 mod_pooled_index_stats_datasets = generate_engagement_index_plots_datasets(params.info.chosen_mice, mod_indexm',  sig_mod_boot_thr, pooled_cell_types, params, ['W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple/functional_pools/'], celltypes_ids,plot_info.y_lims);
 
-mod_params.chosen_mice = [1:24]; %1 less for opto control
-savepath = ['W:\Connie\results\Bassi2025\fig3\pre_engagement\functional_celltype_traces\'];
-wrapper_avg_cell_type_traces_engagement(context_data.dff,pooled_cell_types,mod_indexm,sig_mod_boot_thr,mod_params,savepath,'engagement_dff',plot_info,plot_info.celltype_names,plot_info.colors_pooled_3contexts); %repelem(plot_info.functional_colors, 3, 1)
+[pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both'},[1:24],plot_info, 1);
+params.plot_info = plot_info;
+params.info.chosen_mice = [1:24]; %because last dataset is control and should not be considered with photostim
+% plot_info.celltype_names = {'Sound','Photostim','S + P','Unmodulated'}; %// could say both or S&P?
+mod_pooled_index_stats_datasets = generate_engagement_index_plots_datasets(params.info.chosen_mice, mod_indexm',  sig_mod_boot_thr, pooled_cell_types, params, ['W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple/functional_pools_nounmod/'], celltypes_ids,plot_info.y_lims);
+
+% making this plot in another script (run_prepost_analysis_updated)
+% mod_params.chosen_mice = [1:24]; %1 less for opto control
+% savepath = ['W:\Connie\results\Bassi2025\fig3\pre_engagement\functional_celltype_traces\'];
+% wrapper_avg_cell_type_traces_engagement(context_data.dff,pooled_cell_types,mod_indexm,sig_mod_boot_thr,mod_params,savepath,'engagement_dff',plot_info,plot_info.celltype_names,plot_info.colors_pooled_3contexts); %repelem(plot_info.functional_colors, 3, 1)
 
 %%%% plot fraction + and - modulated per functional group
 [pooled_cell_types,plot_info.functional_names,plot_info.functional_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both'},[1:24],plot_info, 1); %,'unmodulated'
@@ -188,4 +198,8 @@ for i = 1:length(param_sets)
 end
 [~,percent_bar_stats] = bar_plot_percent(percent_cells_signed{1},percent_cells_signed{2}, ['W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple/functional_pools/'],plot_info.functional_names,plot_info.functional_colors,{'Positive','Negative'});
 
+%%% generate the difference plot
+% taking the differences
+frames_to_sort = 50:59; %used for sorting
+plot_active_passive_diff_heatmap(context_data, frames_to_sort, 'Time from stimulus onset (s)', 'W:\Connie\results\Bassi2025\fig3\pre_engagement');
 
