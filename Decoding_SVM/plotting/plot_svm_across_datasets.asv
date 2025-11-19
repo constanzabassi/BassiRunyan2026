@@ -121,8 +121,8 @@ ax.YLabel.FontSize = ax.FontSize;
 set(gca, 'OuterPosition', [0,0,1,1]);
 
 set(gcf,'position',[100,100,175,120])
-% add scale bar (inside plot since there isnt much space below it)
-addScaleBar(gca, 30/mdl_param.bin, "1 s", [], [],'LabelAlignment','right','XOffsetFrac', -0.1,'LabelOffsetFrac', -0.05)
+% addScaleBar(gca, 30/mdl_param.bin, "1 s", [], [],'LabelAlignment','right','XOffsetFrac', -0.075,'LabelOffsetFrac', -0.1)
+addScaleBar(gca, 30/mdl_param.bin, "1 s", [], [],'LabelAlignment','center','XOffsetFrac', -0.9,'LabelOffsetFrac', -0.005)
 
 if ~isempty(save_path)
     mkdir(save_path )

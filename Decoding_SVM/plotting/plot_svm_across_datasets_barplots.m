@@ -196,7 +196,7 @@ if n_sig > 0
         x_line_vals = [x_line_vals(1), x_line_vals(2)];
 
         sig_y = sig_positions(sig_ct);
-        plot_pval_star(t, sig_y, pvals(c), x_line_vals, 0.01);
+        utils.plot_pval_star(t, sig_y, pvals(c), x_line_vals, 0.01);
     end
 end
 

@@ -22,12 +22,12 @@ savepath = savepath; %['W:\Connie\results\Bassi2025\fig2\SVM_1\full_population\'
 %2) plot all datasets together
 if strcmp(version,'full') || strcmp(version,'nmatch') && do_passive == 0
     save_string = info.task_event_type;
-    wrapper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string, savepath, [.45,.85],svm_mat2,event_onsets);
+    wrapper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string, savepath, [.44,.85],svm_mat2,event_onsets);
     
     % Boxplot of mean across datasets
     celltype_peak_comparison = 1; %which celltype max peak location to use (1 = pyr, 2 = som, 3 = pv, 4 = all, 5 = top pyr)
     wrapper_plot_accuracy_boxplots(svm_mat, svm_mat2,event_onsets, mdl_param, savepath, event_onsets(onset_id),bins_to_include,celltype_peak_comparison, [.45,.90]);
-    wrapper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string, savepath, [.45,.85],svm_mat2,event_onsets);
+    wrapper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string, savepath, [.44,.85],svm_mat2,event_onsets);
 elseif strcmp(version,'nmatch') && do_passive == 1
     celltypes_to_comp = [4]; 
     celltype_peak_comparison = 1;
@@ -36,7 +36,7 @@ elseif strcmp(version,'nmatch') && do_passive == 1
 
 elseif strcmp(version,'stimctrl')
     save_string = info.task_event_type;
-    wrapper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string, savepath, [.45,.85],svm_mat2,event_onsets);
+    wrapper_plot_svm_acc_trace_all_datasets(svm_mat, mdl_param, save_string, savepath, [.44,.85],svm_mat2,event_onsets);
     
     % Boxplot of mean across datasets
     celltypes_to_comp = [4,5]; %(1 = pyr, 2 = som, 3 = pv, 4 = all, 5 = top pyr)
