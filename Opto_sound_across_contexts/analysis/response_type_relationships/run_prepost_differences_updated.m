@@ -1,5 +1,4 @@
-
-addpath(genpath('C:\Code\Github\Opto_sounds_analysis'))
+addpath(genpath('C:\Code\Github\BassiRunyan2025'))
 % Setup analysis parameters
 %includes all datasets being analyzed, frame parameters, mod index
 %parameters
@@ -7,8 +6,8 @@ params = experiment_config();
 plot_info = plotting_config(); %plotting params
 params.plot_info = plot_info;
 
-%% load mod indices/ significant neurons
-[sound,opto,sorted_cells,all_celltypes,context_data,ctrl_trials_context,stim_trials_context] = load_processed_opto_sound_data(params,{'separate','separate'});
+% load mod indices/ significant neurons
+[sound,opto,sorted_cells,all_celltypes,context_data,ctrl_trials_context,stim_trials_context, context_data_sounds] = load_processed_opto_sound_data(params,{'separate','separate'});
 
 %% set up colors and different pools of cells
 %within context use below
@@ -16,17 +15,16 @@ params.plot_info = plot_info;
 
 % % below is using previous code (with previous significance definitions of
 % % union active/passive for sound, spontaneous for stim
-[pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'unmodulated','both','opto','sound'},[1:24],plot_info, 1);
-
+% [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'unmodulated','both','opto','sound'},[1:24],plot_info, 1);
 
 % set up plotting labels
 plot_info.y_lims = [-.2, .4];
 % Set labels for plots.
 plot_info.behavioral_contexts = {'Active','Passive'}; %decide which contexts to plot
 params.plot_info = plot_info;
-%% set up save directory!
-current_save_dir = 'W:\Connie\results\Bassi2025\fig5'; %'V:\Connie\results\opto_sound_2025\context\mod_index_specified_cells\differences_pre_post\dff'; %'V:\Connie\results\opto_sound_2025\context\mod_index_specified_cells\differences_pre_post\dff';
 
+% set up save directory!
+current_save_dir = 'W:\Connie\results\Bassi2025\fig5'; %'V:\Connie\results\opto_sound_2025\context\mod_index_specified_cells\differences_pre_post\dff'; %'V:\Connie\results\opto_sound_2025\context\mod_index_specified_cells\differences_pre_post\dff';
 %% calculate avg difference of post and pre
 %unpack data
 min_cells = 1;
@@ -58,9 +56,16 @@ save([current_save_dir '\diff_stim.mat'],'diff_stim');
 save([current_save_dir '\diff_pre_stim'],'diff_pre_stim');
 save([current_save_dir '\avg_ctrl_post'],'avg_ctrl_post');
 
-%% pre responses (IN MAIN FIGURE)
+%% (Functional traces also in MAIN figure)
+plot_info.type = 'engagement'; %'sound'
+savepath = 'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_sig'];% '/spont_sig']; %[info.savepath '/mod/' mod_params.mod_type '/spont_sig']; % Set directory to save figures.
+
+[pooled_cell_types,plot_info.pooled_names,plot_info.pooled_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
+plot_info.pooled_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S + P';'modulated'},'Unmodulated'}
+wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],[1:24],savepath,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
+
+%% Functional pre responses (IN MAIN FIGURE)
 %functional
-[pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 params.plot_info = plot_info;
 [preavg_index_by_dataset,~] = unpack_modindexm(avg_pre,[],pooled_cell_types,[1:24]);
 preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse('W:\Connie\results\Bassi2025\fig4', preavg_index_by_dataset, [1:24],...
@@ -85,16 +90,7 @@ end
 save(fullfile('W:\Connie\results\Bassi2025\fig4\', strcat('table_fig4_pre.mat')), 'table_fig4_pre');
 writetable(table_fig4_pre, fullfile('W:\Connie\results\Bassi2025\fig4\', strcat('table_fig4_pre.csv')));
 
-% %% plot performance vs pre stim rate
-% % sound/opto/sound+opto/all
-% num_bins = 5;
-% pool_colors = [0.3,0.2,0.6 ; 1,0.7,0; 0.3,0.8,1; 0,0,0];
-% for cur_celltypes = 1:4
-%     [all_bin_perf,errorbar_correct_stats] = plot_error_bars_response_vs_axis(1:24,avg_trial_ctrl_pre,correct_trials_ctrl,cur_celltypes,num_bins,0,current_save_dir,pool_colors(cur_celltypes,:));
-% end
-% 
-% [all_bin_perf,errorbar_correct_stats] = plot_error_bars_response_vs_axis(1:24,avg_trial_ctrl_pre,correct_trials_ctrl,1,num_bins,0,current_save_dir,[0.5,0.5,0.5]);
-% 
+
 
 %% Make plots (scatter plot comparisons, pre vs post, difference pre vs post etc)
 %make scatter plots and save them!
@@ -218,3 +214,14 @@ response_types_info = { ...
 [stats_all_ct, responses_by_dataset_ct] = wrapper_plot_response_means({avg_ctrl_post,avg_post},response_types_info, all_celltypes, [1:24], [celltype_save_dir '/sound_sig/'], plot_info, sound.sig_cells);
 [stats_allcells,~] = wrapper_plot_response_means_allcells({avg_ctrl_post,avg_post},response_types_info, all_celltypes, [1:24], [celltype_save_dir '/sound_sig/'], plot_info, sound.sig_cells); %pooling across datasets
 
+%%
+% %% plot performance vs pre stim rate
+% % sound/opto/sound+opto/all
+% num_bins = 5;
+% pool_colors = [0.3,0.2,0.6 ; 1,0.7,0; 0.3,0.8,1; 0,0,0];
+% for cur_celltypes = 1:4
+%     [all_bin_perf,errorbar_correct_stats] = plot_error_bars_response_vs_axis(1:24,avg_trial_ctrl_pre,correct_trials_ctrl,cur_celltypes,num_bins,0,current_save_dir,pool_colors(cur_celltypes,:));
+% end
+% 
+% [all_bin_perf,errorbar_correct_stats] = plot_error_bars_response_vs_axis(1:24,avg_trial_ctrl_pre,correct_trials_ctrl,1,num_bins,0,current_save_dir,[0.5,0.5,0.5]);
+% 

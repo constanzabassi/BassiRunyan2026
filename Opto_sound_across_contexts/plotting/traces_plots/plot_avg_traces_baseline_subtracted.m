@@ -159,24 +159,27 @@ for fig_idx = 1:length(data_modes)*2
             else
                 onset_color =[1 0.8 0.3];
             end
-            for f = 1:size(stim_frame,1)
-                x = [stim_frame(f,1), stim_frame(f,2), stim_frame(f,2), stim_frame(f,1)];
-                y = [yli(1), yli(1), yli(2), yli(2)];
-                patch(x, y, onset_color, 'EdgeColor', 'none', 'FaceAlpha', 1); %[.5 .5 .5]
-
-            end
+%             for f = 1:size(stim_frame,1)
+%                 x = [stim_frame(f,1), stim_frame(f,2), stim_frame(f,2), stim_frame(f,1)];
+%                 y = [yli(1), yli(1), yli(2), yli(2)];
+%                 patch(x, y, onset_color, 'EdgeColor', 'none', 'FaceAlpha', 1); %[.5 .5 .5]
+% 
+%             end
         else 
             xlimss = [1 61];
             xlim(xlimss );
             xticks([1 61]);
             xticklabels([-2 0]);
             yli = ylim;
-            for f = 1:size(stim_frame,1)
-                x = [stim_frame(f,1), stim_frame(f,2), stim_frame(f,2), stim_frame(f,1)];
-                y = [yli(1), yli(1), yli(2), yli(2)];
-                patch(x, y, [.9 .0 .6], 'EdgeColor', 'none', 'FaceAlpha', 0.1); %[.5 .5 .5]
-
-            end
+%             for f = 1:size(stim_frame,1)
+%                 %highlight the pre stimulus period!
+%                 x1 = 51;
+%                 x2 = 61;
+%                 x = [x1, x2, x2,x1];
+%                 y = [yli(1), yli(1), yli(2), yli(2)];
+%                 patch(x, y, [.9 .0 .6], 'EdgeColor', 'none', 'FaceAlpha', 0.1); %[.5 .5 .5]
+% 
+%             end
             
 
 %             xlimss = [1 122];
@@ -193,14 +196,15 @@ for fig_idx = 1:length(data_modes)*2
 %         [xticks_in, xticks_lab] = utils.x_axis_sec_aligned(30, length(xlimss ));
 %         xticks(xticks_in);
 %         xticklabels(xticks_lab);
-
+        set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(celtype, :));
         title(celltypes_ids{celtype}, 'FontSize', 7, 'FontName', 'arial','FontWeight','normal');
 
 
         ax = gca;
         ax.YAxis.Exponent = 0;  % removes the x10^… factor
 
-        set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(celtype, :));
+        positions(celtype,2) = positions(celtype,2)-.2;
+        
         
         yli = ylim;
         if nargin < 10
@@ -213,6 +217,16 @@ for fig_idx = 1:length(data_modes)*2
     
                 rectangle('Position', [stim_frame(f,1), yli(1), stim_frame(f,2)-stim_frame(f,1), ...
                     yli(2)-yli(1)], 'FaceColor', color_onset, 'EdgeColor', 'none');
+            end
+        else
+            for f = 1:size(stim_frame,1)
+                %highlight the pre stimulus period!
+                x1 = 51;
+                x2 = 61;
+                x = [x1, x2, x2,x1];
+                y = [yli(1), yli(1), yli(2), yli(2)];
+                patch(x, y, [.9 .0 .6], 'EdgeColor', 'none', 'FaceAlpha', 0.1); %[.5 .5 .5]
+
             end
         end
 %         xline(stim_frame(1), '--k', 'LineWidth', 1);

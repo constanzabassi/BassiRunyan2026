@@ -111,6 +111,7 @@ for stim_idx = 1:length(stim_ctrl_idx)
 %         end
         title(celltypes_ids{celtype}, 'FontSize', 7, ...
               'FontName','arial','FontWeight','normal');
+        positions(celtype,2) = positions(celtype,2)-.2;
         set(gca,'FontSize',7,'Units','inches','Position',positions(celtype,:));
     end
 

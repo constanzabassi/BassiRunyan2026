@@ -77,21 +77,39 @@ plot_info.colors_contexts_simple = [0,0,0;0.5, 0.5, 0.5]; % light gray
 plot_info.celltype_names = {"Pyr","SOM","PV"};
 
 %for distinguishing functional colors
-plot_info.colors_pooled_3contexts = [0.3,0.2,0.6 %purple
-                               0.7200,0.6800,0.8400 %
-                               0.7200,0.6800,0.8400 %
-                               1,0.7,0 %yelloiw
-                            1.0000,0.8800,0.6000 % 
-                            1.0000,0.8800,0.6000 % 
-                            0.3,0.8,1 % cyan
-                            0.7200,0.9200,1.0000 % 
-                            0.7200,0.9200,1.0000
-                            0,0,0 %black
-                            0.7,0.7,0.7
-                            0.7,0.7,0.7
-                            0.2,0,0.6 %purple
-                               0.6200,0.5800,0.8400 %
-                               0.6200,0.5800,0.8400 ]%];% 
+plot_info.colors_pooled_3contexts = [
+    0.255, 0.170, 0.510;   % dark purple, unchanged
+    0.684, 0.647, 0.792;   % lighter purple, slightly less white
+    0.684, 0.647, 0.792;   % lighter purple, slightly less white
+    0.90, 0.63, 0.0;       % dark orange, unchanged  or 0.850, 0.595, 0
+    1.00, 0.77, 0.25;   % lighter yellow, slightly less white //0.930, 0.818, 0.558 or 0.980, 0.824, 0.510
+    1.00, 0.77, 0.25;   % lighter yellow, slightly less white
+    0.255, 0.680, 0.850;   % cyan, slightly less white
+    0.612, 0.782, 0.850;   % lighter cyan, slightly darker
+    0.612, 0.782, 0.850;   % lighter cyan, slightly darker
+    0, 0, 0;               % black, unchanged
+    0.760, 0.760, 0.760;   % gray, slightly lighter
+    0.760, 0.760, 0.760;   % gray, slightly lighter
+    0.170, 0, 0.510;       % dark purple, unchanged
+    0.527, 0.493, 0.714;   % medium purple, unchanged
+    0.527, 0.493, 0.714;   % medium purple, unchanged
+];
+
+% plot_info.colors_pooled_3contexts = [0.3,0.2,0.6 %purple
+%                                0.7200,0.6800,0.8400 %
+%                                0.7200,0.6800,0.8400 %
+%                                1,0.7,0 %yelloiw
+%                             1.0000,0.8800,0.6000 % 
+%                             1.0000,0.8800,0.6000 % 
+%                             0.3,0.8,1 % cyan
+%                             0.7200,0.9200,1.0000 % 
+%                             0.7200,0.9200,1.0000
+%                             0,0,0 %black
+%                             0.7,0.7,0.7
+%                             0.7,0.7,0.7
+%                             0.2,0,0.6 %purple
+%                                0.6200,0.5800,0.8400 %
+%                                0.6200,0.5800,0.8400 ]%];% 
 plot_info.pooled_colors = [0.3,0.2,0.6
                             1,0.7,0
                             0.3,0.8,1
