@@ -3,10 +3,29 @@ function mouse_data_conditions = heatmaps_avg_combined_all_celltypes_refactored(
 % Combined figure: 3 heatmaps (z_dff) + 1 grand-average trace (alignment.data_type)
 % Dependencies: divide_trials_updated, find_align_info_updated, align_behavior_data,
 %               determine_onsets, include_nans, make_heatmap(_sorted), shadedErrorBar
-figure(90); clf; colormap(viridis);
-t = tiledlayout(4,1,"TileSpacing","tight");
-set(gcf,'Units','points','Position',[100 100 170 216]);
-set(gcf,'Units','inches','Position',[1,1,3.32,2.25]);
+% figure(90); clf; colormap(viridis);
+% t = tiledlayout(4,1,"TileSpacing","tight");
+% set(gcf,'Units','points','Position',[100 100 170 216]);
+% set(gcf,'Units','inches','Position',[1,1,3.32,2.25]);
+
+ %%% CHANGED: capture figure handle explicitly
+f = figure(90); clf; colormap(viridis);
+% (removed: hold on here – we'll hold per-axes where needed)
+
+%%% CHANGED: remove tiledlayout (it fights manual positions)
+% t = tiledlayout(4,1,"TileSpacing","tight");
+
+% Keep your fixed figure size
+set(f,'Units','inches','Position',[1,1,3.32,2.25]); %[100 100 170 216]
+
+%%% CHANGED: create 4 equal axes based on the figure size
+ax_all = equalSubplotsFromFigure(f, 4, 1);
+pos_all = zeros(numel(ax_all),4);
+for k = 1:numel(ax_all)
+    ax_all(k).Units = 'normalized';
+    pos_all(k,:) = ax_all(k).Position;
+end
+
 alignment_data_type_original = alignment.data_type;
 % Heatmaps always z_dff
 alignment.data_type = 'z_dff';
@@ -41,10 +60,12 @@ for ce = 1:num_celltypes
     if isempty(event_onsets), alignment_event_onset = 1; else, alignment_event_onset = adjusted_onsets; end
 
     % plot tile
-    ax = nexttile(ce);
+    ax = ax_all(ce)%ax = nexttile(ce);
+    ax.Tag = sprintf('heat_ax_%d', ce);
+
     plot_heatmap_celltype(ax, data_to_plot, plot_info, sorting_id, alignment_event_onset, adjusted_onsets);
     %add color bar
-    cb = add_skinny_colorbar(ax, 6, 0.3,0.05);
+    cb = add_skinny_colorbar(ax, 6, [],0.2);
     if length(alignment_event_onset)>4
         add_vertical_line_reward(ax,[alignment_event_onset(5)-1,alignment_event_onset(5)]);
     end
@@ -61,11 +82,17 @@ alignment.data_type = alignment_data_type_original;
 % Compute binned grand average (mice × celltype × time)
 [binned_data_all, adjusted_onsets_bin, nan_pos_bin, num_nans, binss] = ...
     compute_grand_average_bins(imaging_st, alignment, bin_size, []);
-ax = nexttile(4);
+ax = ax_all(4)%ax = nexttile(4);
+ax.Tag = sprintf('heat_ax_%d', 4);
+
 plot_grand_average(ax, binned_data_all, plot_info, adjusted_onsets_bin, nan_pos_bin, num_nans, [1 length(binss)],alignment);
 set(gca,'xtick',adjusted_onsets_bin,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
 utils.set_current_fig(7);
-addScaleBar(gca, 30, "1 sec")
+addScaleBar(gca, 30, "1 s")
+
+%adjust previous plots
+adjust_y_label_position(4,1:3,10);
+
 % save if path provided
 if ~isempty(save_data_directory)
     mkdir(save_data_directory);
