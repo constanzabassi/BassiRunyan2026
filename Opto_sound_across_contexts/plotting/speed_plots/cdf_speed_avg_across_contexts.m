@@ -45,9 +45,9 @@ for move_type = 1:length(movement_types)
     best_interval = utils.find_x_ticks(bins(1), bins(end), possible_intervals);
     xticks(bins(1):best_interval:bins(end));
     if function_params.abs == 1
-        xlabel('Speed');
+        xlabel('Speed (cm/s)');
     else
-        xlabel('Velocity');
+        xlabel('Velocity (cm/s)');
     end
     if move_type == 1
         ylabel('CDF');
@@ -65,7 +65,8 @@ for move_type = 1:length(movement_types)
         end
     end
     
-    set(gca, 'XTickLabelRotation', 90, 'FontSize', 7, 'Units', 'inches', 'Position', positions(move_type,:));
+    set(gca, 'XTickLabelRotation', 0, 'FontSize', 7, 'Units', 'inches', 'Position', positions(move_type,:));
+    utils.set_current_fig;
     hold off;
     field_name = strcat('context',num2str(contextIdx),'_movement',num2str(move_type));
     general_stats.(field_name) = get_basic_stats(avg_speed_axis_data{contextIdx, move_type});

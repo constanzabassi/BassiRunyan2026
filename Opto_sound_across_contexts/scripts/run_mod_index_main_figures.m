@@ -70,6 +70,11 @@ mod_params.chosen_mice = [1:24];
 params.string = 'opto';
 mod_params.min_cells = 1; %2 matches mod index summary scatter plot
 
+%%% plot heatmaps and percentage modulated (spont)
+context_num = 3;
+[percentage_stats] = plot_sig_mod_pie(mod_params, opto.mod_prepost, opto.sig_mod_boot_thr, context_num, 'W:\Connie\results\Bassi2025\fig3\mod\', 'horizontal',all_celltypes);
+params.savepath = 'W:\Connie\results\Bassi2025\fig3\avg_heatmaps';
+generate_neural_heatmaps_simple_contextdata(context_data,opto.sig_mod_boot_thr(:,context_num )',[1:24], params, 'opto',context_num,'Time from stim onset (s)');
 
 % 1) load data
 % load('V:\Connie\results\opto_sound_2025\context\mod\prepost\separate\sig_mod_boot_thr.mat')% sig neurons based on pre post spont

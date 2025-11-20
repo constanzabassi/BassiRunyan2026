@@ -16,4 +16,7 @@ function plot_single_direction_heatmap(data, sorted_idx, title_str, params)
         params.stim_onset, size(data,2), 1);
     xticks(xticks_in);
     xticklabels(xticks_lab);
+
+    %show ns in each plot
+    yticks([1 size(data,1)]);
 end

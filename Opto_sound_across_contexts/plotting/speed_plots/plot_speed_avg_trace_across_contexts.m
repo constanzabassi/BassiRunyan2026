@@ -40,11 +40,17 @@ function plot_speed_avg_trace_across_contexts(avg_speed_stats, function_params, 
         else
             title(movement, 'FontWeight', 'normal');
         end
-        xlabel('Time (s)');
-        if i == 1
-            ylabel('Speed');
+        
+        if isfield(function_params,'xlabel')
+            xlabel(function_params.xlabel);
+        else
+            xlabel('Time (s)');
         end
-        set(gca, 'XTickLabelRotation', 90, 'FontSize', 7, 'Units', 'inches', 'Position', positions(i, :));
+        if i == 1
+            ylabel('Speed (cm/s)');
+        end
+        set(gca, 'XTickLabelRotation', 0, 'FontSize', 7, 'Units', 'inches', 'Position', positions(i, :));
+        utils.set_current_fig;
         hold off;
     end
     hold off;

@@ -61,7 +61,7 @@ title('Pitch','FontWeight','normal')
 legend('Location', 'southeastoutside','box','off'); % Add legend for clarity
 
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', [1, 1, 1.2, 1.2]);
-
+utils.set_current_fig;
 
 subplot(1,2,2) %ROLL second
 hold on
@@ -85,6 +85,7 @@ else
 end
 title('Roll','FontWeight','normal')
 set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', [4.7, 1, 1.2, 1.2]);
+utils.set_current_fig;
 hold off
 
 % do statistical comparisons across distributions of changes across contexts (here I am comparing all trials in each context)
