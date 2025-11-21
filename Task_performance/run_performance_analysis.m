@@ -1,6 +1,9 @@
 %% performance analysis
 params = experiment_config(); 
-load('V:\Connie\results\behavior_updated\data_info\imaging_st.mat');
+% load('V:\Connie\results\behavior_updated\data_info\imaging_st.mat');
+plot_info = plotting_config(); %plotting params
+[info, alignment, plot_info, bin_size,imaging_st,all_celltypes,imaging_passive,ids] = get_alignment_config_dynamics('W:/Connie/results/Bassi2025/fig1', 'V:\Connie\results\behavior_updated\data_info', plot_info,[],'V:\Connie\results\passive\data_info');
+
 
 behav_param.fields_to_balance = [3,4];%{'correct'}=1 {'left_turn'}=2 {'condition'}=3 {'is_stim_trial'}=4
 alignment.data_type = 'dff';% 'dff', 'z_dff', else it's deconvolved
@@ -41,3 +44,25 @@ writetable(stats_table, fullfile(save_dir, strcat('table_performance.csv')));
 % [behav_param.p_val_alt] = plot_performance_alt(performance(:,chosen_mice),[info.savepath '/performance_analysis']);
 % 
 % plot_performance_all_bar(performance,[info.savepath '/performance_analysis']);
+%% plot example sound and opto recorded traces
+%find example fast mouse to plot
+fast_trials_per_dataset = find_fast_trials(imaging_st,info,performance,[2,8]);
+[~,sorted_datasets] = sort(cellfun(@(x) x.time, fast_trials_per_dataset));
+fast_trials_per_dataset_pass = find_fast_trials(imaging_passive_updated,info,[],[2,8]);
+
+% choose a fast mouse and plot it?
+%active
+chan = 4; %or 4
+dataset_id= sorted_datasets(2);
+plot_example_opto_task_trial(strcat(fast_trials_per_dataset{1, dataset_id}.server,'\Connie\RawData\',fast_trials_per_dataset{1, dataset_id}.name,'\wavesurfer\',fast_trials_per_dataset{1, dataset_id}.date,'\',fast_trials_per_dataset{1, dataset_id}.file_name),[0.9 0.6 0],[fast_trials_per_dataset{1, dataset_id}.file_times(1):fast_trials_per_dataset{1, dataset_id}.file_times(2)],[],1,0,0,chan);
+
+%passive
+chan = 8;
+dataset_id = 22;
+plot_example_opto_task_trial(strcat(fast_trials_per_dataset_pass{1, dataset_id}.server,'\Connie\RawData\',fast_trials_per_dataset_pass{1, dataset_id}.name,'\wavesurfer\',fast_trials_per_dataset_pass{1, dataset_id}.date,'\',fast_trials_per_dataset_pass{1, dataset_id}.file_name),[0.9 0.6 0],[fast_trials_per_dataset_pass{1, dataset_id}.file_times(1):fast_trials_per_dataset_pass{1, dataset_id}.file_times(2)],[],1,0,0,chan);
+% plot_example_opto_task_trial('V:\Connie\RawData\HA10-1L\wavesurfer\2023-04-10\01_VR_2locs_wstim_0000.abf',[0.9 0.6 0],[1:10000],[],1,1);
+
+%spont
+plot_example_opto_task_trial(strcat(fast_trials_per_dataset{1, dataset_id}.server,'\Connie\RawData\',fast_trials_per_dataset{1, dataset_id}.name,'\wavesurfer\',fast_trials_per_dataset{1, dataset_id}.date,'\',fast_trials_per_dataset{1, dataset_id}.file_name_spont),[0.9 0.6 0],[fast_trials_per_dataset{1, dataset_id}.file_times_spont(1):fast_trials_per_dataset{1, dataset_id}.file_times_spont(2)],[],1,0,1);
+% plot_example_opto_task_trial('V:\Connie\RawData\HA10-1L\wavesurfer\2023-04-10\01_VR_2locs_wstim_0000.abf',[0.9 0.6 0],[1:10000],[],1,1);
+

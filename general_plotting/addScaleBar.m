@@ -49,6 +49,15 @@ function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
         LabelOffsetFrac = varargin{idx+1};
         varargin(idx:idx+1) = [];
     end
+
+    % --- Detect XEndData override (in data units) ---
+    XEndData = [];  % default = use right side of axis
+    
+    idx = find(strcmpi(varargin, 'XEndData'));
+    if ~isempty(idx)
+        XEndData = varargin{idx+1};
+        varargin(idx:idx+1) = [];
+    end
     
     % --- Parse remaining args (ONLY line properties) ---
     p = inputParser;
@@ -77,7 +86,13 @@ function addScaleBar(ax, x_length, x_label, y_length, y_label, varargin)
     end
     %% ---- Compute bar endpoints in DATA units (same logic as before) ----
     % Place bar near the right side, a bit inside
-    x_end_data   = xlims(2) ;%- 0.05 * xrange;
+    if isempty(XEndData)
+        % default location = right edge of axis
+        x_end_data = xlims(2);
+    else
+        % user-specified value
+        x_end_data = XEndData;
+    end
     x_start_data = x_end_data - x_length;
     % Clamp in data space just in case
     x_start_data = max(x_start_data, xlims(1));

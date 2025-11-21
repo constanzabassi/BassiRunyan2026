@@ -1,4 +1,4 @@
-function [info, alignment, plot_info, bin_size,imaging_st,all_celltypes,imaging_passive] = get_alignment_config_dynamics(save_path, original_base_path, plot_info, passive_path)
+function [info, alignment, plot_info, bin_size,imaging_st,all_celltypes,imaging_passive_updated,match_indices] = get_alignment_config_dynamics(save_path, original_base_path, plot_info, passive_path)
 %GET_ALIGNMENT_CONFIG  Configuration setup for alignment and plotting.
 %
 %   [info, alignment, plot_info, bin_size] = GET_ALIGNMENT_CONFIG()
@@ -14,6 +14,25 @@ function [info, alignment, plot_info, bin_size,imaging_st,all_celltypes,imaging_
 
     if ~isempty(passive_path)
         imaging_passive = load(strcat(passive_path,'\imaging_st.mat'), 'imaging_st').imaging_st;
+        %organize imaging_passive with the same datasets as active!
+        passive_info = load(strcat(passive_path,'\info.mat'), 'info').info;
+
+        % --- Normalize slashes so they match ---
+        list1 = info.mouse_date;          % cell array of strings
+        list2 = passive_info.mouse_date;  % cell array of strings
+        norm1 = strrep(list1, '\', '/');
+        norm2 = strrep(list2, '\', '/');
+        
+        % --- Preallocate ---
+        match_indices = zeros(size(norm1));
+        
+        % --- Find matching indices ---
+        for i = 1:numel(norm1)
+            idx = find(strcmp(norm2, norm1{i}));
+            match_indices(i) = idx;   % index in passive_info corresponding to info{i}
+        end
+        %reorganize
+        imaging_passive_updated = imaging_passive(match_indices);
     end
 
     % ---------- General Save Path ----------
