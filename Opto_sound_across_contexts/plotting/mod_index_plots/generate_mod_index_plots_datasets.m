@@ -20,7 +20,7 @@ function all_stats = generate_mod_index_plots_datasets(chosen_dataset, mod_index
     end
 
     %unpack mod index across datasets
-    [mod_index_by_dataset,~] = unpack_modindexm(mod_index,sig_mod_boot_thr,all_celltypes,chosen_dataset);
+    [mod_index_by_dataset,~] = unpack_modindexm(mod_index,sig_mod_boot_thr,all_celltypes,chosen_dataset,params.min_cells);
 
     [context_mod_all, ~, ~, ~, ~] = organize_sig_mod_index_contexts_celltypes(...
         chosen_dataset, mod_index, sig_mod_boot_thr', all_celltypes,params.plot_info.celltype_names);

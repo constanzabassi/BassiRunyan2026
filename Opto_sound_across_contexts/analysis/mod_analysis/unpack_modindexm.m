@@ -1,4 +1,4 @@
-function [unpacked_mod_index,chosen_cells] = unpack_modindexm(mod_index,sig_mod_boot,all_celltypes,varagin)
+function [unpacked_mod_index,chosen_cells] = unpack_modindexm(mod_index,sig_mod_boot,all_celltypes,varargin)
 % Function to unpack modulation index values for selected cells based on 
 % significance and cell type criteria.
 %
@@ -17,12 +17,21 @@ function [unpacked_mod_index,chosen_cells] = unpack_modindexm(mod_index,sig_mod_
 fieldss = fields(all_celltypes{1,1});
 
 % Determine which datasets to process based on input arguments
-if nargin > 3
-    chosen_mice = varagin;
-else
-    chosen_mice = 1:size(mod_index,2);
+% Default values
+chosen_mice = 1:size(mod_index,2);
+min_cells   = 1;
+
+% Overwrite defaults if varargin provided
+if length(varargin) >= 1
+    chosen_mice = varargin{1};
 end
+
+if length(varargin) >= 2
+    min_cells = varargin{2};
+end
+
 chosen_cells ={};
+
 
 % Iterate over each chosen dataset
 for dataset_index = chosen_mice
@@ -45,7 +54,7 @@ for dataset_index = chosen_mice
         for cel = 1:length(fieldss)
 
             % Ensure there are enough selected cells and trials
-            if ~isempty(chosen_cells) && length(chosen_cells{dataset_index,cel})>1 && length(mod_index{dataset_index,context}(chosen_cells{dataset_index,cel})) > 2 %at least 2 cells of this cell type!, at least 3 trials across all contexts for this mouse! % 
+            if ~isempty(chosen_cells) && length(chosen_cells{dataset_index,cel})>min_cells && length(mod_index{dataset_index,context}(chosen_cells{dataset_index,cel})) > min_cells %at least 2 cells of this cell type!, at least 3 trials across all contexts for this mouse! % 
                 % Store modulation index for selected cells
                 unpacked_mod_index{dataset_index,context,cel} = mod_index{dataset_index,context}(chosen_cells{dataset_index,cel});
             else

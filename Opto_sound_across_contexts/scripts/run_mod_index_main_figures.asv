@@ -12,7 +12,7 @@ load('V:\Connie\results\opto_sound_2025\context\data_info\all_celltypes.mat');
 mod_params = params.mod_sounds;
 mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:25];
-mod_params.min_cells = 0; % >0 so at least 1 modulated neuron per dataset
+mod_params.min_cells = 1;
 % 1) load data
 %load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\mod_indexm.mat');
 % load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\sig_mod_boot_thr.mat');
@@ -41,7 +41,7 @@ mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_
 savepath_traces = 'W:\Connie\results\Bassi2025\fig3\sounds\celltype_traces\';
 [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,savepath_traces,'sound_dff',plot_info);
 %%% STATS TABLES
-table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, savepath);
+% table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
 
 %%%% all cells %%%%%%%%%%%
 %save directory
@@ -61,14 +61,15 @@ mod_params.threshold_single_side =1;
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
 [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,all_cells,mod_params,savepath_traces,'sound_dff',plot_info);
 %%% STATS TABLES
-table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
+% table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
 %% Photostim Index plots
 
 mod_params = params.mod;
 mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:24];
 params.string = 'opto';
-mod_params.min_cells = 0; %at least 1 neuron per dataset that is modulated! (>0 is the logic)
+mod_params.min_cells = 0; %2 matches mod index summary scatter plot
+
 %%% plot heatmaps and percentage modulated (spont)
 context_num = 3;
 [percentage_stats] = plot_sig_mod_pie(mod_params, opto.mod_prepost, opto.sig_mod_boot_thr, context_num, 'W:\Connie\results\Bassi2025\fig3\mod\', 'horizontal',all_celltypes);
@@ -92,7 +93,7 @@ params.plot_info = plot_info;
 
 %%%% sig cells %%%%%%%%%%%
 savepath_all = 'W:\Connie\results\Bassi2025\fig3\mod\ctrl\separate\';%
-savepath = [savepath_all '\sig_neurons\'];
+savepath = [savepath_all '\sig_neurons\1mincells\'];
 savepath_traces = 'W:\Connie\results\Bassi2025\fig3\celltype_traces\';
 
 %single neurons
@@ -106,7 +107,7 @@ mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_
 [traces_mean_diff,dataset_ids_diff] = wrapper_avg_cell_type_traces_stim_minus_ctrl(context_data.dff,all_celltypes,opto.mod,opto.sig_mod_boot,mod_params,savepath_traces,'opto_dff',plot_info,opto.mod_prepost);
 table_fig3_evoked = make_stats_tables_evoked(traces_mean, traces_mean_diff, 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
 %%% STATS TABLES
-table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, savepath);
+% table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
 
 
 %%%% all cells %%%%%%%%%%%
@@ -130,7 +131,7 @@ savepath_traces = [savepath_traces '\all_cells\'];
 [traces_mean_diff,dataset_ids_diff] = wrapper_avg_cell_type_traces_stim_minus_ctrl(context_data.dff,all_celltypes,opto.mod,all_cells,mod_params,savepath_traces,'opto_dff',plot_info,opto.mod_prepost);
 table_fig3_evoked = make_stats_tables_evoked(traces_mean, traces_mean_diff, 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
 %%% STATS TABLES
-table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, savepath_all);
+% table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
 %%% to close anovas close hidden all
 %% Engagement Index Plots
 % 1) load data

@@ -207,7 +207,7 @@ for fig_idx = 1:length(data_modes)*2
         
         
         yli = ylim;
-        if nargin < 10
+        if nargin <= 10
             for f = 1:size(stim_frame,1)
                 if contains(type,'opto')
                     color_onset = [1 0.8 0.3];
