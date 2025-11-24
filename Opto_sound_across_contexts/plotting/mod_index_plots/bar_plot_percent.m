@@ -25,7 +25,6 @@ figure(999);clf;
 for ce = 1:numcells
 %     nexttile
     subplot(1,numcells,ce)
-    title(celltype_names{ce},'FontWeight','normal');
     bar_context =[];SEM_cells = [];
     for percentages = 1:num_percents
         mean_all(percentages,ce) = squeeze(mean(mean_percent(percentages,:,ce),2,'omitnan'));
@@ -82,6 +81,8 @@ for ce = 1:numcells
     pos = positions(ce, :);
     pos(2) = pos(2) - 0.25;       % move down by 0.25 inches
     set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', pos);
+    title(celltype_names{ce},'FontWeight','normal','FontSize',7);
+
     ax = gca;
     ax.XLabel.FontSize = ax.FontSize;
     ax.YLabel.FontSize = ax.FontSize;
@@ -97,6 +98,9 @@ if ~isempty(save_dir)
     mkdir(save_dir)
     cd(save_dir)
 %     saveas(gcf,strcat(['bar_' string '_contexts.svg']));
+    if size(celltype_names{1,1},1)  >1
+        celltype_names = cellfun(@(x) x{1}, celltype_names, 'UniformOutput', false);
+    end
     exportgraphics(gcf,strcat('bar_percents', strjoin(cellstr(celltype_names), ''),'_', strjoin(cellstr(xlabels), ''), '.pdf'), 'ContentType', 'vector');
     saveas(gcf,strcat('bar_percents', strjoin(cellstr(celltype_names), ''),'_', strjoin(cellstr(xlabels), ''),'.fig'));
     save(strcat('bar_percents', strjoin(cellstr(celltype_names), ''),'_all_stats'),'all_stats');

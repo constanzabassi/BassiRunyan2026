@@ -153,9 +153,9 @@ for cel_type = 1:length(celltypes_ids)
         if size(celltypes_ids{2,cel_type},1)>1
             xtlabs = cellfun(@(x) strjoin(x, '\n'), celltypes_ids(2,:), 'UniformOutput', false);
         else
-            xtlabs = celltypes_ids{2,cel_type};
+            celltypes_ids{2,cel_type};
         end
-        xticklabels(xtlabs)
+        xticklabels(celltypes_ids{2,cel_type})
         title('')
     else
         xticklabels(behavioral_contexts)

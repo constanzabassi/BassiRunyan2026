@@ -61,7 +61,7 @@ plot_info.type = 'engagement'; %'sound'
 savepath = 'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_sig'];% '/spont_sig']; %[info.savepath '/mod/' mod_params.mod_type '/spont_sig']; % Set directory to save figures.
 
 [pooled_cell_types,plot_info.pooled_names,plot_info.pooled_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
-plot_info.pooled_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S + P';'modulated'},'Unmodulated'}
+plot_info.pooled_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S & P';'modulated'},'Unmodulated'}
 wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],[1:24],savepath,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
 
 %% Functional pre responses (IN MAIN FIGURE)

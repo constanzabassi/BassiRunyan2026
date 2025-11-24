@@ -40,6 +40,10 @@ mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_
 %avg traces
 savepath_traces = 'W:\Connie\results\Bassi2025\fig3\sounds\celltype_traces\';
 [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,savepath_traces,'sound_dff',plot_info);
+% table_fig3_evoked = make_stats_tables_evoked(traces_mean, traces_mean_diff, 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
+table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
+
+
 %%% STATS TABLES
 table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, savepath);
 
@@ -60,8 +64,10 @@ mod_params.threshold_single_side =1;
 [num_cells, ~] = organize_pooled_celltypes(context_data_sounds.dff, all_celltypes);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
 [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,all_cells,mod_params,savepath_traces,'sound_dff',plot_info);
-%%% STATS TABLES
+% %%% STATS TABLES
 table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
+table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
+
 %% Photostim Index plots
 
 mod_params = params.mod;
@@ -69,11 +75,12 @@ mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:24];
 params.string = 'opto';
 mod_params.min_cells = 0; %at least 1 neuron per dataset that is modulated! (>0 is the logic)
+params.min_cells = mod_params.min_cells;
 %%% plot heatmaps and percentage modulated (spont)
-context_num = 3;
-[percentage_stats] = plot_sig_mod_pie(mod_params, opto.mod_prepost, opto.sig_mod_boot_thr, context_num, 'W:\Connie\results\Bassi2025\fig3\mod\', 'horizontal',all_celltypes);
-params.savepath = 'W:\Connie\results\Bassi2025\fig3\avg_heatmaps';
-generate_neural_heatmaps_simple_contextdata(context_data,opto.sig_mod_boot_thr(:,context_num )',[1:24], params, 'opto',context_num,'Time from stim onset (s)',[-0.5, 1],6);
+% context_num = 3;
+% [percentage_stats] = plot_sig_mod_pie(mod_params, opto.mod_prepost, opto.sig_mod_boot_thr, context_num, 'W:\Connie\results\Bassi2025\fig3\mod\', 'horizontal',all_celltypes);
+% params.savepath = 'W:\Connie\results\Bassi2025\fig3\avg_heatmaps';
+% generate_neural_heatmaps_simple_contextdata(context_data,opto.sig_mod_boot_thr(:,context_num )',[1:24], params, 'opto',context_num,'Time from stim onset (s)',[-0.5, 1],6);
 
 % 1) load data
 % load('V:\Connie\results\opto_sound_2025\context\mod\prepost\separate\sig_mod_boot_thr.mat')% sig neurons based on pre post spont
@@ -92,7 +99,7 @@ params.plot_info = plot_info;
 
 %%%% sig cells %%%%%%%%%%%
 savepath_all = 'W:\Connie\results\Bassi2025\fig3\mod\ctrl\separate\';%
-savepath = [savepath_all '\sig_neurons\'];
+savepath = ['W:\Connie\results\Bassi2025\fig3\mod\ctrl\separate\sig_neurons\'];
 savepath_traces = 'W:\Connie\results\Bassi2025\fig3\celltype_traces\';
 
 %single neurons
@@ -142,7 +149,7 @@ overlap_labels = {'Act - Pass'}; %{'Active', 'Passive','Both'}; % {'Active', 'Pa
 savepath = 'W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\';
 mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:25];
-mod_params.min_cells = 1;
+mod_params.min_cells = 0;
 
 params.info.chosen_mice = mod_params.chosen_mice;
 plot_info.y_lims = [-.3, .3];
@@ -167,12 +174,17 @@ savepath = ['W:\Connie\results\Bassi2025\fig3\pre_engagement\celltype_traces\'];
 wrapper_avg_cell_type_traces_engagement(context_data.dff,all_celltypes,mod_indexm,sig_mod_boot_thr,mod_params,savepath,'engagement_dff',plot_info, plot_info.celltype_names,plot_info.colors_celltypes_3contexts);
 
 %%%%%% functional comparisons! %%%%%%%%
-
+plot_info = plotting_config(); %plotting params
+plot_info.y_lims = [-.3, .3];
+plot_info.behavioral_contexts = {'Engagement Index'}; %decide which contexts to plot
+plot_info.type = 'engagement'; %make lines gray instead of yellow
+plot_info.y_lim_ratio = 2;
+params.plot_info = plot_info;
 % sig cells (including unmodulated)
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 params.plot_info = plot_info;
 params.info.chosen_mice = [1:24]; %because last dataset is control and should not be considered with photostim
-% plot_info.celltype_names = {'Sound','Photostim','S + P','Unmodulated'}; %// could say both or S&P?
+% plot_info.celltype_names = {'Sound','Photostim','S & P','Unmodulated'}; %// could say both or S&P?
 mod_pooled_index_stats_datasets = generate_engagement_index_plots_datasets(params.info.chosen_mice, mod_indexm',  sig_mod_boot_thr, pooled_cell_types, params, ['W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple/functional_pools/'], celltypes_ids,plot_info.y_lims);
 
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both'},[1:24],plot_info, 1);
@@ -201,10 +213,12 @@ for i = 1:length(param_sets)
         [current_sig_cells] = get_thresholded_sig_cells_simple( mod_params_plot, mod_indexm', sig_mod_boot'); %using mod_indexm2 because using prepost instead of ctrl for opto
         percent_cells_signed{i} = calculate_sig_celltype_percentages(current_sig_cells(1:24), pooled_cell_types, []);
 end
+plot_info.functional_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S & P';'modulated'}};%,'Unmodulated'}
 [~,percent_bar_stats] = bar_plot_percent(percent_cells_signed{1},percent_cells_signed{2}, ['W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple/functional_pools/'],plot_info.functional_names,plot_info.functional_colors,{'Positive','Negative'});
 
 %%% generate the difference plot
 % taking the differences
 frames_to_sort = 50:59; %used for sorting
+plot_active_passive_diff_heatmap(context_data, frames_to_sort, 'Time from stimulus onset (s)', 'W:\Connie\results\Bassi2025\fig3\pre_engagement');
 plot_active_passive_diff_heatmap(context_data, frames_to_sort, 'Time from stimulus onset (s)', 'W:\Connie\results\Bassi2025\fig3\pre_engagement');
 

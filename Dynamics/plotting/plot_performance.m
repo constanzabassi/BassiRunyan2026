@@ -1,6 +1,8 @@
 function [sig_test] = plot_performance(performance,save_data_directory,mouseID)
 [r,c] = determine_num_tiles(size(performance,2));
 figure(5555);clf;
+
+xtick_labels = {'Stim', 'No Stim'};
 % tiledlayout(r,c)
 unique_mice = unique(mouseID);
 n_mice = length(unique_mice);
@@ -44,14 +46,14 @@ for m = 1:n_mice
 end
 set(gca, 'XLimMode', 'manual', 'XLim', [0 3]);
 xticks([1 2])
-xticklabels({'Stim','Ctrl'})
+xticklabels(xtick_labels)
 ylabel('% correct')
 
 [sig_test.p_correct, h1] = signrank([correct_per_mouse_opto],[correct_per_mouse_ctrl]);
 utils.plot_pval_star(0,max([correct_per_mouse_opto])*100, sig_test.p_correct,[1 2],.15); %yl(2)+3
 
-utils.set_current_fig;
 set(gca,'FontSize',7);
+utils.set_current_fig;
 %% % LEFT TURNS
 subplot(1,3,2)
 hold on
@@ -65,15 +67,15 @@ plot([ [left_per_mouse_opto(m)], [left_per_mouse_ctrl(m)]]*100 ,'-','color','k',
 end
 set(gca, 'XLimMode', 'manual', 'XLim', [0 3]);
 xticks([1 2])
-xticklabels({'Stim','Ctrl'})
+xticklabels(xtick_labels)
 ylabel('% left')
 ylim([0 75])
 
 [sig_test.p_left, h1] = signrank([left_per_mouse_opto],[left_per_mouse_ctrl]);
 utils.plot_pval_star(0,max([left_per_mouse_opto])*100, sig_test.p_left,[1 2],.15); %yl(2)+3
 
-utils.set_current_fig;
 set(gca,'FontSize',7);
+utils.set_current_fig;
 %% TIME TO COMPLETE TURN
 subplot(1,3,3)
 hold on
@@ -88,15 +90,15 @@ plot([[sec_to_turn_per_mouse_opto(m)],[sec_to_turn_per_mouse_ctrl(m)]] ,'-','col
 end
 set(gca, 'XLimMode', 'manual', 'XLim', [0 3]);
 xticks([1 2])
-xticklabels({'Stim','Ctrl'})
+xticklabels(xtick_labels)
 ylabel({'seconds to'; 'turn onset'})
 
 [sig_test.p_turn_onset, h1] = signrank(sec_to_turn_per_mouse_opto,sec_to_turn_per_mouse_ctrl);
 % utils.plot_pval_star(0,max(cellfun(@mean,{performance.turn_onset_opto})), sig_test.p_turn_onset,[1 2],.15); %yl(2)+3
 utils.plot_pval_star(0,max([sec_to_turn_per_mouse_opto]), sig_test.p_turn_onset,[1 2],.15); %yl(2)+3
 
-utils.set_current_fig;
 set(gca,'FontSize',7);
+utils.set_current_fig;
 % %% perform statistical analysis
 % [sig_test.p_correct, h1] = signrank([performance.correct_opto],[performance.correct_ctrl]);
 % [sig_test.p_left, h1] = signrank([performance.left_opto],[performance.left_ctrl]);

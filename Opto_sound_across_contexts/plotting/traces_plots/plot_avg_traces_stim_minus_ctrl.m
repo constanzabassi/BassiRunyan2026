@@ -35,12 +35,16 @@ for fig_idx = 1:length(data_modes)
                 if isempty(dat_struct) || ~isfield(dat_struct, 'stim') || ~isfield(dat_struct, 'ctrl')
                     continue
                 end
-                if size(dat_struct.stim,2) == 1 || size(dat_struct.ctrl,2) == 1
-                    continue
-                end
+%                 if size(dat_struct.stim,2) == 1 || size(dat_struct.ctrl,2) == 1
+%                     continue
+%                 end
 
                 dat_struct.stim(isinf(dat_struct.stim)) = NaN;
                 dat_struct.ctrl(isinf(dat_struct.ctrl)) = NaN;
+
+                if isnan(dat_struct.stim)
+                    continue;
+                end
                 mouse_ids_used = [mouse_ids_used, mouse];
 
                 % Compute averages across trials if 3D
@@ -50,6 +54,11 @@ for fig_idx = 1:length(data_modes)
                 else
                     stim_dat = dat_struct.stim;
                     ctrl_dat = dat_struct.ctrl;
+                end
+
+                if size(dat_struct.stim,2) == 1 || size(dat_struct.ctrl,2) == 1
+                    stim_dat = stim_dat.'; %transpose since it's just one neuron it puts it as column
+                    ctrl_dat = ctrl_dat.';
                 end
 
                 % Restrict to relevant frames

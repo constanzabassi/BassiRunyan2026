@@ -12,7 +12,7 @@ load('V:\Connie\results\opto_sound_2025\context\data_info\all_celltypes.mat');
 mod_params = params.mod_sounds;
 mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:25];
-mod_params.min_cells = 1;
+mod_params.min_cells = 0; % >0 so at least 1 modulated neuron per dataset
 % 1) load data
 %load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\mod_indexm.mat');
 % load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\sig_mod_boot_thr.mat');
@@ -40,8 +40,12 @@ mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_
 %avg traces
 savepath_traces = 'W:\Connie\results\Bassi2025\fig3\sounds\celltype_traces\';
 [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,savepath_traces,'sound_dff',plot_info);
+% table_fig3_evoked = make_stats_tables_evoked(traces_mean, traces_mean_diff, 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
+table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
+
+
 %%% STATS TABLES
-% table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
+table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, savepath);
 
 %%%% all cells %%%%%%%%%%%
 %save directory
@@ -60,21 +64,23 @@ mod_params.threshold_single_side =1;
 [num_cells, ~] = organize_pooled_celltypes(context_data_sounds.dff, all_celltypes);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
 [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,all_cells,mod_params,savepath_traces,'sound_dff',plot_info);
-%%% STATS TABLES
-% table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
+% %%% STATS TABLES
+table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
+table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
+
 %% Photostim Index plots
 
 mod_params = params.mod;
 mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:24];
 params.string = 'opto';
-mod_params.min_cells = 0; %2 matches mod index summary scatter plot
-
+mod_params.min_cells = 0; %at least 1 neuron per dataset that is modulated! (>0 is the logic)
+params.min_cells = mod_params.min_cells;
 %%% plot heatmaps and percentage modulated (spont)
-context_num = 3;
-[percentage_stats] = plot_sig_mod_pie(mod_params, opto.mod_prepost, opto.sig_mod_boot_thr, context_num, 'W:\Connie\results\Bassi2025\fig3\mod\', 'horizontal',all_celltypes);
-params.savepath = 'W:\Connie\results\Bassi2025\fig3\avg_heatmaps';
-generate_neural_heatmaps_simple_contextdata(context_data,opto.sig_mod_boot_thr(:,context_num )',[1:24], params, 'opto',context_num,'Time from stim onset (s)',[-0.5, 1],6);
+% context_num = 3;
+% [percentage_stats] = plot_sig_mod_pie(mod_params, opto.mod_prepost, opto.sig_mod_boot_thr, context_num, 'W:\Connie\results\Bassi2025\fig3\mod\', 'horizontal',all_celltypes);
+% params.savepath = 'W:\Connie\results\Bassi2025\fig3\avg_heatmaps';
+% generate_neural_heatmaps_simple_contextdata(context_data,opto.sig_mod_boot_thr(:,context_num )',[1:24], params, 'opto',context_num,'Time from stim onset (s)',[-0.5, 1],6);
 
 % 1) load data
 % load('V:\Connie\results\opto_sound_2025\context\mod\prepost\separate\sig_mod_boot_thr.mat')% sig neurons based on pre post spont
@@ -93,7 +99,7 @@ params.plot_info = plot_info;
 
 %%%% sig cells %%%%%%%%%%%
 savepath_all = 'W:\Connie\results\Bassi2025\fig3\mod\ctrl\separate\';%
-savepath = [savepath_all '\sig_neurons\1mincells\'];
+savepath = ['W:\Connie\results\Bassi2025\fig3\mod\ctrl\separate\sig_neurons\'];
 savepath_traces = 'W:\Connie\results\Bassi2025\fig3\celltype_traces\';
 
 %single neurons
@@ -107,7 +113,7 @@ mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_
 [traces_mean_diff,dataset_ids_diff] = wrapper_avg_cell_type_traces_stim_minus_ctrl(context_data.dff,all_celltypes,opto.mod,opto.sig_mod_boot,mod_params,savepath_traces,'opto_dff',plot_info,opto.mod_prepost);
 table_fig3_evoked = make_stats_tables_evoked(traces_mean, traces_mean_diff, 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
 %%% STATS TABLES
-% table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
+table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, savepath);
 
 
 %%%% all cells %%%%%%%%%%%
@@ -131,7 +137,7 @@ savepath_traces = [savepath_traces '\all_cells\'];
 [traces_mean_diff,dataset_ids_diff] = wrapper_avg_cell_type_traces_stim_minus_ctrl(context_data.dff,all_celltypes,opto.mod,all_cells,mod_params,savepath_traces,'opto_dff',plot_info,opto.mod_prepost);
 table_fig3_evoked = make_stats_tables_evoked(traces_mean, traces_mean_diff, 'avg_traces', {'PYR', 'SOM', 'PV'},63:92, savepath_traces); %save stats table
 %%% STATS TABLES
-% table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, save_dir);
+table_fig3 = make_stats_tables_mod_index(mod_index_stats, mod_index_stats_datasets, savepath_all);
 %%% to close anovas close hidden all
 %% Engagement Index Plots
 % 1) load data
@@ -173,7 +179,10 @@ wrapper_avg_cell_type_traces_engagement(context_data.dff,all_celltypes,mod_index
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 params.plot_info = plot_info;
 params.info.chosen_mice = [1:24]; %because last dataset is control and should not be considered with photostim
-% plot_info.celltype_names = {'Sound','Photostim','S + P','Unmodulated'}; %// could say both or S&P?
+% plot_info.celltype_names = {'Sound','Photostim','S & P','Unmodulated'}; %// could say both or S&P?
+[context_mod_all, ~, ~, ~, celltypes_ids] = ...
+    organize_sig_mod_index_contexts_celltypes([1:24], mod_indexm', sig_mod_boot_thr, pooled_cell_types,plot_info.celltype_names);
+
 mod_pooled_index_stats_datasets = generate_engagement_index_plots_datasets(params.info.chosen_mice, mod_indexm',  sig_mod_boot_thr, pooled_cell_types, params, ['W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple/functional_pools/'], celltypes_ids,plot_info.y_lims);
 
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both'},[1:24],plot_info, 1);

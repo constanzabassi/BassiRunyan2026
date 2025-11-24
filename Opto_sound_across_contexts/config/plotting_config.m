@@ -85,8 +85,8 @@ plot_info.colors_pooled_3contexts = [
     1.00, 0.77, 0.25;   % lighter yellow, slightly less white //0.930, 0.818, 0.558 or 0.980, 0.824, 0.510
     1.00, 0.77, 0.25;   % lighter yellow, slightly less white
     0.255, 0.680, 0.850;   % cyan, slightly less white
-    0.612, 0.782, 0.850;   % lighter cyan, slightly darker
-    0.612, 0.782, 0.850;   % lighter cyan, slightly darker
+    0.608, 0.780, 0.851;   % lighter cyan, slightly darker // 0.608, 0.780, 0.851 original 0.612, 0.782, 0.850
+    0.608, 0.780, 0.851;   % lighter cyan, slightly darker
     0, 0, 0;               % black, unchanged
     0.760, 0.760, 0.760;   % gray, slightly lighter
     0.760, 0.760, 0.760;   % gray, slightly lighter
@@ -115,4 +115,4 @@ plot_info.pooled_colors = [0.3,0.2,0.6
                             0.3,0.8,1
                             0.5 0.5 0.5
                             0.2,0,0.5];
-plot_info.pooled_names = {'Sound','Photostim','Both','Unmodulated','Sound Negative'};
+plot_info.pooled_names = {'Sound','Photostim','S & P','Unmodulated','Sound Negative'};
