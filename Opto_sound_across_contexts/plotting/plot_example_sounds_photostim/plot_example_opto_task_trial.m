@@ -1,7 +1,6 @@
 function plot_example_opto_task_trial(sync_dir,opto_color,timepoints,save_dir, addscale, addlegend,spont,chan)
 [files,sync_rate] = abfload(sync_dir); %'V:\Connie\RawData\HA10-1L\wavesurfer\2023-04-10\01_VR_2locs_wstim_0000.abf'
 figure(722);              % create or access figure 722
-set(gcf, 'Units','inches', 'Position',[1,1,1.27,0.3]);
 clf
 hold on;
 if spont == 1
@@ -25,19 +24,20 @@ set(gca,'Fontsize',7)
 set(aa,'box','off','color','none','xtick',[],'ytick',[]);
 aa.YAxis.Visible = 'off';
 aa.XAxis.Visible = 'off';
-
+%1/sync_rate*1e6
 if addscale spont
     xlims = xlim;
     if spont
         ylim([-.6,1])
-        addScaleBar(aa, 1/sync_rate*1e6, '1 s', [], [],'XOffsetFrac',-.2,'LabelOffsetFrac', -.1,'XEndData',[xlims(2)*6/7]); %big figure 'XOffsetFrac', -0.4,'LabelOffsetFrac', .025
+        addScaleBar(aa, 1000, '1 s', [], [],'XOffsetFrac',-.2,'LabelOffsetFrac', -.25,'XEndData',[xlims(2)*6/7]); %big figure 'XOffsetFrac', -0.4,'LabelOffsetFrac', .025
     else
-        addScaleBar(aa, 1/sync_rate*1e6, '1 s', [], [],'XOffsetFrac',-.3,'LabelOffsetFrac', -.1,'XEndData',[xlims(2)*6/7]); %big figure 'XOffsetFrac', -0.4,'LabelOffsetFrac', .025
+        addScaleBar(aa, 1000, '1 s', [], [],'XOffsetFrac',-.3,'LabelOffsetFrac', -.25,'XEndData',[xlims(2)*6/7]); %big figure 'XOffsetFrac', -0.4,'LabelOffsetFrac', .025
     end
 end
 
+set(gcf, 'Units','inches', 'Position',[1,1,1.27,0.3]);
 
-
+pause
 if ~isempty(save_dir)
     % full folder path
 p = sync_dir;
