@@ -1,0 +1,206 @@
+function get_side_counts_per_celltype(results,all_celltypes,sig_mod_boot, chosen_mice, plot_info)
+if ~isempty(chosen_mice)
+    num_datasets = length(chosen_mice);
+else
+    num_datasets = length(results);
+    chosen_mice = 1:num_datasets;
+end
+num_contexts = 2;
+
+possible_celltypes = fields(all_celltypes{1,1});
+num_celltypes = length(possible_celltypes);
+
+% --- containers ---
+left_counts_all  = zeros(num_datasets, num_contexts);
+right_counts_all = zeros(num_datasets, num_contexts);
+
+left_counts_celltype  = cell(num_celltypes,1);
+right_counts_celltype = cell(num_celltypes,1);
+for c = 1:num_celltypes
+    left_counts_celltype{c}  = zeros(num_datasets, num_contexts);
+    right_counts_celltype{c} = zeros(num_datasets, num_contexts);
+end
+
+% --- main loop ---
+for d = chosen_mice
+    for context = 1:num_contexts
+        
+        % =============================
+        % ALL CELTYPES TOGETHER
+        % =============================
+        sides_all = results(d).context(context).cv_mod_index_separate.side;
+        
+        left_counts_all(d, context)  = sum(strcmpi(sides_all, 'left'));
+        right_counts_all(d, context) = sum(strcmpi(sides_all, 'right'));
+
+        % =============================
+        % INDIVIDUAL CELL TYPES
+        % =============================
+        for ct = 1:num_celltypes
+            if ~isempty(sig_mod_boot)
+                this_celltype_idx = sig_mod_boot{d}(find(ismember(sig_mod_boot{d},all_celltypes{1,d}.(possible_celltypes{ct}))));
+            else
+                this_celltype_idx = all_celltypes{1,d}.(possible_celltypes{ct});
+            end
+            
+            if length(this_celltype_idx) > 1
+                sides_this_type = sides_all(this_celltype_idx);
+    
+                left_counts_celltype{ct}(d, context)  = sum(strcmpi(sides_this_type, 'left'));
+                right_counts_celltype{ct}(d, context) = sum(strcmpi(sides_this_type, 'right'));
+            end
+        end
+    end
+end
+
+%across datasets!
+% --- ALL CELL TYPES ---
+mean_left_all  = mean(left_counts_all(chosen_mice,:),1);
+mean_right_all = mean(right_counts_all(chosen_mice,:),1);
+
+sem_left_all  = std(left_counts_all(chosen_mice,:),0,1)/sqrt(length(chosen_mice));
+sem_right_all = std(right_counts_all(chosen_mice,:),0,1)/sqrt(length(chosen_mice));
+
+% --- CELL TYPES ---
+mean_left_celltype  = cell(num_celltypes,1);
+mean_right_celltype = cell(num_celltypes,1);
+sem_left_celltype   = cell(num_celltypes,1);
+sem_right_celltype  = cell(num_celltypes,1);
+
+for ct = 1:num_celltypes
+    % Get the data for this cell type
+    left_data  = left_counts_celltype{ct}(chosen_mice,:);
+    right_data = right_counts_celltype{ct}(chosen_mice,:);
+    
+    % Replace zeros with NaN so they are ignored in mean/SEM
+    left_data(left_data==0)   = NaN;
+    right_data(right_data==0) = NaN;
+    
+    % Compute mean ignoring zeros
+    mean_left_celltype{ct}  = mean(left_data,1,'omitnan');
+    mean_right_celltype{ct} = mean(right_data,1,'omitnan');
+    
+    % Compute SEM ignoring zeros
+    sem_left_celltype{ct}  = std(left_data,0,1,'omitnan') ./ sqrt(sum(~isnan(left_data),1));
+    sem_right_celltype{ct} = std(right_data,0,1,'omitnan') ./ sqrt(sum(~isnan(right_data),1));
+end
+
+
+positions = utils.calculateFigurePositions(1, 5, .5, []);
+%% Make plots (ALL)
+figure(31);clf;
+bar([sum(left_counts_all); sum(right_counts_all)]');
+xticks([1 2]);
+xticklabels(plot_info.behavioral_contexts);
+ylabel('Count');
+legend({'Left','Right'});
+% title('Left vs Right counts per context (grouped)');
+box off;
+set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
+utils.set_current_fig;
+
+
+figure(32);clf; hold on;
+x = 1:num_contexts;
+
+% Plot left
+bar(x-0.15, mean_left_all, 0.3, 'FaceColor', [0.6 0.6 0.6], 'EdgeColor', 'none'); 
+errorbar(x-0.15, mean_left_all, sem_left_all, 'k', 'LineStyle','none');
+
+% Plot right
+bar(x+0.15, mean_right_all, 0.3, 'FaceColor', [0.9 0.9 0.9], 'EdgeColor', 'none'); 
+errorbar(x+0.15, mean_right_all, sem_right_all, 'k', 'LineStyle','none');
+
+xticks(x);
+xticklabels(plot_info.behavioral_contexts);
+ylabel('Mean count ± SEM');
+legend({'Left','Right'}, 'Location','northoutside','Orientation','horizontal','Box','off');
+% title('All cell types');
+positions = utils.calculateFigurePositions(1, 5, .5, []);
+box off;
+
+%% CELL TYPES
+num_celltypes = length(possible_celltypes);
+figure(33);clf
+hold on
+for ct = 1:num_celltypes
+    subplot(1,num_celltypes,ct)
+    ct_name = possible_celltypes{ct};
+    ct_color = plot_info.colors_celltypes(ct,:);   % [R G B]
+
+    % Data for this cell type
+    L = sum(left_counts_celltype{ct});   % [1 x num_contexts]
+    R = sum(right_counts_celltype{ct});  % [1 x num_contexts]
+
+
+    b = bar([L; R]');
+
+    % --- Apply color ---
+    b(1).FaceColor = ct_color * 0.7;   % left  (darker)
+    b(2).FaceColor = ct_color * 1.1;   % right (lighter)
+    b(1).EdgeColor = 'none';
+    b(2).EdgeColor = 'none';
+
+    xticks(1:num_contexts);
+    xticklabels(plot_info.behavioral_contexts);
+    ylabel('Count');
+
+%     legend({'Left','Right'}, 'Location','northoutside','Orientation','horizontal');
+
+    hLeg = legend({'Left','Right'}, 'Location','northoutside', 'Orientation','horizontal', 'Box','off');
+
+    % Find the patch objects in the legend (the colored squares)
+    patches = findobj(hLeg, 'Type', 'Patch');
+    
+    % Make the patches smaller (scale the size) or hide them
+    for i = 1:length(patches)
+        patches(i).XData = patches(i).XData * 0.3; % shrink the square
+        patches(i).YData = patches(i).YData * 0.3; % shrink the square
+    end
+%     title(['Left vs Right — ' ct_name]);
+    box off;
+    set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(ct, :));
+    utils.set_current_fig;
+end
+
+figure(34);clf
+
+for ct = 1:num_celltypes
+    subplot(1,num_celltypes,ct)
+    hold on
+    ct_name = possible_celltypes{ct};
+    ct_color = plot_info.colors_celltypes(ct,:);
+
+    x = 1:num_contexts;
+
+    % Bar width offset
+    barWidth = 0.3;
+
+    % Left
+    bar(x-barWidth/2, mean_left_celltype{ct}, barWidth, 'FaceColor', ct_color*0.7, 'EdgeColor','none');
+    errorbar(x-barWidth/2, mean_left_celltype{ct}, sem_left_celltype{ct}, 'k', 'LineStyle','none');
+
+    % Right
+    bar(x+barWidth/2, mean_right_celltype{ct}, barWidth, 'FaceColor',ct_color * 1.1, 'EdgeColor','none');
+    errorbar(x+barWidth/2, mean_right_celltype{ct}, sem_right_celltype{ct}, 'k', 'LineStyle','none');
+
+    xticks(x);
+    xticklabels(plot_info.behavioral_contexts);
+    ylabel('Mean count ± SEM');
+
+    % Legend
+    hLeg = legend({'Left','Right'}, 'Location','northoutside','Orientation','horizontal','Box','off');
+    patches = findobj(hLeg,'Type','Patch');
+    for i = 1:length(patches)
+        patches(i).XData = patches(i).XData*0.3;
+        patches(i).YData = patches(i).YData*0.3;
+    end
+
+%     title(ct_name);
+    box off;
+    set(gca, 'FontSize', 7);
+    utils.set_current_fig;
+
+end
+
+

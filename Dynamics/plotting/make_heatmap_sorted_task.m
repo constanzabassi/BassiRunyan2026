@@ -8,6 +8,7 @@ if nargin > 3
         xline(varargin{i},'-w')
     end
 end
+set(gca, 'YDir', 'reverse');
 
 caxis([plot_info.min_max]);
 colorbar;

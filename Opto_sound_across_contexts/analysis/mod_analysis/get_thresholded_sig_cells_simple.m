@@ -48,12 +48,33 @@ for context = 1:numContexts
         % Apply the threshold: retain only those cells whose modulation index (for that dataset)
         % exceeds the threshold. (Assumes that higher modulation means more significant.)
         if mod_params.threshold_single_side == 1
-            if mod_params.mod_threshold >= 0
-                sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) > mod_params.mod_threshold )];
-                all_signs{dataset_index,context} = [current_mod_index_single_dataset > mod_params.mod_threshold;(current_mod_index_single_dataset < -mod_params.mod_threshold)*-1];
+
+            thr = mod_params.mod_threshold;
+
+%             % --- POS / NEG (unified logic) ---
+%             pos = current_mod_index_single_dataset >= thr;
+%             neg = current_mod_index_single_dataset < thr;
+%             all_signs{dataset_index, context} = pos - neg;    % +1 or -1
+%             
+%             % --- Significant positive values ---
+%             sig_mod_boot_thr{dataset_index, context} = ...
+%                 current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) >= thr );
+             if strcmpi('positive_modulated',mod_params.savestring)
+                    if mod_params.mod_threshold >= 0
+                        sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) > mod_params.mod_threshold )];
+                        all_signs{dataset_index,context} = [current_mod_index_single_dataset > mod_params.mod_threshold;(current_mod_index_single_dataset < -mod_params.mod_threshold)*-1];
+                    else
+                        sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) < (mod_params.mod_threshold) )];
+                        all_signs{dataset_index,context} = [(current_mod_index_single_dataset < mod_params.mod_threshold);(current_mod_index_single_dataset > -mod_params.mod_threshold)*-1];
+                    end
             else
-                sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) < (mod_params.mod_threshold) )];
-                all_signs{dataset_index,context} = [(current_mod_index_single_dataset < mod_params.mod_threshold);(current_mod_index_single_dataset > -mod_params.mod_threshold)*-1];
+                if mod_params.mod_threshold > 0
+                    sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) > mod_params.mod_threshold )];
+                    all_signs{dataset_index,context} = [current_mod_index_single_dataset > mod_params.mod_threshold;(current_mod_index_single_dataset < -mod_params.mod_threshold)*-1];
+                else
+                    sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) < (mod_params.mod_threshold) )];
+                    all_signs{dataset_index,context} = [(current_mod_index_single_dataset < mod_params.mod_threshold);(current_mod_index_single_dataset > -mod_params.mod_threshold)*-1];
+                end
             end
         else
                     sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) > mod_params.mod_threshold ),...
