@@ -30,7 +30,7 @@ for dataset_index = chosen_mice
     for context = 1:size(deconv_st,1)
         context
         for cel = 1:length(fieldss)
-            if ~isempty(chosen_cells) && length(chosen_cells{dataset_index,cel})>min_cells && all(cellfun(@(x) size(x.stim,1), {deconv_st{1:size(deconv_st,1),dataset_index}}) > 2) %at least 2 cells of this cell type!, at least 3 trials across all contexts for this mouse! % 
+            if ~isempty(chosen_cells) && length(chosen_cells{dataset_index,cel})>min_cells && all(cellfun(@(x) size(x.stim,1), {deconv_st{1:size(deconv_st,1),dataset_index}}) > 2) %at least min cells of this cell type!, at least 3 trials across all contexts for this mouse! % 
                 deconv_response{context,dataset_index,cel}.stim = deconv_st{context,dataset_index}.stim(:,chosen_cells{dataset_index,cel},:);
                 deconv_response{context,dataset_index,cel}.ctrl = deconv_st{context,dataset_index}.ctrl(:,chosen_cells{dataset_index,cel},:);
                 if size(all_celltypes,1)>1 && ~isempty(all_celltypes{context,dataset_index}.(fieldss{cel}))

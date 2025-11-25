@@ -19,7 +19,7 @@ fieldss = fields(all_celltypes{1,1});
 % Determine which datasets to process based on input arguments
 % Default values
 chosen_mice = 1:size(mod_index,2);
-min_cells   = 1;
+min_cells   = 0;
 
 % Overwrite defaults if varargin provided
 if length(varargin) >= 1

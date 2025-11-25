@@ -27,6 +27,7 @@ plot_info.type = 'sounds';
 params.plot_info = plot_info;
 params.info.chosen_mice = [1:25];
 params.string = 'Sounds';
+mod_params.results = sound.results;
 
 %%%% sig cells %%%%%%%%%%%
 savepath = 'W:\Connie\results\Bassi2025\fig3\sounds\mod\prepost_sound\separate\sig_neurons';
@@ -76,6 +77,7 @@ mod_params.chosen_mice = [1:24];
 params.string = 'opto';
 mod_params.min_cells = 0; %at least 1 neuron per dataset that is modulated! (>0 is the logic)
 params.min_cells = mod_params.min_cells;
+mod_params.results = opto.results;
 %%% plot heatmaps and percentage modulated (spont)
 context_num = 3;
 [percentage_stats] = plot_sig_mod_pie(mod_params, opto.mod_prepost, opto.sig_mod_boot_thr, context_num, 'W:\Connie\results\Bassi2025\fig3\mod\', 'horizontal',all_celltypes);
@@ -217,8 +219,33 @@ plot_info.functional_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'
 [~,percent_bar_stats] = bar_plot_percent(percent_cells_signed{1},percent_cells_signed{2}, ['W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple/functional_pools/'],plot_info.functional_names,plot_info.functional_colors,{'Positive','Negative'});
 
 %%% generate the difference plot
-% taking the differences
-frames_to_sort = 50:59; %used for sorting
-plot_active_passive_diff_heatmap(context_data, frames_to_sort, 'Time from stimulus onset (s)', 'W:\Connie\results\Bassi2025\fig3\pre_engagement');
-plot_active_passive_diff_heatmap(context_data, frames_to_sort, 'Time from stimulus onset (s)', 'W:\Connie\results\Bassi2025\fig3\pre_engagement');
+% % taking the differences
+% frames_to_sort = 50:59; %used for sorting
+% plot_active_passive_diff_heatmap(context_data, frames_to_sort, 'Time from stimulus onset (s)', 'W:\Connie\results\Bassi2025\fig3\pre_engagement');
+% plot_active_passive_diff_heatmap(context_data, frames_to_sort, 'Time from stimulus onset (s)', 'W:\Connie\results\Bassi2025\fig3\pre_engagement');
+% 
+%%%%stats
+S_mod_celltypes = unwrap_cells_in_struct(load('W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\mod_index_stats_datasets.mat').mod_index_stats_datasets);
+S_mod_celltypes_all_datasets = unwrap_cells_in_struct(load('W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\all\mod_index_contexts_distribution_stats.mat').stats);
+S_mod_celltypes_all = unwrap_cells_in_struct(load('W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\mod_index_cdf_acrosscelltypes_all.mat').all_stats);
+S_mod_celltypes_sig = unwrap_cells_in_struct(load('W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\mod_index_cdf_acrosscelltypes_sig.mat').all_stats);
 
+S_mod_functional = unwrap_cells_in_struct(load('W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\functional_pools\mod_pooled_index_stats_datasets.mat').mod_pooled_index_stats_datasets);
+S_mod_functional_all = unwrap_cells_in_struct(load('W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\functional_pools\mod_index_cdf_acrosscelltypes_all.mat').all_stats);
+S_mod_functional_sig = unwrap_cells_in_struct(load('W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\functional_pools\mod_index_cdf_acrosscelltypes_sig.mat').all_stats);
+percent_mod_functional = unwrap_cells_in_struct(load('W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple\functional_pools\bar_percentsSoundPhotostimS & P_all_stats.mat').all_stats);
+
+table_1 = struct2table_recursive(S_mod_celltypes,'celltypes',{'bootstat'});
+table_15 = struct2table_recursive(S_mod_celltypes_all_datasets,'celltypes_all',{'bootstat'});
+table_2 = struct2table_recursive(S_mod_functional,'functional',{'bootstat'});
+table_3 = struct2table_recursive(S_mod_celltypes_all,'celltypes_all',{'bootstat','values'});
+table_4 = struct2table_recursive(S_mod_celltypes_sig,'celltypes_sig',{'bootstat','values'});
+table_5 = struct2table_recursive(S_mod_functional_all,'functional_all',{'bootstat','values'});
+table_6 = struct2table_recursive(S_mod_functional_sig,'functional_sig',{'bootstat','values'});
+table_7 = struct2table_recursive(percent_mod_functional,'functional_sig_percent',{'bootstat','values'});
+
+
+table_fig4_engagement = [table_1;table_15; table_2;table_3; table_4;table_5; table_6;table_7];
+save(fullfile(savepath, strcat('table_fig4_engagement.mat')), 'table_fig4_engagement');
+writetable(table_fig4_engagement, fullfile(savepath, strcat('table_fig4_engagement.csv')));
+% 

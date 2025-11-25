@@ -1,0 +1,152 @@
+function [final_data_means, final_mouse_ids_used] = plot_avg_traces_stim_plus_ctrl( ...
+    deconv_response, colors, lineStyles_contexts, celltypes_ids, frames, stim_frame, ...
+    save_dir, average_over_neurons, type, plot_info, varargin)
+
+if nargin < 9
+    average_over_neurons = false;
+end
+
+positions = utils.calculateFigurePositions(1, 9, .2, []);
+positions(:,1) = positions(:,1) - .1;
+positions(:,4) = positions(:,4) + .1;
+positions(:,2) = positions(:,2) - .2;
+positions(:,3) = positions(:,3) - .1;
+
+contexts = {'active', 'passive'};
+data_modes = plot_info.trace_modes; % e.g. {'raw','bs'}
+
+final_data_means = {};
+final_mouse_ids_used = {};
+
+for fig_idx = 1:length(data_modes)
+    figure(fig_idx); clf;
+
+    for celtype = 1:size(deconv_response,3)
+        subplot(1,size(deconv_response,3),celtype);
+        hold on;
+
+        for context = 1:size(deconv_response,1)
+            mouse_means = [];
+            all_traces = [];
+            mouse_ids_used = [];
+
+            for mouse = 1:size(deconv_response,2)
+                dat_struct = deconv_response{context,mouse,celtype};
+                if isempty(dat_struct) || ~isfield(dat_struct, 'stim') || ~isfield(dat_struct, 'ctrl')
+                    continue
+                end
+%                 if size(dat_struct.stim,2) == 1 || size(dat_struct.ctrl,2) == 1
+%                     continue
+%                 end
+
+                dat_struct.stim(isinf(dat_struct.stim)) = NaN;
+                dat_struct.ctrl(isinf(dat_struct.ctrl)) = NaN;
+
+                if isnan(dat_struct.stim)
+                    continue;
+                end
+                mouse_ids_used = [mouse_ids_used, mouse];
+
+                % Compute averages across trials if 3D
+                if ndims(dat_struct.stim) > 2
+                    stim_dat = squeeze(mean(dat_struct.stim, 'omitnan'));
+                    ctrl_dat = squeeze(mean(dat_struct.ctrl, 'omitnan'));
+                else
+                    stim_dat = dat_struct.stim;
+                    ctrl_dat = dat_struct.ctrl;
+                end
+
+                if size(dat_struct.stim,2) == 1 || size(dat_struct.ctrl,2) == 1
+                    stim_dat = stim_dat.'; %transpose since it's just one neuron it puts it as column
+                    ctrl_dat = ctrl_dat.';
+                end
+
+                % Restrict to relevant frames
+                stim_dat = stim_dat(:, frames);
+                ctrl_dat = ctrl_dat(:, frames);
+
+                % Baseline subtraction if needed
+                if strcmp(data_modes{fig_idx}, 'bs')
+                    if nargin > 10
+                        baseline_window = varargin{1,1};
+                    else
+                        baseline_window = 31:60;
+                    end
+                    stim_dat = stim_dat - mean(stim_dat(:, baseline_window), 2, 'omitnan');
+                    ctrl_dat = ctrl_dat - mean(ctrl_dat(:, baseline_window), 2, 'omitnan');
+                end
+
+                % Compute stim + ctrl sum
+                sum_dat = stim_dat + ctrl_dat;
+
+                if average_over_neurons
+                    all_traces = [all_traces; sum_dat];
+                else
+                    mean_trace = mean(sum_dat, 1, 'omitnan');
+                    mouse_means = [mouse_means; mean_trace];
+                end
+            end
+
+            % Store for output
+            if average_over_neurons
+                final_data_means{celtype,context} = all_traces;
+            else
+                final_data_means{celtype,context} = mouse_means;
+            end
+            final_mouse_ids_used{celtype,context} = mouse_ids_used;
+
+            % Plot mean ± SEM
+            if average_over_neurons && ~isempty(all_traces)
+                shadedErrorBar([], mean(all_traces,1,'omitnan'), ...
+                    std(all_traces,[],1,'omitnan')/sqrt(size(all_traces,1)), ...
+                    'lineprops', {'LineWidth', 1., 'LineStyle', '-', ...
+                    'Color', colors((celtype-1)*3+context,:)});
+            elseif ~isempty(mouse_means)
+                shadedErrorBar([], mean(mouse_means,1,'omitnan'), ...
+                    std(mouse_means,[],1,'omitnan')/sqrt(size(mouse_means,1)), ...
+                    'lineprops', {'LineWidth', 1., 'LineStyle', '-', ...
+                    'Color', colors((celtype-1)*3+context,:)});
+            end
+        end
+
+        % Axis formatting
+        xlim([31 91]);
+        xticks([31 61 91]);
+        xticklabels([-1 0 1]);
+
+        if  isfield(plot_info,'trace_ylims') && ~isempty(plot_info.trace_ylims)
+            ylim([plot_info.trace_ylims]);
+        end
+
+        yli = ylim;
+        if diff(yli) < 0.04
+            yli = [yli(1)-0.01, yli(2)+0.01];
+        end
+        onset_color = contains(plot_info.type,'sound') * [0.5 0.5 0.5] + ...
+                      ~contains(plot_info.type,'sound') * [1 0.8 0.3];
+
+        for f = 1:size(stim_frame,1)
+            x = [stim_frame(f,1), stim_frame(f,2), stim_frame(f,2), stim_frame(f,1)];
+            y = [yli(1), yli(1), yli(2), yli(2)];
+            patch(x, y, onset_color, 'EdgeColor', 'none', 'FaceAlpha', 1);
+        end
+
+        title([celltypes_ids{celtype}], 'FontSize', 7, 'FontName', 'arial','FontWeight','normal');
+        ax = gca;
+        ax.YAxis.Exponent = 0;
+        set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(celtype,:));
+
+        
+    end
+
+    
+
+    if ~isempty(save_dir)
+        fig_suffix = {'raw_sum', 'bs_sum'};
+        mkdir(fullfile(save_dir, 'avg_traces'));
+        saveas(fig_idx, fullfile(save_dir, 'avg_traces', ...
+            strcat('avg_traces', fig_suffix{fig_idx}, '_', type, '.fig')));
+        exportgraphics(gcf, fullfile(save_dir, 'avg_traces', ...
+            strcat('avg_traces', fig_suffix{fig_idx}, '_', type, '.pdf')), 'ContentType', 'vector');
+    end
+end

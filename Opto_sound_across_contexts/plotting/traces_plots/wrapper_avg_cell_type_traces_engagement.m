@@ -1,4 +1,4 @@
-function wrapper_avg_cell_type_traces_engagement(context_data,all_celltypes,mod_indexm,sig_mod_boot,mod_params,savepath,data_type,plot_info, celltype_names, colors)
+function  [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces_engagement(context_data,all_celltypes,mod_indexm,sig_mod_boot,mod_params,savepath,data_type,plot_info, celltype_names, colors)
 
     % Define the parameter sets
     param_sets = { 
@@ -31,7 +31,7 @@ for i = 1:length(param_sets)
         %plot can include baseline subtraction but right now took it out
         plot_info.trace_modes = {'raw'}; %{'raw', 'bs'}
 %         plot_avg_traces_baseline_subtracted(neural_response(contexts_to_plot,:,:),colors,{'-','-'},celltype_names,1:122,[60,63],savepath,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
-        plot_avg_traces_baseline_subtracted(neural_response(contexts_to_plot,:,:),colors,{'-','-'},celltype_names,1:122,[50,61],savepath,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info,1);
+        [traces_mean{1},dataset_ids{1}] = plot_avg_traces_baseline_subtracted(neural_response(contexts_to_plot,:,:),colors,{'-','-'},celltype_names,1:122,[50,61],savepath,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info,1);
 
 %         plot_avg_traces_baseline_subtracted_nosem(neural_response(contexts_to_plot,:,:),plot_info.colors_celltypes_4contexts,{'-','--'},plot_info.celltype_names,1:122,[60,63],savepath,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
 

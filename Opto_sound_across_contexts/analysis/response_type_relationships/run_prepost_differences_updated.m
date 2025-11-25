@@ -62,19 +62,19 @@ savepath = 'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_s
 
 [pooled_cell_types,plot_info.pooled_names,plot_info.pooled_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 plot_info.pooled_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S & P';'modulated'},'Unmodulated'}
-wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],[1:24],savepath,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
-
+[traces_mean,dataset_ids] = wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],[1:24],savepath,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
+table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'Sound', 'Photostim', 'S & P','S & P'},51:60, savepath); %save stats table
 %% Functional pre responses (IN MAIN FIGURE)
 %functional
-params.plot_info = plot_info;
+plot_info = plotting_config();
+[pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 [preavg_index_by_dataset,~] = unpack_modindexm(avg_pre,[],pooled_cell_types,[1:24]);
+params.plot_info = plot_info;
 preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse('W:\Connie\results\Bassi2025\fig4', preavg_index_by_dataset, [1:24],...
-          params.plot_info, [.1,.4],0,'Pre Mean (\DeltaF/F)');
+          params.plot_info, [.075,.4],0,'Pre Mean (\DeltaF/F)');
 
 %celltypes
-plot_info.colors_celltypes = [0.37 0.75 0.49 %light green
-                            0.17 0.35 0.8  %blue
-                            0.82 0.04 0.04]; % red  
+plot_info = plotting_config();
 params.plot_info = plot_info;
 [preavg_index_by_dataset_ct,~] = unpack_modindexm(avg_pre,[],all_celltypes,[1:24]);
 preavg_stats_celltypes_dataset_ct = plot_connected_abs_mod_by_mouse('W:\Connie\results\Bassi2025\fig4/celltypes', preavg_index_by_dataset_ct, [1:24],...
