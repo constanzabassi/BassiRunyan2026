@@ -199,7 +199,7 @@ mod_pooled_index_stats_datasets = generate_engagement_index_plots_datasets(param
 % mod_params.chosen_mice = [1:24]; %1 less for opto control
 % savepath = ['W:\Connie\results\Bassi2025\fig3\pre_engagement\functional_celltype_traces\'];
 % wrapper_avg_cell_type_traces_engagement(context_data.dff,pooled_cell_types,mod_indexm,sig_mod_boot_thr,mod_params,savepath,'engagement_dff',plot_info,plot_info.celltype_names,plot_info.colors_pooled_3contexts); %repelem(plot_info.functional_colors, 3, 1)
-
+%%
 %%%% plot fraction + and - modulated per functional group
 [pooled_cell_types,plot_info.functional_names,plot_info.functional_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both'},[1:24],plot_info, 1); %,'unmodulated'
 %separate by positive and negative modulation
@@ -215,6 +215,7 @@ for i = 1:length(param_sets)
         [current_sig_cells] = get_thresholded_sig_cells_simple( mod_params_plot, mod_indexm', sig_mod_boot'); %using mod_indexm2 because using prepost instead of ctrl for opto
         percent_cells_signed{i} = calculate_sig_celltype_percentages(current_sig_cells(1:24), pooled_cell_types, []);
 end
+%%
 plot_info.functional_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S & P';'modulated'}};%,'Unmodulated'}
 [~,percent_bar_stats] = bar_plot_percent(percent_cells_signed{1},percent_cells_signed{2}, ['W:\Connie\results\Bassi2025\fig3\mod\pre_engagement\simple/functional_pools/'],plot_info.functional_names,plot_info.functional_colors,{'Positive','Negative'});
 

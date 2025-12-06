@@ -22,7 +22,7 @@ function all_stats = generate_engagement_index_plots_datasets(chosen_dataset, mo
     %     zero because we are taking means across + and - mod indices
     [all_stats.box_stats_datasets] = mod_index_violin_across_celltypes_datasets(save_dir, mod_index_by_dataset, params.plot_info, (params.plot_info.y_lims),1);
     if ~isempty(celltypes_ids)
-        if size(celltypes_ids{2,1},2) > 1 && ismember('Photostim',{celltypes_ids{2,:}})
+        if ismember('Photostim',{celltypes_ids{2,:}})
              celltypes_ids_updated = cellfun(@(x) ...
                 [x; repmat({'modulated'}, ~any(strcmpi(x,"Unmodulated")), 1)], ...
                 {celltypes_ids{2,:}}, 'UniformOutput', false);

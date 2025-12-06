@@ -9,7 +9,7 @@ for celtype = 1:size(deconv_response,3)
             mean_across_cells = [];
             mean_across_cells_ctrl =[];
             t = 0;
-            if ~isempty(deconv_response{1,mouse,1}.stim) && size(deconv_response{context,mouse,celtype}.stim,2) > 1
+            if ~isempty(deconv_response{1,mouse,1}.stim) && size(deconv_response{context,mouse,celtype}.stim,2) > 0
 
                 for trial = 1:length(stim_trials{1,mouse}{1,context});%1:size(deconv_response{context,mouse,celtype}.stim,1)
                     t = trial; %stim_trials{1,mouse}{1,context}(trial);
@@ -18,7 +18,7 @@ for celtype = 1:size(deconv_response,3)
                     end
                 end
                 t = 0;
-                if ~isempty(deconv_response{1,mouse,1}.ctrl) && size(deconv_response{context,mouse,celtype}.ctrl,2) > 1
+                if ~isempty(deconv_response{1,mouse,1}.ctrl) && size(deconv_response{context,mouse,celtype}.ctrl,2) > 0
                     for trial = 1:length(ctrl_trials{1,mouse}{1,context});% 1:size(deconv_response{context,mouse,celtype}.ctrl,1)
                         t = trial; %ctrl_trials{1,mouse}{1,context}(trial);
                         for cel = 1:size(deconv_response{context,mouse,celtype}.ctrl,2)

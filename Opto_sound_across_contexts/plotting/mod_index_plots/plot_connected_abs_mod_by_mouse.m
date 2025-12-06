@@ -278,7 +278,7 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
                 y_val = max(mean_cell_all2);
             end
 % y_val = 0.15;
-            if p_val_mod_cells(t) < 0.05 && KW.p_val < 0.05
+            if p_val_mod_cells(t) < 0.05/size(possible_tests,1) && KW.p_val < 0.05
                 xline_vars = possible_tests(t,:);
                 ct = ct + y_val*0.3;
                 utils.plot_pval_star(0, y_val+ct, p_val_mod_cells(t), xline_vars, ...

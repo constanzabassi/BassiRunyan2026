@@ -55,6 +55,7 @@ dynamics_info.bin_size = 1;
 % [cel_avg_z,~,~,~] = avg_activity (imaging_st,alignment,dynamics_info,1,all_celltypes, plot_info);
 
 %save stats!
+save_path = 'W:/Connie/results/Bassi2025/fig1';
 S = unwrap_cells_in_struct(dynamics_stats);
 table_fig1 = struct2table_recursive(S,'',{'bootstat','hist'});
 save(fullfile(save_path, strcat('table_fig1.mat')), 'table_fig1');
