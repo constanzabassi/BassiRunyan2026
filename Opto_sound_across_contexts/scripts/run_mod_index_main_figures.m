@@ -250,3 +250,13 @@ table_fig4_engagement = [table_1;table_15; table_2;table_3; table_4;table_5; tab
 save(fullfile(savepath, strcat('table_fig4_engagement.mat')), 'table_fig4_engagement');
 writetable(table_fig4_engagement, fullfile(savepath, strcat('table_fig4_engagement.csv')));
 % 
+%% plot pie chart of functional types
+contexts_to_compare = [1,2]; %[1:3];%[1,2]; %[1,2]; %[1:3];
+overlap_labels = {'Sound Only','Photostim Only', 'Sound & Photostim','Unmodulated'}; 
+save_dir = ['W:\Connie\results\Bassi2025\fig3\'];
+[percent_cells, percent_cells_per_dataset,percent_stats] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(1:24),opto.sig_cells(1:24,:), opto.mod, contexts_to_compare);
+plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, save_dir, contexts_to_compare,'save_string','sd_color','SD',[percent_stats.sig1.sd,percent_stats.sig2.sd,percent_stats.both.sd,percent_stats.unmod.sd],'Color',flipud(plot_info.pooled_colors(1:4,:)));
+plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, save_dir, contexts_to_compare,'save_string','sd','SD',[percent_stats.sig1.sd,percent_stats.sig2.sd,percent_stats.both.sd,percent_stats.unmod.sd]);
+
+table_percent_stats = struct2table_recursive(unwrap_cells_in_struct(percent_stats),{'bootstat'});
+writetable(table_percent_stats, fullfile(save_dir, strcat('table_percentfuntional_stats.csv')));
