@@ -35,7 +35,7 @@ chosen_cells ={};
 
 % Iterate over each chosen dataset
 for dataset_index = chosen_mice
-    
+    dataset_index
     % Check if significant modulation data exists for the dataset
     if ~isempty(sig_mod_boot) && ~isempty(sig_mod_boot{dataset_index})
         for celltype = 1:length(fieldss)
@@ -47,6 +47,12 @@ for dataset_index = chosen_mice
         for celltype = 1:length(fieldss)
             chosen_cells{dataset_index,celltype} = all_celltypes{1,dataset_index}.(fieldss{celltype});
         end
+    elseif ~isempty(sig_mod_boot) && isempty(sig_mod_boot{dataset_index})
+        for celltype = 1:length(fieldss)
+            % Select cells that are both significant and belong to the given cell type
+            chosen_cells{dataset_index,celltype} = [];
+        end
+
     end
     
     % Iterate over each context in the modulation index dataset

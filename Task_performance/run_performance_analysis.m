@@ -22,8 +22,12 @@ chosen_mice = [1:24];
 
 stats_table = struct2table_recursive(performance_stats, '', {'bootstat'});
 save(fullfile([save_path '/performance_analysis/stats_table.mat']),'stats_table');
-writetable(stats_table, fullfile(save_dir, strcat('table_performance.csv')));
+writetable(stats_table, fullfile(save_path, '/performance_analysis/', strcat('table_performance.csv')));
 
+[first_sound_stats] = plot_performance_time_to_sounds(performance(1,chosen_mice),[save_path '/performance_analysis/'],chosen_mice)
+first_sound_table = struct2table_recursive(first_sound_stats, '', {'bootstat'});
+save(fullfile([save_path '/performance_analysis/first_sound_table.mat']),'first_sound_table');
+writetable(first_sound_table, fullfile(save_path, '/performance_analysis/', strcat('table_first_sound_performance.csv')));
 %% iterates to balance condition and opto trials
 % behav_param.num_iterations = 5;
 % behav_param.fields_to_balance = [3,4];%{'correct'}=1 {'left_turn'}=2 {'condition'}=3 {'is_stim_trial'}=4

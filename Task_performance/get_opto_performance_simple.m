@@ -18,6 +18,7 @@ function performance = get_opto_performance_simple(imaging_st,behav_param,alignm
         performance(dataset_index).correct_all = sum(correct_or_no)/length(correct_or_no);
         performance(dataset_index).left_all = sum(left_or_no)/length(correct_or_no);
         performance(dataset_index).turn_onset_all = turn_onsets/30;
+        performance(dataset_index).time_to_first_sound = cellfun(@(x) find(x == 1, 1, 'first'),{imaging_array.stimulus})/30; %convert to sec
 
         performance(dataset_index).correct_opto = sum(condition_array(trial_ids_opto,2))/length(trial_ids_opto);
         performance(dataset_index).left_opto = sum(condition_array(trial_ids_opto,3))/length(trial_ids_opto);

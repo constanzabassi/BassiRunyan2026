@@ -172,6 +172,9 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
                 binned_data_all = compute_binned_data_all (context_data,ncelltypes,alignment,sig_mod_boot,possible_conditions);
                 plot_grand_average(ax, binned_data_all, plot_info, adjusted_event_onsets, [], [], [1 size(binned_data_all,4)],alignment);
             end
+            if isfield(plot_info,'gradavg_ylim')
+                ylim(plot_info.gradavg_ylim)
+            end
 
             set(gca,'xtick', adjusted_event_onsets, ...
                 'xticklabel', plot_info.xlabel_events_spont{con}, 'xticklabelrotation', 45);
@@ -299,6 +302,9 @@ else
             else
                 binned_data_all = compute_binned_data_all (context_data,ncelltypes,alignment,sig_mod_boot,possible_conditions);
                 plot_grand_average(ax, binned_data_all, plot_info, adjusted_event_onsets, [], [], [1 size(binned_data_all,4)]);
+            end
+            if isfield(plot_info,'gradavg_ylim')
+                ylim(plot_info.gradavg_ylim)
             end
             set(gca,'xtick', adjusted_event_onsets, ...
                 'xticklabel', plot_info.xlabel_events_spont{con}, 'xticklabelrotation', 45);

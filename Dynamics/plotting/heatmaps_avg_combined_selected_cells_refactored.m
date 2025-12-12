@@ -191,6 +191,9 @@ if ~isempty(alignment.conditions) && length(alignment.conditions) >= 1
 
         plot_grand_average(ax, mean_mouse_data_celltypes, plot_info, ...
                            adjusted_event_onsets, nan_insert_positions, num_nans, xlims, alignment);
+        if isfield(plot_info,'gradavg_ylim')
+            ylim(plot_info.gradavg_ylim)
+        end
         
 
         if strcmp(all_conditions{1, 3},'Control') && con == 1

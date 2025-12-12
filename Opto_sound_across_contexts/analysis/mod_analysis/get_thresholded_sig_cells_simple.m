@@ -59,28 +59,36 @@ for context = 1:numContexts
 %             % --- Significant positive values ---
 %             sig_mod_boot_thr{dataset_index, context} = ...
 %                 current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) >= thr );
-             if strcmpi('positive_modulated',mod_params.savestring)
-                    if mod_params.mod_threshold >= 0
+            if ~isempty(current_mod_index_single_dataset)
+                 if strcmpi('positive_modulated',mod_params.savestring)
+                        if mod_params.mod_threshold >= 0
+                            sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) > mod_params.mod_threshold )];
+                            all_signs{dataset_index,context} = [current_mod_index_single_dataset > mod_params.mod_threshold;(current_mod_index_single_dataset < -mod_params.mod_threshold)*-1];
+                        else
+                            sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) < (mod_params.mod_threshold) )];
+                            all_signs{dataset_index,context} = [(current_mod_index_single_dataset < mod_params.mod_threshold);(current_mod_index_single_dataset > -mod_params.mod_threshold)*-1];
+                        end
+                else
+                    if mod_params.mod_threshold > 0
                         sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) > mod_params.mod_threshold )];
                         all_signs{dataset_index,context} = [current_mod_index_single_dataset > mod_params.mod_threshold;(current_mod_index_single_dataset < -mod_params.mod_threshold)*-1];
                     else
                         sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) < (mod_params.mod_threshold) )];
                         all_signs{dataset_index,context} = [(current_mod_index_single_dataset < mod_params.mod_threshold);(current_mod_index_single_dataset > -mod_params.mod_threshold)*-1];
                     end
+                 end
             else
-                if mod_params.mod_threshold > 0
-                    sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) > mod_params.mod_threshold )];
-                    all_signs{dataset_index,context} = [current_mod_index_single_dataset > mod_params.mod_threshold;(current_mod_index_single_dataset < -mod_params.mod_threshold)*-1];
-                else
-                    sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) < (mod_params.mod_threshold) )];
-                    all_signs{dataset_index,context} = [(current_mod_index_single_dataset < mod_params.mod_threshold);(current_mod_index_single_dataset > -mod_params.mod_threshold)*-1];
-                end
+                sig_mod_boot_thr{dataset_index, context} = [];
             end
+
         else
+            if ~isempty(current_mod_index_single_dataset)
                     sig_mod_boot_thr{dataset_index, context} = [current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) > mod_params.mod_threshold ),...
             current_sig_single_dataset( current_mod_index_single_dataset(current_sig_single_dataset) < (mod_params.mod_threshold*-1) )];
                     all_signs{dataset_index,context} = [current_mod_index_single_dataset > mod_params.mod_threshold;(current_mod_index_single_dataset < -mod_params.mod_threshold)*-1];
-
+            else
+                sig_mod_boot_thr{dataset_index, context} = [];
+            end
         end
 
         %all siginifncant neurons per dataset across all contexts accumualted

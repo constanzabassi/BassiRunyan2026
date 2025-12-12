@@ -17,6 +17,7 @@ load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separat
 
 %% HEATMAPS SORTED BY SPONT!!
 figure_height = [185]; %155/165
+plot_info.gradavg_ylim = [-0.3,1.2];
 save_path = 'W:/Connie/results/Bassi2025/fig3/avg_heatmap_across_entire_trial_stretched_updated/';
 load('V:\Connie\results\opto_sound_2025\context\mod\prepost\separate\sig_mod_boot_thr.mat');% get spontaneously defined modulated neurons
 
@@ -24,7 +25,7 @@ load('V:\Connie\results\opto_sound_2025\context\data_info\context_data.mat'); %t
 % sorting_id_updated_datasets = get_sorting_indices_only(imaging_st, alignment, bin_size, sig_mod_boot, 0)
 sig_mod_boot = sig_mod_boot_thr(:,3);
 % [~,sorting_id_updated_datasets] = heatmaps_avg_combined_selected_cells_spont (context_data, plot_info,alignment,[],[save_path],1, sig_mod_boot,0);
-avg_across_datasets = 0; do_plot = 1;  plot_info.position = [100,100,131,figure_height];
+avg_across_datasets = 0; do_plot = 1;  plot_info.position = [100,100,131*0.954,figure_height];
 [~,sorting_id_updated_datasets] = heatmaps_avg_combined_selected_cells_spont_refactored( ...
         context_data, plot_info, alignment, [], ...
         save_path, [], sig_mod_boot, ...
@@ -33,10 +34,10 @@ avg_across_datasets = 0; do_plot = 1;  plot_info.position = [100,100,131,figure_
 %plot heatmaps and grand avg for active context
 alignment.conditions = [1,2]; %empty to run all conditions [5:8];
 alignment.number = [1:6]; %'reward','turn','stimulus'
-alignment.type = 'all';        plot_info.position =  [100,100,225,figure_height]; %[100,100,215,155];
+alignment.type = 'all';        plot_info.position =  [100,100,225*1.155,figure_height];%[100,100,225,figure_height]; %[100,100,215,155];
 heatmaps_avg_combined_selected_cells_refactored (imaging_st,plot_info,alignment,sorting_id_updated_datasets(2,:),[save_path 'photostim/sorted'],bin_size, sig_mod_boot,0,1);
 alignment.number = [1:3]; %'reward','turn','stimulus'
-alignment.type = 'stimulus';        plot_info.position = [100,100,112,figure_height];
+alignment.type = 'stimulus';        plot_info.position = [100,100,112*0.921,figure_height];%[100,100,112,figure_height];
 heatmaps_avg_combined_selected_cells_refactored (imaging_passive,plot_info,alignment,sorting_id_updated_datasets(2,:),[save_path  'photostim' '/sorted/passive/'],bin_size, sig_mod_boot,0,2);
 % 
 % now do SOUNDS!
@@ -53,8 +54,9 @@ param_sets = {
     struct('mod_threshold', mod_params.mod_threshold, 'threshold_single_side', 0, 'savestring', [ 'sound_all_modulated'],'chosen_mice', mod_params.chosen_mice,'data_type','sounds')
     };
 
-
+ylims_avg = [-.5,.5;-.5,.5;-.5,.5];
 for i = 1:length(param_sets)
+    plot_info.gradavg_ylim =ylims_avg(i,:);
 i
     %get sorting index
     [current_sig_cells] = get_thresholded_sig_cells_simple( param_sets{i}, mod_indexm, sig_mod_boot_thr);
@@ -80,13 +82,13 @@ i
         alignment.conditions = [1,2]; %empty to run all conditions [5:8];
         alignment.number = [1:6]; %'reward','turn','stimulus'
         alignment.type = 'all';
-        plot_info.position = [100,100,215,figure_height];
+        plot_info.position = [100,100,225*1.155,figure_height]; %215
         heatmaps_avg_combined_selected_cells_refactored (imaging_st,plot_info,alignment,sound_sorting(1,:),[save_path mod_params_plots.savestring ],bin_size, sig_cells,0,1);
 
         %do passive
         alignment.number = [1:3]; %'reward','turn','stimulus'
         alignment.type = 'stimulus';
-        plot_info.position = [100,100,117,figure_height]; %had to adjust y for this because 
+        plot_info.position = [100,100,112*0.921,figure_height]; %117 %had to adjust y for this because 
         heatmaps_avg_combined_selected_cells_refactored (imaging_passive,plot_info,alignment,sound_sorting(1,:),[save_path mod_params_plots.savestring '/passive/'],bin_size, sig_cells,0,2);
 end
 

@@ -64,6 +64,15 @@ savepath = 'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_s
 plot_info.pooled_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S & P';'modulated'},'Unmodulated'}
 [traces_mean,dataset_ids] = wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],[1:24],savepath,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
 table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'Sound', 'Photostim', 'S & P','S & P'},51:60, savepath); %save stats table
+%%
+plot_info.type = 'engagement'; %'sound'
+savepath = 'W:\Connie\results\Bassi2025\fig4\celltype_pre_traces\';% '/spont_sig'];% '/spont_sig']; %[info.savepath '/mod/' mod_params.mod_type '/spont_sig']; % Set directory to save figures.
+
+plot_info.pooled_names = plot_info.celltype_names;
+plot_info.colors_pooled_3contexts = plot_info.colors_celltypes_3contexts;
+[traces_mean,dataset_ids] = wrapper_avg_pooled_type_traces(context_data.dff,all_celltypes,[],[1:24],savepath,'sound_dff_celltypes_types_-2to0_',plot_info,[1:10]);
+table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'Pyr', 'SOM', 'PV'},51:60, savepath); %save stats table
+
 %% Functional pre responses (IN MAIN FIGURE)
 %functional
 plot_info = plotting_config();

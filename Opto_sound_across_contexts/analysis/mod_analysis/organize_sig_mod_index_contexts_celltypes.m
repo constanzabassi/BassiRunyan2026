@@ -73,9 +73,11 @@ for current_dataset = chosen_mice
     fprintf('Processing dataset %d...\n', current_dataset);
     
     % For each dataset, determine the set of cells to use:
-    if ~isempty(sig_mod_boot)
+    if ~isempty(sig_mod_boot) && ~isempty(sig_mod_boot{current_dataset})
         % Use the union of significant cells from active and passive contexts.
         mod_cells = combined_sig_cells{current_dataset};
+    elseif ~isempty(sig_mod_boot) && isempty(sig_mod_boot{current_dataset})
+        continue
     else
         % Use all cells for dataset m.
         mod_cells = 1:all_cellCounts(current_dataset);
