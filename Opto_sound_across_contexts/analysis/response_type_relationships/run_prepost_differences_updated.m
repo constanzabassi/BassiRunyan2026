@@ -142,9 +142,8 @@ n_contexts = 2;
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'both','opto','sound'},[1:24],plot_info, 1);
 [modl_fit_deltastimsound,stats9] = wrapper_scatter_index_contexts([],avg_ctrl_post, diff_stim, pooled_cell_types, plot_info, current_save_dir, 'Post (Sound)', 'Post (Δ Stim)',0,0,[-1,2]);
 
-
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both'},[1:24],plot_info, 1);
-[stats_deltastimsound, corr_results_deltastimsound] = wrapper_plot_corr_means([],pooled_cell_types, avg_ctrl_post, diff_stim, avg_post, current_save_dir, plot_info, [-1,1], 'Corr (Sound vs Δ Stim)', [1:24], [1:3]) %1:4 is functional subtimes from pooled
+[stats_deltastimsound, corr_results_deltastimsound] = wrapper_plot_corr_means([],pooled_cell_types, avg_ctrl_post, diff_stim, avg_post, current_save_dir, plot_info, [-.5,.5], 'Corr (Sound vs Δ Stim)', [1:24], [1:3]) %1:4 is functional subtimes from pooled
 
 %save stats into a single table
 stats = {stats9,stats1, stats2, stats3, stats4, stats5, stats6,stats7,stats8};

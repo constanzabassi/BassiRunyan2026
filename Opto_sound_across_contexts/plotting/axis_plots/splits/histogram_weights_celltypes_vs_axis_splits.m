@@ -7,6 +7,7 @@ n_splits = size(proj_weights,1);
 % Bin by engagement
 edges = linspace(edge_values(1),edge_values(2), num_bins+1); %linspace(min(all_engagement), max(all_engagement), num_bins+1);
 bin_centers = edges(1:end-1) + diff(edges)/2;
+clean_labels = cellfun(@(s) strrep(s, '_cells', ''), possible_celltypes(1:3), 'UniformOutput', false);
 
 figure(806);clf;
 hold on;
@@ -82,6 +83,16 @@ for c = 1:num_combos
     hist_weight_ct_stats.stats{ct2} = utils.get_basic_stats(y);
     [p_values( c),observeddifference(c), effectsize(c)] = permutationTest_updatedcb(x, y, 10000,'paired',0); % unpaired
 
+    %now do abs
+
+    x = abs(all_weights{ct1});
+    y = abs(all_weights{ct2});
+%     valid = ~isnan(x) & ~isnan(y);
+
+    hist_weight_ct_stats.stats_abs{ct1} = utils.get_basic_stats(x);
+    hist_weight_ct_stats.stats_abs{ct2} = utils.get_basic_stats(y);
+    [p_values_abs( c),observeddifference_abs(c), effectsize_abs(c)] = permutationTest_updatedcb(x, y, 10000,'paired',0); % unpaired
+
 %     if any(valid)
 %         p_values( c) = permutationTest(x, y, 10000); % unpaired
 %     end
@@ -95,6 +106,11 @@ hist_weight_ct_stats.effectsize = effectsize;
 hist_weight_ct_stats.test = 'unpaired permutation across bins and celltype pairs';
 hist_weight_ct_stats.combos = celltype_combos;
 hist_weight_ct_stats.significant = find(p_values < 0.05 / (num_combos)); % Bonferroni correction
+hist_weight_ct_stats.p_values_abs = p_values;
+hist_weight_ct_stats.observeddifference_abs = observeddifference_abs;
+hist_weight_ct_stats.effectsize_abs = effectsize_abs;
+hist_weight_ct_stats.significant_abs = find(p_values_abs < 0.05 / (num_combos)); % Bonferroni correction
+
 
 %add significant stars
 if isfield(hist_weight_ct_stats, 'p_values') && ~isempty(hist_weight_ct_stats.p_values)
@@ -122,6 +138,87 @@ ax.FontSize = 7;
 ax.XLabel.FontSize = ax.FontSize;
 ax.YLabel.FontSize = ax.FontSize;
 utils.set_current_fig;
+
+%% create violin plots
+figure(810); clf;
+for celltype = 1:3
+%     a(celltype) = Violin({all_weights{celltype}},celltype,'ViolinColor',[{colorss(celltype,:)}],'EdgeColor',colorss(celltype,:),'QuartileStyle','boxplot'); %,'ViolinAlpha',{0.0, 0.8}
+    a(celltype) = Violin({all_weights{celltype}},celltype,'ViolinColor',[{colorss(celltype,:)}],'EdgeColor',colorss(celltype,:),'QuartileStyle','shadow','ShowData', false,'ShowMedian',true,'ViolinAlpha',{1},'ShowWhiskers',false); %,'ViolinAlpha',{0.0, 0.8}
+    v = a(celltype);   % your violin handle
+    x = v.MedianPlot.XData(1);
+    y = v.MedianPlot.YData(1);
+    v.MedianPlot.Visible = 'off';
+    v.ViolinPlot.LineWidth = 0.5;
+    halfWidth = 0.1 / 2; %width is 0.6
+
+    line([x - halfWidth, x + halfWidth], [y y], ...
+        'Color', 'w', ...
+        'LineWidth', 1.0, ...
+        'Clipping', 'on');
+
+
+end
+if strcmpi(axis_type2,'Context')
+    ylabel(['Engagement Weight']);
+else
+    ylabel([ axis_type2 ' Weight']);
+end
+xticks([1:3])
+xticklabels(upper(clean_labels));
+
+set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
+ax = gca;
+ax.XLabel.FontSize = ax.FontSize;
+ax.YLabel.FontSize = ax.FontSize;
+
+figure(811); clf;
+for celltype = 1:3
+%     a(celltype) = Violin({all_weights{celltype}},celltype,'ViolinColor',[{colorss(celltype,:)}],'EdgeColor',colorss(celltype,:),'QuartileStyle','boxplot'); %,'ViolinAlpha',{0.0, 0.8}
+    a(celltype) = Violin({abs(all_weights{celltype})},celltype,'ViolinColor',[{colorss(celltype,:)}],'EdgeColor',colorss(celltype,:),'QuartileStyle','shadow','ShowData', false,'ShowMedian',true,'ViolinAlpha',{1},'ShowWhiskers',false); %,'ViolinAlpha',{0.0, 0.8}
+    v = a(celltype);   % your violin handle
+    x = v.MedianPlot.XData(1);
+    y = v.MedianPlot.YData(1);
+    v.ViolinPlot.LineWidth = 0.5;
+    v.MedianPlot.Visible = 'off';
+    halfWidth = 0.1 / 2; %width is 0.6
+
+    line([x - halfWidth, x + halfWidth], [y y], ...
+        'Color', 'w', ...
+        'LineWidth', 1.0, ...
+        'Clipping', 'on');
+
+
+end
+if strcmpi(axis_type2,'Context')
+    ylabel(['|Engagement Weight|']);
+else
+    ylabel(['|' axis_type2 ' Weight|']);
+end
+xticks([1:3])
+xticklabels(upper(clean_labels));
+ylimss = ylim;
+ylim([-0.05, ylimss(2)])
+set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
+ax = gca;
+ax.XLabel.FontSize = ax.FontSize;
+ax.YLabel.FontSize = ax.FontSize;
+
+
+%
+if isfield(hist_weight_ct_stats, 'p_values') && ~isempty(hist_weight_ct_stats.p_values_abs)
+    ct_combos = nchoosek(1:3, 2); % assuming 3 cell types
+    offset = 0.05; % vertical spacing between stars
+
+    for c = 1:size(ct_combos, 1)
+        p = hist_weight_ct_stats.p_values_abs(c);
+        if p < 0.05 / 3  % Bonferroni correction
+            y = ylim;
+            star_y = y(2) - 0.15 + (c * offset);
+            x_pos = [min(mean_diff(ct_combos(c,1)),mean_diff(ct_combos(c,2))),max(mean_diff(ct_combos(c,1)),mean_diff(ct_combos(c,2)))];
+            utils.plot_pval_star(0, star_y, p, [x_pos], 0.05);
+        end
+    end
+end
 %% create bar plot summarizing results
 % Bar plot of mean ± SEM per cell type
 figure(807); clf;
@@ -146,7 +243,6 @@ for ct = 1:3
 end
 
 xticks(1:3);
-clean_labels = cellfun(@(s) strrep(s, '_cells', ''), possible_celltypes(1:3), 'UniformOutput', false);
 xticklabels(upper(clean_labels));
 if strcmpi(axis_type2,'Context')
     ylabel(['|Engagement Weight|']);
@@ -409,6 +505,12 @@ if ~isempty(save_dir)
 
     saveas(809,strcat('barplot_noabs_weights_datasets_celltypes_',axis_type2,'.fig'));
     exportgraphics(figure(809),strcat('barplot_noabs_weights_datasets_celltypes_',axis_type2,'.pdf'), 'ContentType', 'vector');
+
+    saveas(810,strcat('violin_noabs_weights_celltypes_',axis_type2,'.fig'));
+    exportgraphics(figure(810),strcat('violin_noabs_weights_celltypes_',axis_type2,'.pdf'), 'ContentType', 'vector');
+
+    saveas(811,strcat('violin_abs_weights_celltypes_',axis_type2,'.fig'));
+    exportgraphics(figure(811),strcat('violin_abs_weights_celltypes_',axis_type2,'.pdf'), 'ContentType', 'vector');
 
     save(strcat('errorbar_weights_celltypes_vs_axis_',num2str(axis_type2),'_stats_n',num2str(length(chosen_datasets)),'_edges_',num2str(edge_values),'.mat'),'errorbar_weight_datasets_ct_stats');
     save(strcat('errorbar_noabs_weights_celltypes_vs_axis_',num2str(axis_type2),'_stats_n',num2str(length(chosen_datasets)),'_edges_',num2str(edge_values),'.mat'),'errorbar_weight_datasets_ct_stats_noabs');
