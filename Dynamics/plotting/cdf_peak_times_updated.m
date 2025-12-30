@@ -179,51 +179,51 @@ for t = 1:length(possible_tests)
 end
 general_stats.cdf_test = 'unpaired permutation across all neurons';
 general_stats.cdf_possible_tests = possible_tests;
-%% === NEW FIGURE for HISTOGRAM ===
-figure(63); clf; hold on;
-for ce = 1:3
-    nan_insert_positions = [find(histcounts(101,dynamics_info.binss))];
-    data_to_plot = include_nans(hist_stats.mean{ce},num_nans, nan_insert_positions);
-    SEM_to_plot = include_nans(hist_stats.SEM{ce},num_nans, nan_insert_positions);
-    b = shadedErrorBar(1:size(data_to_plot,2),data_to_plot, SEM_to_plot, ...
-        'lineProps', {'color', plot_info.colors_celltype(ce,:), 'linewidth', 1});
-    utils.place_text_labels(plot_info.celltype_names{ce}, plot_info.colors_celltype(ce,:), 0.3+(0.1 * ce),  7,'topright', (binss(end)-binss(end)*.2)*.001);  %- length(cdf_cat)-length(cdf_cat)*.1
-%     utils.place_text_labels(plot_info.celltype_names{ce}, plot_info.colors_celltype(ce,:), 0.3, 'FontSize', 8,'UseTop',0,'yoffset',.8-(0.1 * ce),'ylim',[0,.1]);
-end
-for i = 1:length(dynamics_info.new_onsets)
-    xline(dynamics_info.new_onsets(i),'--k','LineWidth',1);
-end
-ylabel('Fraction of Peak Times');
-set(gca,'fontsize',14);
-set(gca,'box','off');
-
-% legend('PYR','SOM','PV','Location','northeast','box','off');
-xlim([1 binss(end)]);
-set(gca,'xtick',dynamics_info.new_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
-set(gcf,'position',[100,100,250,250])
-utils.set_current_fig;
-
-%histogram without shaded error bar
-figure(64); clf; hold on;
-for ce = 1:3
-    nan_insert_positions = [find(histcounts(101,dynamics_info.binss))];
-    data_to_plot = include_nans(hist_stats.mean{ce},num_nans, nan_insert_positions);
-    plot(data_to_plot,'color', plot_info.colors_celltype(ce,:), 'linewidth', .5)
-    utils.place_text_labels(plot_info.celltype_names{ce}, plot_info.colors_celltype(ce,:), 0.3+(0.1 * ce),  7,'topright', (binss(end)-binss(end)*.2)*.001);  %- length(cdf_cat)-length(cdf_cat)*.1
-%     utils.place_text_labels(plot_info.celltype_names{ce}, plot_info.colors_celltype(ce,:), 0.3, 'FontSize', 8,'UseTop',0,'yoffset',.8-(0.1 * ce),'ylim',[0,.1]);
-end
-for i = 1:length(dynamics_info.new_onsets)
-    xline(dynamics_info.new_onsets(i),'--k','LineWidth',.5);
-end
-ylabel('Fraction of Peak Times');
-set(gca,'fontsize',14);
-set(gca,'box','off');
-
-% legend('PYR','SOM','PV','Location','northeast','box','off');
-xlim([1 binss(end)]);
-set(gca,'xtick',dynamics_info.new_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
-set(gcf,'position',[100,100,250,250])
-utils.set_current_fig;
+% %% === NEW FIGURE for HISTOGRAM ===
+% figure(63); clf; hold on;
+% for ce = 1:3
+%     nan_insert_positions = [find(histcounts(101,dynamics_info.binss))];
+%     data_to_plot = include_nans(hist_stats.mean{ce},num_nans, nan_insert_positions);
+%     SEM_to_plot = include_nans(hist_stats.SEM{ce},num_nans, nan_insert_positions);
+%     b = shadedErrorBar(1:size(data_to_plot,2),data_to_plot, SEM_to_plot, ...
+%         'lineProps', {'color', plot_info.colors_celltype(ce,:), 'linewidth', 1});
+%     utils.place_text_labels(plot_info.celltype_names{ce}, plot_info.colors_celltype(ce,:), 0.3+(0.1 * ce),  7,'topright', (binss(end)-binss(end)*.2)*.001);  %- length(cdf_cat)-length(cdf_cat)*.1
+% %     utils.place_text_labels(plot_info.celltype_names{ce}, plot_info.colors_celltype(ce,:), 0.3, 'FontSize', 8,'UseTop',0,'yoffset',.8-(0.1 * ce),'ylim',[0,.1]);
+% end
+% for i = 1:length(dynamics_info.new_onsets)
+%     xline(dynamics_info.new_onsets(i),'--k','LineWidth',1);
+% end
+% ylabel('Fraction of Peak Times');
+% set(gca,'fontsize',14);
+% set(gca,'box','off');
+% 
+% % legend('PYR','SOM','PV','Location','northeast','box','off');
+% xlim([1 binss(end)]);
+% set(gca,'xtick',dynamics_info.new_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
+% set(gcf,'position',[100,100,250,250])
+% utils.set_current_fig;
+% 
+% %histogram without shaded error bar
+% figure(64); clf; hold on;
+% for ce = 1:3
+%     nan_insert_positions = [find(histcounts(101,dynamics_info.binss))];
+%     data_to_plot = include_nans(hist_stats.mean{ce},num_nans, nan_insert_positions);
+%     plot(data_to_plot,'color', plot_info.colors_celltype(ce,:), 'linewidth', .5)
+%     utils.place_text_labels(plot_info.celltype_names{ce}, plot_info.colors_celltype(ce,:), 0.3+(0.1 * ce),  7,'topright', (binss(end)-binss(end)*.2)*.001);  %- length(cdf_cat)-length(cdf_cat)*.1
+% %     utils.place_text_labels(plot_info.celltype_names{ce}, plot_info.colors_celltype(ce,:), 0.3, 'FontSize', 8,'UseTop',0,'yoffset',.8-(0.1 * ce),'ylim',[0,.1]);
+% end
+% for i = 1:length(dynamics_info.new_onsets)
+%     xline(dynamics_info.new_onsets(i),'--k','LineWidth',.5);
+% end
+% ylabel('Fraction of Peak Times');
+% set(gca,'fontsize',14);
+% set(gca,'box','off');
+% 
+% % legend('PYR','SOM','PV','Location','northeast','box','off');
+% xlim([1 binss(end)]);
+% set(gca,'xtick',dynamics_info.new_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
+% set(gcf,'position',[100,100,250,250])
+% utils.set_current_fig;
 
 
 % %% === NEW FIGURE for BOX PLOTS of peak times per event ===
@@ -443,8 +443,8 @@ if ~isempty(info)
 %     saveas(62, sprintf('cdf_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size));
 %     saveas(63, sprintf('hist_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size));
     exportgraphics(figure(62),fullfile(info.savepath, 'frc_dynamics/',sprintf('cdf_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
-    exportgraphics(figure(63),fullfile(info.savepath, 'frc_dynamics/',sprintf('hist_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
-    exportgraphics(figure(64),fullfile(info.savepath, 'frc_dynamics/',sprintf('hist_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+%     exportgraphics(figure(63),fullfile(info.savepath, 'frc_dynamics/',sprintf('hist_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+%     exportgraphics(figure(64),fullfile(info.savepath, 'frc_dynamics/',sprintf('hist_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
 %     exportgraphics(figure(77),fullfile(info.savepath, 'frc_dynamics/',sprintf('barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
     exportgraphics(figure(78),fullfile(info.savepath, 'frc_dynamics/',sprintf('barplot_soundscombined_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
     exportgraphics(figure(79),fullfile(info.savepath, 'frc_dynamics/',sprintf('barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')

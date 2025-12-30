@@ -80,7 +80,11 @@ for i = 1:length(param_sets)
         %repeat and separate into sided!
         sides = {'Left','Right'};
         for side = 1:2 %1 = left, 2 = right
-           savepath_updated = fullfile(savepath,sides{side},'\');
+            if ~isempty(savepath)
+                savepath_updated = fullfile(savepath,sides{side},'\');
+            else
+                savepath_updated = [];
+            end
            neural_data_to_plot = squeeze(neural_response_sided(side,contexts_to_plot,:,:));
            plot_avg_traces_baseline_subtracted(neural_data_to_plot ,plot_info.colors_celltypes_3contexts,{'-','-'},plot_info.celltype_names,1:122,[60,63],savepath_updated,avg_across_neurons,[data_type '_' mod_params.savestring ],plot_info);
         end

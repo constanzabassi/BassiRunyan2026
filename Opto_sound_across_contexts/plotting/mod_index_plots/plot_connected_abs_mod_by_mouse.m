@@ -60,7 +60,7 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
             end
             
             % Plot connected line for this mouse
-            if num_contexts > 1
+            if num_contexts > 1 && ~isfield(plot_info,'zero_star') || num_contexts > 1 && isfield(plot_info,'zero_star') && plot_info.zero_star == 0
                 for c = 1:(num_contexts - 1)
                     plot([x_pos(c) + 0.2, x_pos(c+1) - 0.2], ...
                          [mouse_means(c), mouse_means(c+1)], ...
@@ -278,7 +278,7 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
                 y_val = max(mean_cell_all2);
             end
 % y_val = 0.15;
-            if p_val_mod_cells(t) < 0.05/size(possible_tests,1) && KW.p_val < 0.05
+            if p_val_mod_cells(t) < 0.05 && KW.p_val < 0.05
                 xline_vars = possible_tests(t,:);
                 ct = ct + y_val*0.3;
                 utils.plot_pval_star(0, y_val+ct, p_val_mod_cells(t), xline_vars, ...
@@ -346,8 +346,8 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
         positions(:,2) = positions(:,2) - 1;
         set(gca, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
         ax = gca;
-        ax.XLabel.FontSize = ax.FontSize;
-        ax.YLabel.FontSize = ax.FontSize;
+        ax.XLabel.FontSize = 7;
+        ax.YLabel.FontSize = 7;
         xticklabels(repmat(plot_info.celltype_names, 1, n_celltypes))
         
     end
@@ -369,6 +369,9 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
             end
             if any(contains(save_string,'Δ')) || any(contains(save_string,'elta'))
                 save_string = [save_string 'deltastim']
+            end
+            if isfield(plot_info,'zero_star') && plot_info.zero_star == 1
+                save_string = [save_string 'vszero'];
             end
 %             save_string = strjoin(save_string);
             saveas(700,strcat(save_string,'_abs',num2str(abs_logic), '_mod_index_connected_lines_n',num2str(n_mice),'.svg'));

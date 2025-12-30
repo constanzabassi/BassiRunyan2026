@@ -20,6 +20,16 @@ function plot_sig_overlap_pie(percent_cells, overlap_labels, savepath, contexts_
 %   The pie chart will display the percentages for each of the four categories with the following labels:
 %       behavioral_contexts{1}, behavioral_contexts{2}, 'Both', 'Neither'.
 %
+    % ---- Optional inputs ----
+    p = inputParser;
+    addParameter(p, 'Colors', [], @(x) isnumeric(x));
+    addParameter(p, 'SD', [], @(x) isnumeric(x));
+    addParameter(p, 'save_string', '', @(x) ischar(x) || isstring(x));
+    parse(p, varargin{:});
+
+    sd_vals    = p.Results.SD;
+    saveName = char(p.Results.save_string);
+
     % Validate inputs.
     if numel(overlap_labels) < 2
         error('must contain at least two labels.');
@@ -38,11 +48,19 @@ function plot_sig_overlap_pie(percent_cells, overlap_labels, savepath, contexts_
     % Reposition and format the text labels.
     % In the output of pie, every second handle is a Text object.
     nLabels = numel(labels);
-    for iHandle = 2:2:2*nLabels
-        hText = hPie(iHandle);
+    for iLabel = 1:nLabels
+        hText = hPie(2*iLabel);   % every second handle is text
+        
         hText.Position = .9 * hText.Position;  % shift labels inward by half
-        hText.FontSize = 7;
+        hText.FontSize = 6;
         hText.FontName = 'Arial';
+        if ~isempty(sd_vals)
+            if isempty(sd_vals)
+                error('ShowMeanSD is true but SD values were not provided.');
+            end
+            hText.String = sprintf('%.0f ± %.0f%%', ...
+                percent_cells(iLabel), sd_vals(iLabel));
+        end
     end
     % Set a custom colormap.
     % Here, we use a 4x3 matrix where each row is an RGB triplet.
@@ -51,8 +69,8 @@ function plot_sig_overlap_pie(percent_cells, overlap_labels, savepath, contexts_
               0.65 0.65 0.65; % medium gray
               0.45 0.45 0.45; % dark gray
               0.25 0.25 0.25 ]); %darker gray
-    if nargin > 4
-        colors = varargin{1,1};
+    if ~isempty(p.Results.Colors)
+        colors = p.Results.Colors;
     end
     
     patchHand = findobj(hPie, 'Type', 'Patch'); 
@@ -79,6 +97,8 @@ function plot_sig_overlap_pie(percent_cells, overlap_labels, savepath, contexts_
     % [x y width height] -- tweak these numbers until the legend is placed as desired.
     leg_pos = positions(2,:);
     leg_pos(4) = leg_pos(4)/2;
+    leg_pos(2) = leg_pos(2) + leg_pos(4)/1.5;
+    leg_pos(1) = leg_pos(1)-leg_pos(1)*.1;
 %             leg_pos(2) = leg_pos(2) - leg_pos(4) + 0.1;
 %             leg_pos(4) = leg_pos(4)/3;
     leg.ItemTokenSize = [10, 10]; % [width height] in points (adjust as needed)
@@ -91,9 +111,13 @@ function plot_sig_overlap_pie(percent_cells, overlap_labels, savepath, contexts_
         if ~exist(outdir, 'dir')
             mkdir(outdir);
         end
-        saveas(f, fullfile(outdir, ['mod_pie_overlap_' num2str(contexts_to_compare) '.svg']));
-        saveas(f, fullfile(outdir, ['mod_pie_overlap_' num2str(contexts_to_compare) '.fig']));
-        exportgraphics(f,fullfile(outdir, ['mod_pie_overlap_' num2str(contexts_to_compare) '.pdf']), 'ContentType', 'vector');
+        string_to_add = [];
+        if ~isempty(saveName)
+            string_to_add = saveName;
+        end
+        saveas(f, fullfile(outdir, ['mod_pie_overlap_' num2str(contexts_to_compare) string_to_add '.svg']));
+        saveas(f, fullfile(outdir, ['mod_pie_overlap_' num2str(contexts_to_compare) string_to_add '.fig']));
+        exportgraphics(f,fullfile(outdir, ['mod_pie_overlap_' num2str(contexts_to_compare) string_to_add '.pdf']), 'ContentType', 'vector');
     end
     hold off;
 end

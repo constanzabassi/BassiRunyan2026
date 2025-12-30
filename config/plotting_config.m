@@ -39,3 +39,27 @@ plot_info.colors_contexts_simple = [0,0,0;0.5, 0.5, 0.5]; % light gray
 
                             
 plot_info.celltype_names = {"Pyr","SOM","PV"};
+
+%for distinguishing functional colors
+plot_info.colors_pooled_3contexts = [0.3,0.2,0.6 %purple
+                               0.7200,0.6800,0.8400 %
+                               0.7200,0.6800,0.8400 %
+                               1,0.7,0 %yelloiw
+                            1.0000,0.8800,0.6000 % 
+                            1.0000,0.8800,0.6000 % 
+                            0.3,0.8,1 % cyan
+                            0.7200,0.9200,1.0000 % 
+                            0.7200,0.9200,1.0000
+                            0,0,0 %black
+                            0.7,0.7,0.7
+                            0.7,0.7,0.7
+                            0.2,0,0.6 %purple
+                               0.6200,0.5800,0.8400 %
+                               0.6200,0.5800,0.8400 ]%];% 
+plot_info.pooled_colors = [0.3,0.2,0.6
+                            1,0.7,0
+                            0.3,0.8,1
+                            0.5 0.5 0.5
+                            0.2,0,0.5];
+plot_info.pooled_names = {'Sound','Photostim','Both','Unmodulated','Sound Negative'};
+

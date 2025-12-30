@@ -99,25 +99,25 @@ set(gca,'FontSize',7);
 % [sig_test.p_left, h1] = signrank([performance.left_opto],[performance.left_ctrl]);
 % [sig_test.p_turn_onset, h1] = signrank(temp(:,1),temp(:,2));
 
-figure(5557);clf;
-[pos] = utils.calculateFigurePositions(6,2,.5,[],[]);
-% subplot(1,3,1)
-hold on
-bar(1, mean(correct_per_mouse)*100,'FaceColor',[0.5 .5 .5],'LineStyle','none')
-% bar(1, mean(correct_per_mouse)*100,'FaceColor',[1 1 1],'EdgeColor',[0.5 0.5 0.5])
-
-for m = 1:n_mice
-    jitter = (rand-.5) *.8;
-    plot(1+jitter, [correct_per_mouse(m)]*100  ,mouse_symbols{m},'color','k', 'MarkerEdgeColor', 'k');
-end
-set(gca, 'XLimMode', 'manual', 'XLim', [0 2]);
-set(gca,'fontsize',7,'box','off','Units','Points','Position',[100,100,50,100],'FontName','Arial');
-
-xticks([1])
-labelArray = {'Imaging'; 'Sessions'}; 
-xticklabels(strtrim(sprintf('%s\\newline%s\n', labelArray{:})));
-% xticklabels({['Imaging Sessions']})
-ylabel('% correct')
+% figure(5557);clf;
+% [pos] = utils.calculateFigurePositions(6,2,.5,[],[]);
+% % subplot(1,3,1)
+% hold on
+% bar(1, mean(correct_per_mouse)*100,'FaceColor',[0.5 .5 .5],'LineStyle','none')
+% % bar(1, mean(correct_per_mouse)*100,'FaceColor',[1 1 1],'EdgeColor',[0.5 0.5 0.5])
+% 
+% for m = 1:n_mice
+%     jitter = (rand-.5) *.8;
+%     plot(1+jitter, [correct_per_mouse(m)]*100  ,mouse_symbols{m},'color','k', 'MarkerEdgeColor', 'k');
+% end
+% set(gca, 'XLimMode', 'manual', 'XLim', [0 2]);
+% set(gca,'fontsize',7,'box','off','Units','Points','Position',[100,100,50,100],'FontName','Arial');
+% 
+% xticks([1])
+% labelArray = {'Imaging'; 'Sessions'}; 
+% xticklabels(strtrim(sprintf('%s\\newline%s\n', labelArray{:})));
+% % xticklabels({['Imaging Sessions']})
+% ylabel('% correct')
 
 % [sig_test.p_correct, h1] = signrank([performance.correct_opto],[performance.correct_ctrl]);
 % plot_pval_star(0,max([performance.correct_opto])*100, sig_test.p_correct,[1 2],.15); %yl(2)+3
@@ -187,7 +187,7 @@ if ~isempty(save_data_directory)
     saveas(5556,fullfile([save_data_directory image_string '_datasets.svg']));
     saveas(5556,fullfile([save_data_directory image_string '_datasets.fig']));
     exportgraphics(figure(5556),fullfile([save_data_directory image_string '_datasets.pdf']), 'ContentType', 'vector');
-    exportgraphics(figure(5557),fullfile([save_data_directory image_string '_datasets_correct_only.pdf']), 'ContentType', 'vector');
+%     exportgraphics(figure(5557),fullfile([save_data_directory image_string '_datasets_correct_only.pdf']), 'ContentType', 'vector');
     exportgraphics(figure(5558),fullfile([save_data_directory image_string '_datasets_correct_only_boxplot.pdf']), 'ContentType', 'vector');
 
 end

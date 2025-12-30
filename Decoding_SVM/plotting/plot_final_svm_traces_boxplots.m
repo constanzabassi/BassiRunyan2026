@@ -1,6 +1,10 @@
-function plot_final_svm_traces_boxplots(version,event_type,do_passive,savepath,stim_ctrl_label)
+function plot_final_svm_traces_boxplots(version,event_type,do_passive,savepath,stim_ctrl_label,varargin)
 
-load('V:\Connie\results\opto_2024\context\data_info\info.mat');
+if nargin > 5
+    info = varargin{1};
+else
+    load('V:\Connie\results\opto_2024\context\data_info\info.mat');
+end
 info.task_event_type = event_type;
 %code below to find these numbers although should be the same each time!
 [current_mice,onset_id, active_events, passive_events] = default_data_info(info.task_event_type);

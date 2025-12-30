@@ -1,4 +1,4 @@
-function [avg_pre,avg_ctrl_pre, avg_post,avg_ctrl_post,avg_pre_left,avg_ctrl_pre_left,avg_post_left,avg_ctrl_post_left,avg_pre_right,avg_ctrl_pre_right,avg_post_right,avg_ctrl_post_right]  = wrapper_prepost_averaging(info, neural_structure,stim_trials_context,ctrl_trials_context, all_celltypes, params, savepath)
+function [avg_results,avg_pre,avg_ctrl_pre, avg_post,avg_ctrl_post,avg_pre_left,avg_ctrl_pre_left,avg_post_left,avg_ctrl_post_left,avg_pre_right,avg_ctrl_pre_right,avg_post_right,avg_ctrl_post_right]  = wrapper_prepost_averaging(info, neural_structure,stim_trials_context,ctrl_trials_context, all_celltypes, params, savepath)
 % Wrapper function to compute trial-averaged responses across datasets and
 % contexts separating trials according to params 
 % NOTE: if doing stim mode, the 3rd context is spont meaning there are no
@@ -133,6 +133,22 @@ else
     [avg_post,avg_ctrl_post] = into_mod_structure(neural_avg_trial_cel_mouse_post,all_celltypes); %same as mod structure for easy plotting!
 end
 
+avg_results = struct();
+
+avg_results.avg_pre            = avg_pre;
+avg_results.avg_ctrl_pre       = avg_ctrl_pre;
+avg_results.avg_post           = avg_post;
+avg_results.avg_ctrl_post      = avg_ctrl_post;
+
+avg_results.avg_pre_left       = avg_pre_left;
+avg_results.avg_ctrl_pre_left  = avg_ctrl_pre_left;
+avg_results.avg_post_left      = avg_post_left;
+avg_results.avg_ctrl_post_left = avg_ctrl_post_left;
+
+avg_results.avg_pre_right      = avg_pre_right;
+avg_results.avg_ctrl_pre_right = avg_ctrl_pre_right;
+avg_results.avg_post_right     = avg_post_right;
+avg_results.avg_ctrl_post_right= avg_ctrl_post_right;
 % % Save results
 % if ~isempty(savepath)
 %     outdir =savepath;

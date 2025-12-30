@@ -6,6 +6,7 @@ function params  = experiment_config()
     params.mod = get_modulation_params();
     params.mod_sounds = get_modulation_params_sounds()
     params.selectivity_sounds = get_selectivity_params_sounds()
+    params.min_cells = 0;
 end
 
 function info = get_info_params()
@@ -16,6 +17,7 @@ function info = get_info_params()
     info.path_string = 'context_stim/updated'; %used get_vaid_stim_onsets_trials to get trials with imaging structure info (from context_stim/60)
     info.savepath = 'V:/Connie/results/opto_sound_2025/context';
     info.savepath_sounds = 'V:/Connie/results/opto_sound_2025/context/sounds';
+    info.base_dir = 'V:\Connie\results\opto_sound_2025\context\'; %where original data got saved
     mkdir(info.savepath);
     
     % Ensure 1xN format for cell arrays
