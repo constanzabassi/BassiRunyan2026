@@ -143,6 +143,9 @@ for fig_idx = 1:length(data_modes)
 
     if ~isempty(save_dir)
         fig_suffix = {'raw_diff', 'bs_diff'};
+        if isfield(plot_info,'trace_ylims') && ~isempty(plot_info.trace_ylims)
+            fig_suffix = {'raw_diff_ylims','bs_diff_ylims'};
+        end
         mkdir(fullfile(save_dir, 'avg_traces'));
         saveas(fig_idx, fullfile(save_dir, 'avg_traces', ...
             strcat('avg_traces', fig_suffix{fig_idx}, '_', type, '.fig')));

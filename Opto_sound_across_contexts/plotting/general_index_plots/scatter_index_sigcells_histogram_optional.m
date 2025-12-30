@@ -6,7 +6,18 @@ if nargin > 9
         minmax = varargin{1,1};
     else
         minmax = [-1, 1];
-    end
+end
+
+% ---- NEW: normalize limits ----
+if size(minmax,1) == 1
+    xlim_vals = minmax;
+    ylim_vals = minmax;
+elseif size(minmax,1) == 2
+    xlim_vals = minmax(1,:);
+    ylim_vals = minmax(2,:);
+else
+    error('minmax must be [1x2] or [2x2]');
+end
 
     % Create figure
     figure(2324); clf;
@@ -15,10 +26,10 @@ if nargin > 9
     mainAx = axes('Position', [0.22 0.25 0.60 0.60]);
     hold(mainAx, 'on');
     if unity_line == 1
-        plot(mainAx, [minmax(1), minmax(2)], [minmax(1), minmax(2)], '--', 'Color', [0.5 0.5 0.5]);
+        plot(mainAx, xlim_vals, ylim_vals, '--', 'Color', [0.5 0.5 0.5]);
     else
-        plot(mainAx,[minmax(1), minmax(2)], [0,0], '--', 'Color', [0.5 0.5 0.5]);
-        plot(mainAx, [minmax(1), minmax(2)],-[minmax(1), minmax(2)],  '--', 'Color', [0.5 0.5 0.5]);
+        plot(mainAx, xlim_vals, [0 0], '--', 'Color', [0.5 0.5 0.5]);
+        plot(mainAx, xlim_vals, -xlim_vals, '--', 'Color', [0.5 0.5 0.5]);
     end
 %     xline(0.1,'--k')
 %         xline(-0.1,'--k')
@@ -40,8 +51,8 @@ if nargin > 9
     hold(topAx, 'on'); hold(rightAx, 'on');
     axis(topAx, 'tight'); axis(rightAx, 'tight');
     topAx.XTick = []; rightAx.YTick = [];
-    set(topAx, 'XLim', minmax, 'YTick', []);
-    set(rightAx, 'YLim', minmax, 'XTick', []);
+    set(topAx,   'XLim', xlim_vals, 'YTick', []);
+    set(rightAx,'YLim', ylim_vals, 'XTick', []);
 
     modl_fit = cell(1, 3);
     celltype_fields = fields(all_celltypes{1});
@@ -111,7 +122,7 @@ if nargin > 9
 %                 sprintf('R² = %.3f', modl_fit{cell_type}.Rsquared.Ordinary), ...
 %                 'Color', plot_info.colors_celltypes(cell_type, :), 'FontSize', 6);
             [r,p_val] = corr(all_x,all_y);
-            text(mainAx, minmax(1)+0.05, minmax(2) +0.1 - 0.2 * cell_type, ...
+            text(mainAx, xlim_vals(1)+0.05, ylim_vals(2)+0.1 - 0.2*cell_type,...
                 sprintf('R = %.3f', r), ...
                 'Color', plot_info.colors_celltypes(cell_type, :), 'FontSize', 6);
             stats.(celltype_fields{cell_type}).(all_field_names).r = r;
@@ -140,8 +151,9 @@ if nargin > 9
     % Finalize plot
     xlabel(mainAx, string1, 'Interpreter', 'tex');
     ylabel(mainAx, string2, 'Interpreter', 'tex');
-    xlim(mainAx, minmax);
-    ylim(mainAx, minmax);
+    xlim(mainAx, xlim_vals);
+    ylim(mainAx, ylim_vals);
+
     box(mainAx, 'off');
     % Remove x and y axis for topAx (X-axis histogram)
     topAx.XTick = [];
@@ -161,7 +173,7 @@ if nargin > 9
 %     set(gcf, 'Position', [100, 100, 200, 200]);  % [left bottom width height]
     set(mainAx, 'FontSize', 7, 'Units', 'inches', 'Position', positions(1, :));
     set(groot, 'defaultAxesFontName', 'Arial');
-    
+    utils.set_current_fig;
 
 
     % Save figure

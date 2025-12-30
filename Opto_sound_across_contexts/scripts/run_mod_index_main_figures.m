@@ -17,6 +17,15 @@ mod_params.min_cells = 0; % >0 so at least 1 modulated neuron per dataset
 %load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\mod_indexm.mat');
 % load('V:\Connie\results\opto_sound_2025\context\sounds\mod\prepost_sound\separate\sig_mod_boot_thr.mat');
 % load('V:\Connie\results\opto_sound_2025\context\sounds\data_info\context_data.mat');
+
+%%%plot pie overlaps
+overlap_labels = {'Active Only','Passive Only', 'Active & Passive'}; 
+save_dir = ['W:\Connie\results\Bassi2025\fig3/sounds/mod/prepost_sound/separate/'];
+[percent_cells_context, percent_cells_per_dataset_context,percent_stats_context] = calculate_sig1_vs_sig2_overlap(sound.sig_mod_boot_thr(1:25,1),sound.sig_mod_boot_thr(1:25,2), sound.mod, contexts_to_compare,'IncludeUnmodulated',false);
+plot_sig_overlap_pie(mean(percent_cells_per_dataset_context(:,1:3))*100, overlap_labels, save_dir, contexts_to_compare,'save_string','contextoverlap_sd_color','SD',[percent_stats.sig1.sd,percent_stats.sig2.sd,percent_stats.both.sd],'Color',flipud([.4,.4,.4;1,1,1;.7,.7,.7]));
+table_percent_context_stats = struct2table_recursive(unwrap_cells_in_struct(percent_stats_context),{'bootstat'});
+writetable(table_percent_context_stats, fullfile(save_dir, strcat('table_percentcontext_stats.csv')));
+
 %%%% sig cells %%%%%%%%%%%
 plot_info.y_lims = [-.4, .4];
 % Set labels for plots.
@@ -260,3 +269,67 @@ plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, save_d
 
 table_percent_stats = struct2table_recursive(unwrap_cells_in_struct(percent_stats),{'bootstat'});
 writetable(table_percent_stats, fullfile(save_dir, strcat('table_percentfuntional_stats.csv')));
+%% supplement
+contexts_to_compare = [1,2]; %[1:3];%[1,2]; %[1,2]; %[1:3];
+overlap_labels = {'Active Only','Passive Only', 'Active & Passive'}; 
+save_dir = ['W:\Connie\results\Bassi2025\fig3/sounds/mod/prepost_sound/separate/'];
+[percent_cells_context, percent_cells_per_dataset_context,percent_stats_context] = calculate_sig1_vs_sig2_overlap(sound.sig_mod_boot_thr(1:25,1),sound.sig_mod_boot_thr(1:25,2), sound.mod, contexts_to_compare,'IncludeUnmodulated',false);
+plot_sig_overlap_pie(mean(percent_cells_per_dataset_context(:,1:3))*100, overlap_labels, save_dir, contexts_to_compare,'save_string','contextoverlap_sd_color','SD',[percent_stats.sig1.sd,percent_stats.sig2.sd,percent_stats.both.sd],'Color',flipud([.4,.4,.4;1,1,1;.7,.7,.7]));
+table_percent_context_stats = struct2table_recursive(unwrap_cells_in_struct(percent_stats_context),{'bootstat'});
+writetable(table_percent_context_stats, fullfile(save_dir, strcat('table_percentcontext_stats.csv')));
+
+%% same y limits
+            struct('mod_threshold',  .1, ...
+                   'threshold_single_side', 1, ...
+                   'savestring', 'positive_modulated', ...
+                   'chosen_mice', mod_params.chosen_mice)};
+
+plot_info.y_lims = [-.2, .3];
+plot_info.trace_ylims = [0.14,0.3];
+params.plot_info = plot_info;
+%avg traces
+savepath_traces = 'W:\Connie\results\Bassi2025\fig3\sounds\celltype_traces\';
+[traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,savepath_traces,'sound_dff',plot_info,'param_sets',param_sets_traces);
+
+savepath_traces = 'W:\Connie\results\Bassi2025\fig3\sounds\celltype_traces\all_cells\';
+mod_params.mod_threshold =0;
+mod_params.threshold_single_side =1;
+param_sets_traces = { ...
+            struct('mod_threshold',  mod_params.mod_threshold, ...
+                   'threshold_single_side', 1, ...
+                   'savestring', 'positive_modulated', ...
+                   'chosen_mice', mod_params.chosen_mice)};
+[num_cells, ~] = organize_pooled_celltypes(context_data_sounds.dff, all_celltypes);
+all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
+plot_info.trace_ylims = [0.15,0.25];
+[traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,all_cells,mod_params,savepath_traces,'sound_dff',plot_info,'param_sets',param_sets_traces);
+
+% OPTO
+savepath_traces = 'W:\Connie\results\Bassi2025\fig3\celltype_traces\';
+param_sets_traces = { ...
+            struct('mod_threshold', .1, ...
+                   'threshold_single_side', 1, ...
+                   'savestring', 'positive_modulated', ...
+                   'chosen_mice', mod_params.chosen_mice)};
+%datasets
+plot_info.type = 'stim';
+params.plot_info = plot_info;
+
+
+plot_info.y_lims = [-.2, .4]; 
+plot_info.trace_ylims = [-0.05,0.25];
+params.plot_info = plot_info;params.min_cells = mod_params.min_cells;params.plot_info = plot_info;
+[traces_mean_diff,dataset_ids_diff] = wrapper_avg_cell_type_traces_stim_minus_ctrl(context_data.dff,all_celltypes,opto.mod,opto.sig_mod_boot,mod_params,savepath_traces,'opto_dff',plot_info,opto.mod_prepost,'param_sets',param_sets_traces);
+
+%%%all cells
+savepath_traces_all = ['W:\Connie\results\Bassi2025\fig3\celltype_traces\all_cells\'];
+mod_params.mod_threshold =0;
+mod_params.threshold_single_side =1;
+param_sets_traces = { ...
+            struct('mod_threshold', 0, ...
+                   'threshold_single_side', 1, ...
+                   'savestring', 'positive_modulated', ...
+                   'chosen_mice', mod_params.chosen_mice)};
+[num_cells, ~] = organize_pooled_celltypes(context_data_sounds.dff, all_celltypes);
+all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
+[traces_mean,dataset_ids] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,all_cells,mod_params,savepath_traces,'sound_dff',plot_info,'param_sets',param_sets_traces);

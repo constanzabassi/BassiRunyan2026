@@ -235,6 +235,9 @@ for fig_idx = 1:length(data_modes)*2
 
     if ~isempty(save_dir)
         fig_suffix = {'raw_stim','raw_ctrl','bs_stim','bs_ctrl'};
+        if isfield(plot_info,'trace_ylims') && ~isempty(plot_info.trace_ylims)
+            fig_suffix = {'raw_stim_ylims','raw_ctrl_ylims','bs_stim_ylims','bs_ctrl_ylims'};
+        end
         mkdir(fullfile(save_dir, 'avg_traces'));
         if average_over_neurons
             saveas(fig_idx, fullfile(save_dir, 'avg_traces', ...

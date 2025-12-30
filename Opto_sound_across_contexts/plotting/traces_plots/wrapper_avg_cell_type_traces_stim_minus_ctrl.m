@@ -1,14 +1,35 @@
 function [traces_mean,dataset_ids] = wrapper_avg_cell_type_traces_stim_minus_ctrl(context_data,all_celltypes,mod_indexm,sig_mod_boot,mod_params,savepath,data_type,plot_info,varargin)
 
-    % Define the parameter sets
-    param_sets = { 
-        struct('mod_threshold', mod_params.mod_threshold, 'threshold_single_side', 1, 'savestring', [ 'positive_modulated'],'chosen_mice', mod_params.chosen_mice),
-        struct('mod_threshold', -1 * mod_params.mod_threshold, 'threshold_single_side', 1, 'savestring', [ 'negative_modulated'],'chosen_mice', mod_params.chosen_mice),
-        struct('mod_threshold', mod_params.mod_threshold, 'threshold_single_side', 0, 'savestring', [ 'all_modulated'],'chosen_mice', mod_params.chosen_mice)
-    };
-% param_sets = { 
-%         struct('mod_threshold', 0, 'threshold_single_side', 0, 'savestring', [ 'all_modulated'])
-%     };
+    %% ---------------- Parse varargin ----------------
+    param_sets = {};   % default empty → use internal defaults
+
+    for v = 1:length(varargin)-1
+        key = varargin{v};
+        if isstring(key) || ischar(key)
+            switch lower(varargin{v})
+                case 'param_sets'
+                    param_sets = varargin{v+1};
+            end
+        end
+    end
+
+    %% ---------------- Default parameter sets ----------------
+    if isempty(param_sets)
+        param_sets = { ...
+            struct('mod_threshold',  mod_params.mod_threshold, ...
+                   'threshold_single_side', 1, ...
+                   'savestring', 'positive_modulated', ...
+                   'chosen_mice', mod_params.chosen_mice), ...
+            struct('mod_threshold', -mod_params.mod_threshold, ...
+                   'threshold_single_side', 1, ...
+                   'savestring', 'negative_modulated', ...
+                   'chosen_mice', mod_params.chosen_mice), ...
+            struct('mod_threshold',  mod_params.mod_threshold, ...
+                   'threshold_single_side', 0, ...
+                   'savestring', 'all_modulated', ...
+                   'chosen_mice', mod_params.chosen_mice)
+        };
+    end
         min_cells = mod_params.min_cells;
         results = mod_params.results;
 for i = 1:length(param_sets)

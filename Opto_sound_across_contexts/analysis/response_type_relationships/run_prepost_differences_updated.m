@@ -27,7 +27,7 @@ params.plot_info = plot_info;
 current_save_dir = 'W:\Connie\results\Bassi2025\fig5'; %'V:\Connie\results\opto_sound_2025\context\mod_index_specified_cells\differences_pre_post\dff'; %'V:\Connie\results\opto_sound_2025\context\mod_index_specified_cells\differences_pre_post\dff';
 %% calculate avg difference of post and pre
 %unpack data
-min_cells = 1;
+min_cells = 0;
 [dff_response,~] = unpack_context_mouse_celltypes(context_data.dff,[],all_celltypes,min_cells,[1:25]); %context_data.deconv_interp
 [deconv_response,~] = unpack_context_mouse_celltypes(context_data.deconv_interp,[],all_celltypes,min_cells,[1:25]); %context_data.deconv_interp
 
@@ -62,6 +62,7 @@ savepath = 'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_s
 
 [pooled_cell_types,plot_info.pooled_names,plot_info.pooled_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 plot_info.pooled_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S & P';'modulated'},'Unmodulated'}
+plot_info.trace_ylims = [0.16,0.22];
 [traces_mean,dataset_ids] = wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],[1:24],savepath,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
 table_fig3_evoked = make_stats_tables_evoked(traces_mean,[], 'avg_traces', {'Sound', 'Photostim', 'S & P','S & P'},51:60, savepath); %save stats table
 %%
