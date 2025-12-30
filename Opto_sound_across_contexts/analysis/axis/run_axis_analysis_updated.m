@@ -8,7 +8,7 @@ keep context_data all_celltypes plot_info
 
 split_params.divisions = 4; split_params.random_or_not = 0; split_params.splits = 4;
 choose_params.chosen_celltypes = 1:4; choose_params.chosen_datasets = 1:24;
-[proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = ...
+[axis_results,proj,proj_ctrl,proj_norm,proj_norm_ctrl, weights,trial_corr_context,percent_correct,act,act_norm_ctrl,act_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = ...
     find_axis_updated_specify_splits(context_data.dff, choose_params, all_celltypes,[],split_params); %,{50:59,63:73}
 
 save_dir = 'W:\Connie\results\Bassi2025\fig4\updated_4cv_combined_eng\';%'V:\Connie\results\opto_sound_2025\context\axis_lme_plots_updated\dff';
@@ -117,7 +117,7 @@ for d = 1:nDatasets
     test_trials_all{d} = horzcat(test_trials{:,d}); 
     test_trials_all_relative{d} = horzcat(test_trials_relative{:,d}); 
 end
-plot_performance_vs_engagement_axis_updated(percent_correct_all,engagement_all,[20,5],save_dir,[0,2]);
+% plot_performance_vs_engagement_axis_updated(percent_correct_all,engagement_all,[20,5],save_dir,[0,2]);
 plot_performance_vs_engagement_axis_updated(percent_correct_all,engagement_all,[20,5],save_dir,[0,2]);
 
 plot_performance_vs_activity(percent_correct_all,activity_all,[20,5],[save_dir '/performance_plots/activity/'],[-1,1.5]);

@@ -1,4 +1,4 @@
-function [proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_corr_context,percent_correct,real_activity_all,real_activity_all_ctrl,real_activity_all_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = find_axis_updated_specify_splits(dff_st,choose_params, all_celltypes,sig_mod_boot,split_params,varargin)
+function [axis_results,proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_corr_context,percent_correct,real_activity_all,real_activity_all_ctrl,real_activity_all_norm,percent_correct_concat,proj_concat,proj_concat_norm,engagement_concat,test_trials,test_trials_relative] = find_axis_updated_specify_splits(dff_st,choose_params, all_celltypes,sig_mod_boot,split_params,varargin)
         total_trials = {};
         possible_celltypes = fieldnames(all_celltypes{1,1});
 
@@ -417,4 +417,29 @@ function [proj,proj_ctrl,proj_norm,proj_ctrl_norm, weights,trial_corr_context,pe
             test_trials_relative{split,current_dataset} = [all_ctrl_trials_relative(ctrl_splits{current_dataset,1}(split).test),all_stim_trials_relative(stim_splits{current_dataset,1}(split).test)];
         end %datasets
    end %splits
+
+   axis_results = struct();
+    
+    axis_results.proj                     = proj;
+    axis_results.proj_ctrl                = proj_ctrl;
+    axis_results.proj_norm                = proj_norm;
+    axis_results.proj_norm_ctrl           = proj_ctrl_norm;
+    
+    axis_results.weights                  = weights;
+    
+    axis_results.trial_corr_context       = trial_corr_context;
+    axis_results.percent_correct          = percent_correct;
+    
+    axis_results.real_activity_all        = real_activity_all;
+    axis_results.real_activity_all_ctrl   = real_activity_all_ctrl;
+    axis_results.real_activity_all_norm   = real_activity_all_norm;
+    
+    axis_results.percent_correct_concat   = percent_correct_concat;
+    axis_results.proj_concat              = proj_concat;
+    axis_results.proj_concat_norm         = proj_concat_norm;
+    
+    axis_results.engagement_concat        = engagement_concat;
+    axis_results.test_trials              = test_trials;
+    axis_results.test_trials_relative     = test_trials_relative;
+
 end

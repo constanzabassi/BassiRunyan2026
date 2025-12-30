@@ -1,6 +1,6 @@
 % data structures saved in "W:\Connie\results\Bassi2025\data"
-load('plot_info.mat'); load('info.mat');load('all_celltypes.mat');
 %% Figure 1 -DYNAMICS AND DECODING
+load('plot_info.mat'); load('info.mat');load('all_celltypes.mat');
 load('imaging_st.mat'); load('alignment.mat');
 savepath_fig1 = [];
 
@@ -39,7 +39,7 @@ for event = 1:length(event_names)
     plot_final_svm_traces_boxplots('full',event_names{event},do_passive,savepath_fig1,stim_ctrl_labels,context_info);
 end
 
-%% Figure 2 - MOD INDEX
+%% Figure 2 - MOD INDEX and POST RESPONSES
 savepath_fig2 = [];
 % 1) LOAD THE DATA
 load('context_data.mat'); load('context_data_sounds.mat'); load('sound.mat'); load('opto.mat');load('avg_responses.mat');
@@ -112,7 +112,7 @@ mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_
 [~,~] = wrapper_avg_cell_type_traces_stim_minus_ctrl(context_data.dff,all_celltypes,opto.mod,opto.sig_mod_boot,mod_params,savepath_fig2,'opto_dff',plot_info,opto.mod_prepost,'param_sets',param_sets_traces);
 
 
-% 4) FUNCTIONAL TYPE PLOTS
+% 4) FUNCTIONAL TYPE PLOTS - POST RESPONSES
 contexts_to_compare = [1,2]; %[1:3];%[1,2]; %[1,2]; %[1:3];
 overlap_labels = {'Sound Only','Photostim Only', 'Sound & Photostim','Unmodulated'}; 
 [percent_cells, percent_cells_per_dataset,percent_stats] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(1:24),opto.sig_cells(1:24,:), opto.mod, contexts_to_compare);
@@ -126,21 +126,42 @@ plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, savepa
 
 
 %% Figure 3- PRE AND AXIS PLOTS
-
-% PRE STIMULUS PLOTS
+% 1) PRE STIMULUS PLOTS
 plot_info.type = 'engagement'; %'sound'
-savepath = 'W:\Connie\results\Bassi2025\fig4\functional_pre_traces\';% '/spont_sig'];% '/spont_sig']; %[info.savepath '/mod/' mod_params.mod_type '/spont_sig']; % Set directory to save figures.
+savepath_fig3 = [];
 
 [pooled_cell_types,plot_info.pooled_names,plot_info.pooled_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 plot_info.pooled_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S & P';'modulated'},'Unmodulated'}
 plot_info.trace_ylims = [0.16,0.22];
-[traces_mean,dataset_ids] = wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],[1:24],savepath,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
+[~,~] = wrapper_avg_pooled_type_traces(context_data.dff,pooled_cell_types,[],[1:24],savepath_fig3,'sound_dff_functional_types_-2to0_',plot_info,[1:10]);
 
-plot_info = plotting_config();
 [pooled_cell_types,plot_info.celltype_names,plot_info.colors_celltypes] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
-[preavg_index_by_dataset,~] = unpack_modindexm(avg_pre,[],pooled_cell_types,[1:24]);
+[preavg_index_by_dataset,~] = unpack_modindexm(avg_responses.avg_pre,[],pooled_cell_types,[1:24]);
 params.plot_info = plot_info;
-preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse('W:\Connie\results\Bassi2025\fig4', preavg_index_by_dataset, [1:24],...
+preavg_stats_celltypes_dataset = plot_connected_abs_mod_by_mouse(savepath_fig3, preavg_index_by_dataset, [1:24],...
           params.plot_info, [.075,.4],0,'Pre Mean (\DeltaF/F)');
 
-% AXIS PLOTS
+% 2) AXIS PLOTS
+celltype = 4; %4 = using all neurons (1=pyr,2=som,3=pv)
+plot_proj_meansplits_traces([1:24],axis_results.proj_norm_ctrl, 'context',celltype, [61:62],[0,0,0;.5,.5,.5],{'Active','Passive'},savepath_fig3,'xlabel','Time from stimulus onset (s)');
+
+colors_medium = [0.37 0.75 0.49 %green
+                0.17 0.35 0.8  %blue
+                0.82 0.04 0.04];
+edges_values_weights = [-.1,.1];
+num_bins_weights = 20;
+[~,~] = histogram_weights_celltypes_vs_axis_splits([1:24],axis_results.weights, 'Context' ,all_celltypes, edges_values_weights,num_bins_weights,colors_medium,savepath_fig3);
+
+frame_range_pre= 50:59;
+frame_range_post = 63:93;
+%sound (predicted) vs engagement axis
+[lm_sound,tbl_sound,~,~,context_all_sound,~,~,~] = ...
+    linear_regression_corr_model(proj_norm_ctrl, 'Sound',celltype,frame_range_pre,frame_range_post,[1:2]);
+%stim(predicted) vs engagement axis
+[lm_stim,tbl_stim,~,~,context_all_stim,~,~,~] = ...
+    linear_regression_corr_model(proj_norm, 'Stim',celltype,frame_range_pre,frame_range_post,[1:2]);
+
+plot_linear_regression_lines(lm_sound,tbl_sound,context_all_sound,'Sound Projection',savepath_fig3,'Engagement');
+plot_linear_regression_lines(lm_stim,tbl_stim,context_all_stim,'Stim Projection',savepath_fig3,'Engagement');
+
+plot_performance_vs_engagement_axis_updated(percent_correct_all,engagement_all,[20,5],savepath_fig3,[0,2]);
