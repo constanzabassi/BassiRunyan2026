@@ -1,15 +1,15 @@
 % data structures saved in "W:\Connie\results\Bassi2025\data"
 %% Figure 1 -DYNAMICS AND DECODING
+saved_decoding_dir = "W:\Connie\results\Bassi2025\data\Active_decoding\SVM\";
 load('plot_info.mat'); load('info.mat');load('all_celltypes.mat');
 load('imaging_st.mat'); load('alignment.mat');
 savepath_fig1 = [];
 
 % PERFORMANCE PLOT
 performance = get_opto_performance_simple(imaging_st,[],alignment);
-[performance_stats.all] = plot_performance_all(performance(1,1:25),save_plot_directory,[1:25]);
+[performance_stats.all] = plot_performance_all(performance(1,1:25),savepath_fig1,[1:25]);
 
 % DYNAMICS PLOTS
-load_main_vars(1); info.savepath = save_plot_directory;
 alignment.data_type = 'z_dff';
 
 heatmaps_avg_combined_all_celltypes_separate_plots_refactored( ...
@@ -26,7 +26,7 @@ alignment.type = 'all'; %'reward','turn','stimulus','ITI'
 % make bar plots using the peaks found
 dynamics_info.bin_size = 1;
 [dynamics_info.max_cel_avg,dynamics_info.new_onsets,dynamics_info.binss,dynamics_info.original_onsets] = peak_times_avg (imaging_st,alignment,dynamics_info,1);
-[dynamics_stats] =  cdf_peak_times_updated(dynamics_info.max_cel_avg,dynamics_info,all_celltypes_dynamics,plot_info,info,1); %last number is number of nans wanted
+[dynamics_stats] =  cdf_peak_times_updated(dynamics_info.max_cel_avg,dynamics_info,all_celltypes,plot_info,savepath_fig1,1); %last number is number of nans wanted
 clear imaging_st
 
 % DECODING PLOTS
@@ -35,8 +35,12 @@ event_names = {'sound_category','choice','outcome'};
 do_passive = 0;
 for event = 1:length(event_names)
     %full population plots
-    savepath_fig1 = save_plot_directory;%['W:\Connie\results\Bassi2025\fig2\SVM_1\full_population\' event_names{event} '\']; 
-    plot_final_svm_traces_boxplots('full',event_names{event},do_passive,savepath_fig1,stim_ctrl_labels,context_info);
+    if ~isempty(savepath_fig1)
+        save_plot_directory = fullfile(savepath_fig1,'full_population',event_names{event});
+    else
+        save_plot_directory = [];
+    end
+    plot_final_svm_traces_boxplots_updated('full',event_names{event},do_passive,save_plot_directory,stim_ctrl_labels,info,saved_decoding_dir);
 end
 
 %% Figure 2 - MOD INDEX and POST RESPONSES

@@ -1,4 +1,4 @@
-function [ general_stats] =  cdf_peak_times_updated(max_cel_mode,dynamics_info,all_celltypes,plot_info,info,varargin)
+function [ general_stats] =  cdf_peak_times_updated(max_cel_mode,dynamics_info,all_celltypes,plot_info,savepath,varargin)
 
 binss = 1:length(dynamics_info.binss);
 possible_celltypes = fieldnames(all_celltypes{1,1});
@@ -437,33 +437,33 @@ utils.set_current_fig(7);
 
 
 % save if needed
-if ~isempty(info)
-    mkdir(fullfile(info.savepath, 'frc_dynamics/'));
+if ~isempty(savepath)
+    mkdir(fullfile(savepath, 'frc_dynamics/'));
     
 %     saveas(62, sprintf('cdf_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size));
 %     saveas(63, sprintf('hist_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size));
-    exportgraphics(figure(62),fullfile(info.savepath, 'frc_dynamics/',sprintf('cdf_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
-%     exportgraphics(figure(63),fullfile(info.savepath, 'frc_dynamics/',sprintf('hist_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
-%     exportgraphics(figure(64),fullfile(info.savepath, 'frc_dynamics/',sprintf('hist_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
-%     exportgraphics(figure(77),fullfile(info.savepath, 'frc_dynamics/',sprintf('barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
-    exportgraphics(figure(78),fullfile(info.savepath, 'frc_dynamics/',sprintf('barplot_soundscombined_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
-    exportgraphics(figure(79),fullfile(info.savepath, 'frc_dynamics/',sprintf('barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+    exportgraphics(figure(62),fullfile(savepath, 'frc_dynamics/',sprintf('cdf_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+%     exportgraphics(figure(63),fullfile(savepath, 'frc_dynamics/',sprintf('hist_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+%     exportgraphics(figure(64),fullfile(savepath, 'frc_dynamics/',sprintf('hist_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+%     exportgraphics(figure(77),fullfile(savepath, 'frc_dynamics/',sprintf('barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+    exportgraphics(figure(78),fullfile(savepath, 'frc_dynamics/',sprintf('barplot_soundscombined_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+    exportgraphics(figure(79),fullfile(savepath, 'frc_dynamics/',sprintf('barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
 
     cdf_dynamics_stats = general_stats;
-    save(fullfile(info.savepath, 'frc_dynamics/',sprintf('cdf_max_peak_condition%s_nbins%d.mat', mat2str(dynamics_info.conditions), dynamics_info.bin_size)),'cdf_dynamics_stats')
+    save(fullfile(savepath, 'frc_dynamics/',sprintf('cdf_max_peak_condition%s_nbins%d.mat', mat2str(dynamics_info.conditions), dynamics_info.bin_size)),'cdf_dynamics_stats')
 
     set(gca(figure(79)), 'Units', 'inches', 'Position', [1,1,1.25,.81]); %new height
     ylabel({'Fraction of';'Neurons Peaking'}) %Fraction of Neurons with Peak Activity%Fraction of Neurons Peaking per Epoch %Fraction of Neurons with Maximum Activity per Epoch
 
     set(gca(figure(62)),  'Units', 'inches', 'Position', [1,1,1.2*2,.81]); %.81 = height of 1.125
-    exportgraphics(figure(62),fullfile(info.savepath, 'frc_dynamics/',sprintf('smaller_cdf_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
-    exportgraphics(figure(79),fullfile(info.savepath, 'frc_dynamics/',sprintf('smaller_barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+    exportgraphics(figure(62),fullfile(savepath, 'frc_dynamics/',sprintf('smaller_cdf_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+    exportgraphics(figure(79),fullfile(savepath, 'frc_dynamics/',sprintf('smaller_barplot_max_peak_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
 
     set(gca(figure(62)),  'Units', 'inches', 'Position', [1,1,1.25,1.2]); %.81 = height of 1.125
     adjusted_event_onsets(4) = adjusted_event_onsets(4)-5;addScaleBar(gca, 30, "1 sec")
     addScaleBar(gca, 30, "1 sec")
     set(gca,'xtick',adjusted_event_onsets,'xticklabel',plot_info.xlabel_events,'xticklabelrotation',45);
 
-    exportgraphics(figure(62),fullfile(info.savepath, 'frc_dynamics/',sprintf('smaller_cdf_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
+    exportgraphics(figure(62),fullfile(savepath, 'frc_dynamics/',sprintf('smaller_cdf_max_peak_noSEM_condition%s_nbins%d.pdf', mat2str(dynamics_info.conditions), dynamics_info.bin_size)), 'ContentType', 'vector')
 
 end

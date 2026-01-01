@@ -1,10 +1,5 @@
-function plot_final_svm_traces_boxplots(version,event_type,do_passive,savepath,stim_ctrl_label,varargin)
+function plot_final_svm_traces_boxplots_updated(version,event_type,do_passive,savepath,stim_ctrl_label,info,varargin)
 
-if nargin > 5
-    info = varargin{1};
-else
-    load('V:\Connie\results\opto_2024\context\data_info\info.mat');
-end
 info.task_event_type = event_type;
 %code below to find these numbers although should be the same each time!
 [current_mice,onset_id, active_events, passive_events] = default_data_info(info.task_event_type);
@@ -17,11 +12,46 @@ if do_passive == 0
     beta_passive = [];
 end
 % 1) load data
-version = version;
 info.chosen_mice = current_mice;
-% 'W:\Connie\results\Bassi2025\fig2\SVM_1\opto_ctrl'
-savepath = savepath; %['W:\Connie\results\Bassi2025\fig2\SVM_1\full_population\' info.task_event_type '\']; %['V:\Connie\results\SVM_1_wtop\active_passive\' info.task_event_type '\'];%['V:\Connie\results\SVM_1\' info.task_event_type '\'];
-[svm_mat, svm_mat2,svm_mat_pass, svm_mat_pass_ctrl,~, bins_to_include, event_onsets, mdl_param,  ~, ~,  ~, ~,  ~, ~] = wrapper_load_process_svm(current_mice, do_passive, info, active_events, 0, savepath,version, plot_info);
+if nargin > 6
+    shareFolder = varargin{1};
+else
+    shareFolder = [];
+end
+% Load share struct from folder if needed
+if ~isempty(shareFolder)
+    shareFile = fullfile(shareFolder, ...
+        sprintf('%s_svm_outputs_%s.mat', info.task_event_type, version));
+    tmp = load(shareFile);
+    if isfield(tmp,'shareS')
+        shareS = tmp.shareS;
+    elseif isfield(tmp,'S')
+        shareS = tmp.S;
+    else
+        f = fieldnames(tmp);
+        shareS = tmp.(f{1}); % assume single struct
+    end
+end
+% Choose data source
+if ~isempty(shareS)
+    svm_mat           = shareS.svm_mat;
+    svm_mat2          = shareS.svm_mat2;
+    bins_to_include   = shareS.bins_to_include;
+    event_onsets      = shareS.event_onsets;
+    mdl_param         = shareS.mdl_param;
+    svm_mat_pass      = [];
+    svm_mat_pass_ctrl = [];
+    if isfield(shareS,'svm_mat_pass'),      svm_mat_pass = shareS.svm_mat_pass; end
+    if isfield(shareS,'svm_mat_pass_ctrl'), svm_mat_pass_ctrl = shareS.svm_mat_pass_ctrl; end
+else
+    %load data from server
+    info.chosen_mice = current_mice;
+    [svm_mat, svm_mat2, svm_mat_pass, svm_mat_pass_ctrl, ~, ...
+        bins_to_include, event_onsets, mdl_param, ~, ~, ~, ~, ~, ~] = ...
+        wrapper_load_process_svm(current_mice, do_passive, info, active_events, ...
+                                 0, savepath, version, plot_info);
+end
+
 
 %2) plot all datasets together
 if strcmp(version,'full') || strcmp(version,'nmatch') && do_passive == 0
@@ -47,32 +77,8 @@ elseif strcmp(version,'stimctrl')
     celltype_peak_comparison = 1; %[concatenated 1,concatenated 2,concatenated 1 passive,concatenated 2 passive];
     acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat, mdl_param, [save_string 'stimctrl_act'],savepath, [.45,.85],svm_mat2,event_onsets, celltypes_to_comp,celltype_peak_comparison, stim_ctrl_label);
     acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat_pass, mdl_param, [save_string 'stimctrl_pass'],savepath, [.45,.85],svm_mat_pass_ctrl,event_onsets, celltypes_to_comp,celltype_peak_comparison, stim_ctrl_label);
-%     acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat, mdl_param, [save_string 'actpass_stim'],savepath, [.45,.85],svm_mat_pass,event_onsets, celltypes_to_comp,celltype_peak_comparison);
-%     acc_peaks_stats = wrapper_plot_svm_acc_trace_and_boxplots_actpass(svm_mat2, mdl_param, [save_string 'actpass_ctrl'],savepath, [.45,.85],svm_mat_pass_ctrl,event_onsets, celltypes_to_comp,celltype_peak_comparison,{'Active Ctrl','Passive Ctrl'});
 
 end
 
-% % %% PLOT BETA WEIGHTS
-% % load('V:\Connie\results\opto_2024\context\data_info\all_celltypes.mat');
-% % all_celltypes_updated = all_celltypes(info.chosen_mice);
-% % info.event_onsets = event_onsets;
-% % 
-% % [beta_mat,beta_mat_pass] = wrapper_mean_betas(info,beta_active,beta_passive); %mean across iterations
-% % 
-% % %
-% % bin_id = event_onsets(onset_id); %time when to get betas from
-% % wrapper_plot_betas_distributions(info,bin_id, beta_mat, all_celltypes_updated,  mdl_param, onset_id, [],[]);
-% % 
-% % % PLOT WEIGHT EVOLUTION OVER TIME
-% % info.savestr = 'betas';
-% % plot_weights_over_time([1:bins_to_include], event_onsets(onset_id), beta_mat,all_celltypes_updated,event_onsets,mdl_param.data_type,info,[1:3],mdl_param,savepath);
-% % 
-% % if do_passive == 1
-% %     wrapper_plot_betas_distributions(info,bin_id, beta_mat_pass, all_celltypes_updated,  mdl_param, onset_id, [],[]);
-% % 
-% %     % PLOT WEIGHT EVOLUTION OVER TIME
-% %     info.savestr = 'betas';
-% %     plot_weights_over_time([1:bins_to_include], event_onsets(onset_id), beta_mat_pass,all_celltypes_updated,event_onsets,mdl_param.data_type,info,[1:3],mdl_param,[savepath '/passive']);
-% % 
-% % end
+
 

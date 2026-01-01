@@ -47,7 +47,7 @@ alignment.type = 'all'; %'reward','turn','stimulus','ITI'
 dynamics_info.bin_size = 1;
 [dynamics_info.max_cel_avg,dynamics_info.new_onsets,dynamics_info.binss,dynamics_info.original_onsets] = peak_times_avg (imaging_st,alignment,dynamics_info,1);
 %%% old code [dynamics_info.p_cdf,dynamics_info.KW_peaks, dynamics_stats] =  cdf_peak_times(dynamics_info.max_cel_avg,dynamics_info,all_celltypes,plot_info,info);
-[dynamics_stats] =  cdf_peak_times_updated(dynamics_info.max_cel_avg,dynamics_info,all_celltypes,plot_info,info,1); %last number is number of nans wanted
+[dynamics_stats] =  cdf_peak_times_updated(dynamics_info.max_cel_avg,dynamics_info,all_celltypes,plot_info,info.savepath,1); %last number is number of nans wanted
 
 % %% plot average activity per epoch
 % [cel_avg,~,~,~] = avg_activity (imaging_st,alignment,dynamics_info,1,all_celltypes, plot_info);
