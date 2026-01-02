@@ -157,12 +157,12 @@ frame_range_pre= 50:59;
 frame_range_post = 63:93;
 %sound (predicted) vs engagement axis
 [lm_sound,tbl_sound,~,~,context_all_sound,~,~,~] = ...
-    linear_regression_corr_model(proj_norm_ctrl, 'Sound',celltype,frame_range_pre,frame_range_post,[1:2]);
+    linear_regression_corr_model(axis_results.proj_norm_ctrl, 'Sound',celltype,frame_range_pre,frame_range_post,[1:2]);
 %stim(predicted) vs engagement axis
 [lm_stim,tbl_stim,~,~,context_all_stim,~,~,~] = ...
-    linear_regression_corr_model(proj_norm, 'Stim',celltype,frame_range_pre,frame_range_post,[1:2]);
+    linear_regression_corr_model(axis_results.proj_norm, 'Stim',celltype,frame_range_pre,frame_range_post,[1:2]);
 
 plot_linear_regression_lines(lm_sound,tbl_sound,context_all_sound,'Sound Projection',savepath_fig3,'Engagement');
 plot_linear_regression_lines(lm_stim,tbl_stim,context_all_stim,'Stim Projection',savepath_fig3,'Engagement');
 
-plot_performance_vs_engagement_axis_updated(percent_correct_all,engagement_all,[20,5],savepath_fig3,[0,2]);
+plot_performance_vs_engagement_axis_updated(percent_correct_all,axis_results.engagement_all,[20,5],savepath_fig3,[0,2]);
