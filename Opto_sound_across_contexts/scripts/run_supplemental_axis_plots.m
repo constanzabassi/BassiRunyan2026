@@ -1,3 +1,4 @@
+% Code to make figures related to S9
 save_dir = [];
 
 celltype = 4; %4 = all

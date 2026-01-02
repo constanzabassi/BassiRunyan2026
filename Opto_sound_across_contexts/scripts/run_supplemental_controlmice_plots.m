@@ -1,4 +1,4 @@
-
+% Code to make figures related to S4
 %% Compare modulation indices across contexts and cell types
 load('opto_control.mat'); load('all_celltypes_control');load('all_celltypes.mat'); load('opto.mat');load('context_data_control');
 save_dir = [];
