@@ -5,6 +5,10 @@ plot_info.event_onsets =  event_onsets;
 genpath('C:\Code\Github\BassiRunyan2025\Decoding_SVM\plotting');
 plot_info.labels = {'Pyr','SOM','PV','All','Top Pyr'}; %{'Active'};
 
+if size(svm_mat,2) == 3 && isempty(svm_mat2)
+    plot_info.labels = {'Pyr','SOM','PV','Shuff'};
+end
+
 [acc_peaks,acc_peaks_shuff,acc_peaks_stats] = find_decoding_acc_peaks(svm_mat, 1:bins_to_include);
     save('acc_peaks_results','acc_peaks','acc_peaks_shuff','acc_peaks_stats');
 

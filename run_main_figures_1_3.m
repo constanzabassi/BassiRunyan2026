@@ -1,4 +1,5 @@
-% data structures saved in "W:\Connie\results\Bassi2025\data"
+% data structures saved in 
+cd("W:\Connie\results\Bassi2025\data")
 %% Figure 1 -DYNAMICS AND DECODING
 saved_decoding_dir = "W:\Connie\results\Bassi2025\data\Active_decoding\SVM\";
 load('plot_info.mat'); load('info.mat');load('all_celltypes.mat');
@@ -7,18 +8,14 @@ savepath_fig1 = [];
 
 % PERFORMANCE PLOT
 performance = get_opto_performance_simple(imaging_st,[],alignment);
-[performance_stats.all] = plot_performance_all(performance(1,1:25),savepath_fig1,[1:25]);
+plot_performance_all(performance(1,1:25),savepath_fig1,[1:25]);
 
 % DYNAMICS PLOTS
 alignment.data_type = 'z_dff';
 
 heatmaps_avg_combined_all_celltypes_separate_plots_refactored( ...
-        imaging_st,plot_info,alignment,[],save_plot_directory,1)
+        imaging_st,plot_info,alignment,[],savepath_fig1,1)
 
-plot_info.colors_celltype = [0.37 0.75 0.49 %light green
-                            0.17 0.35 0.8  %blue
-                            0.82 0.04 0.04 % red  
-                            0 0 0.5]; %dark purple
 dynamics_info.bin_size = 1;
 dynamics_info.conditions = [];
 alignment.data_type = 'dff';% 'dff', 'z_dff', else it's deconvolved
@@ -26,8 +23,8 @@ alignment.type = 'all'; %'reward','turn','stimulus','ITI'
 % make bar plots using the peaks found
 dynamics_info.bin_size = 1;
 [dynamics_info.max_cel_avg,dynamics_info.new_onsets,dynamics_info.binss,dynamics_info.original_onsets] = peak_times_avg (imaging_st,alignment,dynamics_info,1);
-[dynamics_stats] =  cdf_peak_times_updated(dynamics_info.max_cel_avg,dynamics_info,all_celltypes,plot_info,savepath_fig1,1); %last number is number of nans wanted
-clear imaging_st
+cdf_peak_times_updated(dynamics_info.max_cel_avg,dynamics_info,all_celltypes,plot_info,savepath_fig1,1); %last number is number of nans wanted
+clear imaging_st %clear bc it takes up memory
 
 % DECODING PLOTS
 stim_ctrl_labels = {};
@@ -46,7 +43,7 @@ end
 %% Figure 2 - MOD INDEX and POST RESPONSES
 savepath_fig2 = [];
 % 1) LOAD THE DATA
-load('context_data.mat'); load('context_data_sounds.mat'); load('sound.mat'); load('opto.mat');load('avg_responses.mat');
+load('context_data.mat'); load('sound.mat'); load('opto.mat');load('avg_responses.mat'); load('axis_results.mat')
 contexts_to_compare = [1,2];
 params = experiment_config(); 
 params.plot_info = plot_info;

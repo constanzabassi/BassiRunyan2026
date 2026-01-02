@@ -17,6 +17,9 @@ plot_info.labels = {'Pyr','SOM','PV','All','Top'}; %{'Active'};
     else
         bins_to_include = 55;
         plot_info.xlims = [1,bins_to_include];
+        if size(svm_mat,2) == 3
+            plot_info.labels = {'Pyr','SOM','PV','Shuff'};
+        end
         
         plot_svm_across_datasets(svm_mat,plot_info,plot_info.event_onsets,mdl_param,[save_string],savepath,ylims,bins_to_include);
         movegui(gcf,'center');%

@@ -7,6 +7,7 @@ function params  = experiment_config()
     params.mod_sounds = get_modulation_params_sounds()
     params.selectivity_sounds = get_selectivity_params_sounds()
     params.min_cells = 0;
+    params.info_ctrl = get_info_params_control_mice()
 end
 
 function info = get_info_params()
@@ -61,4 +62,39 @@ function mod = get_selectivity_params_sounds()
     mod.data_type_dff = 1; %dff or deconv
     mod.nShuffles = 10000; %total shuffles for bootstrapping
     mod.chosen_mice = 1:25;
+end
+
+function info = get_info_params_control_mice()
+    % Dataset and path information
+    %these includes most experiments for HA12,HA13,GE6 (HE1 probably has more)
+    info.mouse_date_all={'HA12-00/2023-02-17','HA12-00/2023-02-24','HA12-00/2023-03-02','HA12-00/2023-03-17','HA12-00/2023-03-23','HA12-00/2023-04-11', ...
+    'HA13-1L/2023-02-17','HA13-1L/2023-02-24','HA13-1L/2023-03-02','HA13-1L/2023-03-17','HA13-1L/2023-03-23','HA13-1L/2023-04-11', ...
+    'GE6-1R/2022-10-13','GE6-1R/2022-10-18','GE6-1R/2022-10-20','HE1-00\2023-05-30','HE1-00\2023-05-31'};
+    info.serverid_all = {'Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','V:','V:'};
+    info.mouseid_all = {1 1 1 1 1 1  2 2 2 2 2 2  3 3 3 4 4};
+
+    %IMPORTANT: using dates after the mice got habituated for HA12,HA13,HE1 (these are
+    %mice that learned to run on the ball), GE6 was fully naive and never
+    %learned to run so it had no behavioral or opto effects in any of its
+    %sessions!
+% %     info.mouse_date={'HA12-00/2023-03-17','HA12-00/2023-03-23','HA12-00/2023-04-11', ...
+% %     'HA13-1L/2023-03-17','HA13-1L/2023-03-23','HA13-1L/2023-04-11', ...
+% %     'GE6-1R/2022-10-13','GE6-1R/2022-10-18','GE6-1R/2022-10-20','HE1-00\2023-05-30','HE1-00\2023-05-31'}; 
+% %     info.serverid = {'Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','Y:','V:','V:'};
+% %     info.mouseid = {1 1 1  2 2 2  3 3 3 4 4}; %MISSING DATA FOR GE!!
+
+    info.mouse_date={'HA12-00/2023-03-17','HA12-00/2023-03-23','HA12-00/2023-04-11', ...
+    'HA13-1L/2023-03-17','HA13-1L/2023-03-23','HA13-1L/2023-04-11', ...
+    'HE1-00\2023-05-30','HE1-00\2023-05-31'};
+    info.serverid = {'Y:','Y:','Y:','Y:','Y:','Y:','V:','V:'};
+    info.mouseid = {1 1 1  2 2 2 3 3};
+    info.path_string = 'context_stim/updated'; %used get_vaid_stim_onsets_trials to get trials with imaging structure info (from context_stim/60)
+    info.savepath = 'W:\Connie\results\Bassi2025\fig3\control_mice';
+    info.savepath_sounds = 'W:\Connie\results\Bassi2025\fig3\sounds\control_mice';
+    info.base_dir = 'V:\Connie\results\opto_sound_2025\context\'; %where original data got saved
+    mkdir(info.savepath);
+    
+    % Ensure 1xN format for cell arrays
+    info.mouse_date = reshape(info.mouse_date, 1, []);
+    info.serverid = reshape(info.serverid, 1, []);
 end

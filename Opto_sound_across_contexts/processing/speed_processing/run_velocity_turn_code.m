@@ -1,5 +1,4 @@
 function [mouse_vel,trial_info_stats] = run_velocity_turn_code(chosen_mice,mouse_date,server,frames_before_event, frames_after_event,trials_to_use,align_to)
-addpath(genpath('C:\Code\Github\behavior-analysis2'));
 mouse_vel ={}; trial_info_stats = {};
 for m = chosen_mice
     mm = mouse_date(m)

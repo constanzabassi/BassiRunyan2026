@@ -149,13 +149,14 @@ else
     f = figure(72); clf;
     
     % Define common labels and colormap for all subplots.
-    labels = {'Positively modulated', 'Negatively modulated', 'Not modulated'};
+    
     customColormap = [1 1 1;    % white
                       0 0 0;    % black
                       0.5 0.5 0.5];  % grey
                   
     % Loop over each cell type and plot its pie chart
     for celltypes = 1:numTypes
+        labels = {'Positively modulated', 'Negatively modulated', 'Not modulated'};
         cellType = cellTypeNames{celltypes};
                 
         % Create a subplot for the current cell type.

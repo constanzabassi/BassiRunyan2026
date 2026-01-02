@@ -18,6 +18,9 @@ save(fullfile(filename, 'info.mat'), 'params');
 save(fullfile(filename, 'alignment_frames.mat'), 'alignment_frames');
 save(fullfile(filename, 'mouse_context_tr.mat'), 'mouse_context_tr');
 save(fullfile(filename, 'stim_info.mat'), 'stim_info');
+all_celltypes_control = all_celltypes;
+save(fullfile(filename, 'all_celltypes_control.mat'), 'all_celltypes_control');
+
 
 % % Process cell types
 [num_cells, sorted_cells] = organize_pooled_celltypes_updated(dff_st, all_celltypes);
