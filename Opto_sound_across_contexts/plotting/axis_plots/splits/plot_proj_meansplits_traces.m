@@ -51,7 +51,7 @@ for ctx = 1:contexts
 end
 xlimss = [31 91];
 xlim(xlimss );
-xticks([31 61 91]);
+xticks([31 60 91]);
 xticklabels([-1 0 1]);
 
 xlabel(xlab);

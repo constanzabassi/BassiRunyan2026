@@ -41,7 +41,7 @@ for event = 1:length(event_names)
 end
 
 %% Figure 2 - MOD INDEX and POST RESPONSES
-savepath_fig2 = [];
+savepath_fig2 = ['W:\Connie\results\Bassi2025\fig2_nature\'];
 % 1) LOAD THE DATA
 load('context_data.mat'); load('sound.mat'); load('opto.mat');load('avg_responses.mat'); load('axis_results.mat')
 contexts_to_compare = [1,2];
@@ -129,7 +129,7 @@ plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, savepa
 %% Figure 3- PRE AND AXIS PLOTS
 % 1) PRE STIMULUS PLOTS
 plot_info.type = 'engagement'; %'sound'
-savepath_fig3 = [];
+savepath_fig3 = ['W:\Connie\results\Bassi2025\fig3_nature\'];
 
 [pooled_cell_types,plot_info.pooled_names,plot_info.pooled_colors] = organize_functional_groups(all_celltypes, sound.sig_cells, opto.sig_cells, opto.mod(1:24,:), {'sound','opto','both','unmodulated'},[1:24],plot_info, 1);
 plot_info.pooled_names = {{'Sound';'modulated'},{'Photostim';'modulated'},{'S & P';'modulated'},'Unmodulated'}

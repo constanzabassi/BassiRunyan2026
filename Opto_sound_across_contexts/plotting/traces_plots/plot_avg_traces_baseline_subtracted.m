@@ -56,10 +56,20 @@ for fig_idx = 1:length(data_modes)*2
                     if length(size(dat_struct.stim))>2
                         dat = squeeze(mean(dat_struct.stim,'omitnan'));
                         dat_stim = dat;
-%                         if contains(type,'deconv')
-%                             frame_window = 1:size(dat_struct.stim,3);
-%                             dat = squeeze(squeeze(sum(dat_struct.stim(:,:,frame_window),1))/(length(frame_window)/30));
-%                         end
+                        if contains(type,'deconv')
+%                             frame_window = 31:91;%1:size(dat_struct.ctrl,3);
+%                             if nargin > 10
+%                                 frame_window = 1:60;
+%                             end
+%                             
+%                             dat = squeeze(squeeze(sum(dat_struct.stim(:,:,frame_window),1))/(length(frame_window)/30)); %/2 bc I display half the data
+%                             dat_nan = zeros(size(dat,1),122);
+%                             dat_nan(:,frame_window) = dat;
+%                             dat_stim = dat_nan;
+%                             dat = dat_stim;
+                            dat = dat*30;
+                            dat_stim = dat;
+                        end
                     else
                         dat = dat_struct.stim;
                         dat_stim = dat;
@@ -70,6 +80,20 @@ for fig_idx = 1:length(data_modes)*2
                     end
                     if length(size(dat_struct.stim))>2
                         dat = squeeze(mean(dat_struct.ctrl,'omitnan'));
+                        if contains(type,'deconv')
+%                             frame_window = 31:91;%1:size(dat_struct.ctrl,3);
+%                             if nargin > 10
+%                                 frame_window = 1:60;
+%                             end
+%                             dat = squeeze(squeeze(sum(dat_struct.ctrl(:,:,frame_window),1))/(length(frame_window)/30));
+%                             dat_nan = zeros(size(dat,1),122);
+%                             dat_nan(:,frame_window) = dat;
+%                             dat_ctrl = dat_nan;
+%                             dat = dat_ctrl;
+
+                            dat = dat*30;
+                            dat_ctrl = dat;
+                        end
                     else
                         dat = dat_struct.ctrl;
                     end
@@ -166,9 +190,9 @@ for fig_idx = 1:length(data_modes)*2
 % 
 %             end
         else 
-            xlimss = [1 61];
+            xlimss = [1 60];
             xlim(xlimss );
-            xticks([1 61]);
+            xticks([1 60]);
             xticklabels([-2 0]);
             yli = ylim;
 %             for f = 1:size(stim_frame,1)
@@ -221,8 +245,8 @@ for fig_idx = 1:length(data_modes)*2
         else
             for f = 1:size(stim_frame,1)
                 %highlight the pre stimulus period!
-                x1 = 51;
-                x2 = 61;
+                x1 = 50;
+                x2 = 59;
                 x = [x1, x2, x2,x1];
                 y = [yli(1), yli(1), yli(2), yli(2)];
                 patch(x, y, [.9 .0 .6], 'EdgeColor', 'none', 'FaceAlpha', 0.1); %[.5 .5 .5]
