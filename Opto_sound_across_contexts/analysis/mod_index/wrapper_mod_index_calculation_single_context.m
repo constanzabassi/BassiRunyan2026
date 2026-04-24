@@ -49,6 +49,9 @@ nRepeats = 10;
 % Preallocate the results structure.
 results = struct();
 
+%get data type (dff or deconv)
+data_type = info.data_type;
+
 % Total contexts - 3 for photostim (active (1),passive(2),spont(3)// 2 for
 % sounds(active (1),passive(2))
 
@@ -75,7 +78,7 @@ for current_dataset = 1: length(info.mouse_date)
             % Note: calc_mod_index_cv now performs the trial balancing inside each CV repeat.
             [cv_mod_index, cv_mod_index_separate, bootstrapResults] = calc_mod_index_cv(...
                 stim_data, ctrl_data, stim_trials, ctrl_trials, current_conditions, current_conditions_ctrl, ...
-                response_range, mod_type, mode, nRepeats, nShuffles);
+                response_range, mod_type, mode, nRepeats, nShuffles,data_type);
         else
             stim_data_left = stim_data;% trials x neurons x frames using trials for current context
             ctrl_data_left = ctrl_data;% trials x neurons x frames using trials for current context
@@ -86,11 +89,11 @@ for current_dataset = 1: length(info.mouse_date)
             %LEFT AND RIGHT ARE THE SAME SINCE THERE ARE NO SOUNDS!
             [cv_mod_left, ~, bootstrapResults_left] = calc_mod_index_cv(...
                 stim_data_left, ctrl_data_left, stim_trials, ctrl_trials, current_conditions, current_conditions_ctrl, ...
-                response_range, mod_type, mode, nRepeats, nShuffles);
+                response_range, mod_type, mode, nRepeats, nShuffles,data_type);
 
             [cv_mod_right, ~, bootstrapResults_right] = calc_mod_index_cv(...
                 stim_data_right, ctrl_data_right, stim_trials, ctrl_trials, current_conditions, current_conditions_ctrl, ...
-                response_range, mod_type, mode, nRepeats, nShuffles);
+                response_range, mod_type, mode, nRepeats, nShuffles,data_type);
 
             nNeurons = size(stim_data,2);
             % Select max side and prepare output;
