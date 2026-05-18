@@ -50,7 +50,7 @@ mod_params = params.mod;
 mod_params.savepath = fullfile(params.info.savepath, 'mod', mod_params.mod_type, mod_params.mode)
 
 [mod_index_results, sig_mod_boot, mod_indexm] = ...
-    wrapper_mod_index_calculation(params.info, dff_st, mod_params.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles, mod_params.savepath);
+    wrapper_mod_index_calculation(params.info, dff_st, mod_params.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles, mod_params.savepath, mod_params.data_type_dff);
 %% Generate single cell plots
 dataset_to_plot = 9;
 context_to_plot = [1:2];
