@@ -12,6 +12,10 @@ params.plot_info = plot_info;
 
 %%% this uses alignment_frames from run_opto_sounds_analysis_main pool
 % [sound_onsets_all, alignment_frames_all, control_output_all, opto_output_all,sound_only_all, loc_trial, all_trial_info_sounds] = compile_trial_data_stim_sound(params.info,{'active','passive'},params.info.savepath);
+
+%below for finding multiple sound onsets
+%[sound_onsets_all, alignment_frames_all, control_output_all, opto_output_all,sound_only_all, loc_trial] = compile_trial_data_stim_multiple_sound(params.info,{'active','passive'},params.info.savepath);
+
 %% Pool activity across mice
 % neural data will be sound + ctrl or sound only trials!!!
 [all_celltypes, sound_data, sound_context_data]  = ...
