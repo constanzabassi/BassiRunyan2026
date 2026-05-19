@@ -104,7 +104,7 @@ for current_dataset = 1: length(info.mouse_date)
             % Note: calc_mod_index_cv now performs the trial balancing inside each CV repeat.
             [cv_mod_index, cv_mod_index_separate, bootstrapResults] = calc_mod_index_cv(...
                 stim_data, ctrl_data, stim_trials, ctrl_trials, current_conditions, current_conditions_ctrl, ...
-                response_range, mod_type, mode, nRepeats, nShuffles,data_type);
+                response_range, mod_type, mode, nRepeats, nShuffles);
         else
             if context == 1 %only necessary when selecting specific trials from virmen (like correct vs incorrect)
                 current_conditions = current_conditions(stim_trials);

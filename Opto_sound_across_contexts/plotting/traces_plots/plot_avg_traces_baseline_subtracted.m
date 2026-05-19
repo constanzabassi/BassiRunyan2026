@@ -165,7 +165,9 @@ for fig_idx = 1:length(data_modes)*2
         end
 
         xlimss = [31 91];
-        xlim(xlimss );
+        if isfield(plot_info,'xlims_traces')
+            xlim(plot_info.xlims_traces);
+        end
         xticks([31 61 91]);
         xticklabels([-1 0 1]);
 

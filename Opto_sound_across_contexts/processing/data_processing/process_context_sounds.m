@@ -1,53 +1,121 @@
-function [dff_st,deconv_st,deconv_st_interp] = process_context_sounds(neural_data, context_info, dataset_index, before_after_frames, context_type)
-    % Process neural responses to sounds for a specific context
+function [dff_st, deconv_st, deconv_st_interp] = process_context_sounds(...
+    neural_data, context_info, dataset_index, before_after_frames, context_type, sound_repeat)
 
-    % Store results
-    context_data = struct();
+% Process neural responses to sounds for a specific context
+%
+% sound_repeat:
+%   1 = first sound/default
+%   2 = second sound
+%   3 = third sound
 
-    % Define trial types
-    default_trial_types = {'stim', 'ctrl'};
-    alt_trial_types = {'left', 'right'};
+if nargin < 6 || isempty(sound_repeat)
+    sound_repeat = 1;
+end
 
-    % sound onsets is this: sound_onsets = [control_output; sound_only_output];
+% Define trial types
+default_trial_types = {'stim', 'ctrl'};
+alt_trial_types = {'left', 'right'};
 
-    % Put sound trials into exp (sound 1 left) or nonexp (sound 2 right)
-%     data.exp = context_info.sound_onsets_all{1,dataset_index}(context_info.loc_trial{dataset_index,1})'; %LEFT
-%     data.nonexp = context_info.sound_onsets_all{1,dataset_index}(context_info.loc_trial{dataset_index,2})'; %RIGHT
-    data.left = context_info.sound_onsets_all{1,dataset_index}(context_info.loc_trial{dataset_index,1})'; %LEFT
-    data.right = context_info.sound_onsets_all{1,dataset_index}(context_info.loc_trial{dataset_index,2})'; %RIGHT
-    data.nonexp = context_info.sound_onsets_all{1,dataset_index}'; % [control_output; sound_only_output]; (so only control trials no opto)]
-    data.exp = context_info.opto_output_all{1,dataset_index}'; % stim trials
-    data.bad_frames = context_info.alignment_frames_all{1,dataset_index}; %sound onset frames
-    data.dff = neural_data.dff;
-    data.deconv = neural_data.deconv;
-            
-    % Align to sound onsets across stim and control trials and process neural data (dff/deconv)
-    [~, dff_st_current, deconv_st_current, deconv_st_interp_current] = process_neural_data(data, before_after_frames);
+%%% choose which sound onset set to use
+if sound_repeat == 1
 
-    % Store data dynamically using trial type names
-    for i = 1:length(default_trial_types)
-        trial = default_trial_types{i};
-        dff_st.(trial) = dff_st_current.(trial);
-        dff_st.(['z_' trial]) = dff_st_current.(['z_' trial]);
-        deconv_st.(trial) = deconv_st_current.(trial);
-        deconv_st_interp.(trial) = deconv_st_interp_current.(trial);
-    end    
+    sound_onsets_current = context_info.sound_onsets_all{1,dataset_index};
+    alignment_frames_current = context_info.alignment_frames_all{1,dataset_index};
 
-    % Align to sound onsets left and right trials (control and sound only trials!) and process neural data (dff/deconv)
-    [~, dff_st_current, deconv_st_current, deconv_st_interp_current ]= process_neural_data(data, before_after_frames, alt_trial_types);
+elseif sound_repeat == 2
 
-    % Store data dynamically for left/right
-    for i = 1:length(alt_trial_types)
-        trial = alt_trial_types{i};
-        dff_st.(trial) = dff_st_current.(trial);
-        dff_st.(['z_' trial]) = dff_st_current.(['z_' trial]);
-        deconv_st.(trial) = deconv_st_current.(trial);
-        deconv_st_interp.(trial) = deconv_st_interp_current.(trial);
+    sound_onsets_current = context_info.sound_onsets_all_2{1,dataset_index};
+
+    alignment_frames_current = context_info.alignment_frames_all{1,dataset_index};
+    sound_frames = context_info.extra_sound_frames_all{1,dataset_index}(2,:);
+
+    valid_trials = find(~isnan(sound_frames));
+    alignment_frames_current(valid_trials,1) = sound_frames(valid_trials);
+    alignment_frames_current(valid_trials,2) = sound_frames(valid_trials) + 3;
+
+elseif sound_repeat == 3
+
+    sound_onsets_current = context_info.sound_onsets_all_3{1,dataset_index};
+
+    alignment_frames_current = context_info.alignment_frames_all{1,dataset_index};
+    sound_frames = context_info.extra_sound_frames_all{1,dataset_index}(3,:);
+
+    valid_trials = find(~isnan(sound_frames));
+    alignment_frames_current(valid_trials,1) = sound_frames(valid_trials);
+    alignment_frames_current(valid_trials,2) = sound_frames(valid_trials) + 3;
+
+else
+    error('sound_repeat must be 1, 2, or 3');
+end
+
+%%% restrict opto/stim trials to trials with valid alignment for this repeat
+if sound_repeat == 1
+    opto_current = context_info.opto_output_all{1,dataset_index};
+else
+    opto_current = context_info.opto_output_all{1,dataset_index};
+    opto_current = opto_current(~isnan(alignment_frames_current(opto_current,1)));
+end
+
+%%% location indices need to be relative to sound_onsets_current
+if sound_repeat == 1
+
+    left_trials = sound_onsets_current(context_info.loc_trial{dataset_index,1});
+    right_trials = sound_onsets_current(context_info.loc_trial{dataset_index,2});
+
+else
+
+    first_sound_onsets = context_info.sound_onsets_all{1,dataset_index};
+
+    left_first = first_sound_onsets(context_info.loc_trial{dataset_index,1});
+    right_first = first_sound_onsets(context_info.loc_trial{dataset_index,2});
+
+    if sound_repeat == 2
+        left_trials = intersect(sound_onsets_current-1, left_first);
+        right_trials = intersect(sound_onsets_current-1, right_first);
+    elseif sound_repeat == 3
+        left_trials = intersect(sound_onsets_current-2, left_first);
+        right_trials = intersect(sound_onsets_current-2, right_first);
     end
-%     % Store processed data
-%     dff_st = struct('left', dff_st_current_dataset.left, 'ctrl', dff_st_current_dataset.ctrl, 'z_stim', dff_st_current_dataset.z_stim, 'z_ctrl', dff_st_current_dataset.z_ctrl);
-%     deconv_st = struct('stim', deconv_st_current_dataset.stim, 'ctrl', deconv_st_current_dataset.ctrl);
-%     deconv_st_interp = struct('stim', deconv_st_interp_current_dataset.stim, 'ctrl', deconv_st_interp_current_dataset.ctrl);
 
+end
+
+%%% Build data structure for process_neural_data
+data.left = left_trials';
+data.right = right_trials';
+
+data.nonexp = sound_onsets_current';
+data.exp = opto_current';
+
+data.bad_frames = alignment_frames_current;
+data.dff = neural_data.dff;
+data.deconv = neural_data.deconv;
+
+%%% Align stim/control
+[~, dff_st_current, deconv_st_current, deconv_st_interp_current] = ...
+    process_neural_data(data, before_after_frames);
+
+for i = 1:length(default_trial_types)
+    trial = default_trial_types{i};
+
+    dff_st.(trial) = dff_st_current.(trial);
+    dff_st.(['z_' trial]) = dff_st_current.(['z_' trial]);
+
+    deconv_st.(trial) = deconv_st_current.(trial);
+    deconv_st_interp.(trial) = deconv_st_interp_current.(trial);
+end
+
+%%% Align left/right
+[~, dff_st_current, deconv_st_current, deconv_st_interp_current] = ...
+    process_neural_data(data, before_after_frames, alt_trial_types);
+
+for i = 1:length(alt_trial_types)
+    trial = alt_trial_types{i};
+
+    dff_st.(trial) = dff_st_current.(trial);
+    dff_st.(['z_' trial]) = dff_st_current.(['z_' trial]);
+
+    deconv_st.(trial) = deconv_st_current.(trial);
+    deconv_st_interp.(trial) = deconv_st_interp_current.(trial);
+end
 
 end

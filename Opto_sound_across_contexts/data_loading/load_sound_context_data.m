@@ -1,9 +1,9 @@
-function data = load_sound_context_data(context)
+function data = load_sound_context_data(context,path)
 %loads sound trial information!
 
 %load previously processed data using [sound_onsets_all, alignment_frames_all, control_output_all, opto_output_all,sound_only_all, loc_trial, all_trial_info_sounds] = compile_trial_data_stim_sound(params.info,{'active','passive'},params.info.savepath);
 
-    base_path = 'V:\Connie\results\opto_sound_2025\context\sound_info'; %fullfile('V:', 'Connie', 'results', context, 'mod');
+    base_path =path;% 'V:\Connie\results\opto_sound_2025\context\sound_info'; %fullfile('V:', 'Connie', 'results', context, 'mod');
 %     context_path = fullfile('V:', 'Connie', 'results', 'opto_2025', 'context', context);
     
     data = struct();
