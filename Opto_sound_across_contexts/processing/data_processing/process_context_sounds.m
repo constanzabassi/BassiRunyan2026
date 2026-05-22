@@ -34,6 +34,10 @@ elseif sound_repeat == 2
     alignment_frames_current(valid_trials,2) = sound_frames(valid_trials) + 3;
 
 elseif sound_repeat == 3
+    if dataset_index == 5 && strcmp(context_type,'active')
+            context_info.sound_onsets_all_3{1,5}(70:126) = context_info.sound_onsets_all_3{1,5}(69:125);
+            context_info.sound_onsets_all_3{1,5}(69) = 1157;
+    end
 
     sound_onsets_current = context_info.sound_onsets_all_3{1,dataset_index};
 

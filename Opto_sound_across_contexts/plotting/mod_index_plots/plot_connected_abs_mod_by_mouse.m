@@ -23,7 +23,10 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
     n_celltypes =  size( mod_index_by_dataset,3);
     count = 0;
     x_lines = 0:num_contexts*n_celltypes+1;
-    
+    p_val_mod = [];diff =[];effectsize=[];
+    lme_stats = struct;
+    lme_stats_v2 = struct;
+
     if nargin > 4
         ylims = varargin{1,1};
     end
@@ -34,6 +37,10 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
     mean_cell_all2 = []
     for celltype = 1:n_celltypes
         mean_cell_all = [];
+
+        % Build table for mixed effects model
+        lme_table = table;
+        lme_table_v2 = table;
         
         % Get x positions for this celltype
         x_pos = x_lines((celltype-1)*num_contexts+2:celltype*num_contexts+1);
@@ -55,8 +62,41 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
                         curr_data = (mod_index_by_dataset{d,context,celltype});
                     end
                     mouse_data = [mouse_data; curr_data(:)];
+
+                    % ---------------------------------------------------------
+                    % Session-level LME table (NO averaging across sessions)
+                    % ---------------------------------------------------------
+                    valid_vals = curr_data(~isnan(curr_data));                
+                    if ~isempty(valid_vals)
+                    
+                        temp_tbl2 = table;
+    
+%                         temp_tbl2.Mouse = repmat(curr_mouse,length(valid_vals),1);
+%                         temp_tbl2.Dataset = repmat(d,length(valid_vals),1);
+%                         temp_tbl2.Context = repmat(context,length(valid_vals),1);
+%                         temp_tbl2.Modulation = valid_vals(:);
+                        temp_tbl2.Mouse = curr_mouse;
+                        temp_tbl2.Dataset = d;
+                        temp_tbl2.Context = context;
+                        temp_tbl2.Modulation = mean(valid_vals(:));
+                        lme_table_v2 = [lme_table_v2; temp_tbl2];
+                    
+                    end
                 end
                 mouse_means(context) = nanmean(mouse_data);
+
+                for context = 1:num_contexts
+                    temp_tbl = table;
+                
+                    temp_tbl.Mouse = curr_mouse;
+                    temp_tbl.Context = context;
+                    temp_tbl.Modulation = mouse_means(context);
+                
+                    lme_table = [lme_table; temp_tbl];
+                end
+
+                
+
             end
             
             % Plot connected line for this mouse
@@ -98,43 +138,47 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
                 mod_stats.stats(celltype,context).valid_datasets = find(~isnan(curr_means));
                  % Calculate 95% CI using bootstrapping
                 mod_stats.stats(celltype,context).basic_stats =  get_basic_stats(valid_data);
+                
+                % Plot error bar (SEM)
+                errorbar(x_pos(context), mean_cel, err, 'o', ...
+                'Color', plot_info.colors_celltypes(celltype,:), ...
+                'LineWidth', 1, 'MarkerSize', 2,'MarkerFaceColor', plot_info.colors_celltypes(celltype,:))
+            
+                mean_cell_all = [mean_cell_all, mean_cel];
+
+                % One-sample permutation test vs zero
+                n_perm = 10000;
+                observed_mean = mean(valid_data);
+                null_distribution = zeros(1, n_perm);
+                for p = 1:n_perm
+                    signs = randi([0 1], size(valid_data)) * 2 - 1;  % random +1/-1
+                    null_distribution(p) = mean(valid_data .* signs);
+                end
+                p_val_vs_zero = mean(abs(null_distribution) >= abs(observed_mean));
+                if p_val_vs_zero == 0
+                    p_val_vs_zero = 1/n_perm;
+                end
+                mod_stats.stats(celltype,context).p_val_vs_zero = p_val_vs_zero;
+    
+                if isfield(plot_info,'zero_star') && plot_info.zero_star == 1%only plot if requested
+                    yline(0,'color',[0.5,0.5,0.5],'LineStyle','--')
+                    if p_val_vs_zero < 0.05/(n_celltypes*num_contexts) %correct for multiple comparisons
+    %                     text(x_pos(context), mean_cel + err + 0.02, '*', ...
+    %                         'Color', plot_info.colors_celltypes(celltype,:), ...
+    %                         'FontSize', 7, 'HorizontalAlignment', 'center');
+                                utils.plot_pval_star(x_pos(context),mean_cel + err + 0.02,p_val_vs_zero,[0,0],0,[0,0,0]);%plot_info.colors_celltypes(celltype,:)
+                    end
+                end
+            else
+                valid_means = [];
+                mod_stats.stats(celltype,1).valid_means = valid_means
             end
 
 %             % Plot error bar (CI)
 %             errorbar(x_pos(context), mean_cel, err_low, err_up, 'o', ...
 %                 'Color', plot_info.colors_celltypes(celltype,:), ...
 %                 'LineWidth', 1.3, 'MarkerSize', 3,'MarkerFaceColor', plot_info.colors_celltypes(celltype,:))
-            
-            % Plot error bar (SEM)
-            errorbar(x_pos(context), mean_cel, err, 'o', ...
-                'Color', plot_info.colors_celltypes(celltype,:), ...
-                'LineWidth', 1, 'MarkerSize', 2,'MarkerFaceColor', plot_info.colors_celltypes(celltype,:))
-            
-            mean_cell_all = [mean_cell_all, mean_cel];
-
-            % One-sample permutation test vs zero
-            n_perm = 10000;
-            observed_mean = mean(valid_data);
-            null_distribution = zeros(1, n_perm);
-            for p = 1:n_perm
-                signs = randi([0 1], size(valid_data)) * 2 - 1;  % random +1/-1
-                null_distribution(p) = mean(valid_data .* signs);
-            end
-            p_val_vs_zero = mean(abs(null_distribution) >= abs(observed_mean));
-            if p_val_vs_zero == 0
-                p_val_vs_zero = 1/n_perm;
-            end
-            mod_stats.stats(celltype,context).p_val_vs_zero = p_val_vs_zero;
-
-            if isfield(plot_info,'zero_star') && plot_info.zero_star == 1%only plot if requested
-                yline(0,'color',[0.5,0.5,0.5],'LineStyle','--')
-                if p_val_vs_zero < 0.05/(n_celltypes*num_contexts) %correct for multiple comparisons
-%                     text(x_pos(context), mean_cel + err + 0.02, '*', ...
-%                         'Color', plot_info.colors_celltypes(celltype,:), ...
-%                         'FontSize', 7, 'HorizontalAlignment', 'center');
-                            utils.plot_pval_star(x_pos(context),mean_cel + err + 0.02,p_val_vs_zero,[0,0],0,[0,0,0]);%plot_info.colors_celltypes(celltype,:)
-                end
-            end
+           
         end
 
         % Statistical testing for this cell type
@@ -201,7 +245,117 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
                     utils.plot_pval_star(0, y_val+ct, p_val_mod(t,celltype), xline_vars, ...
                         0.01, plot_info.colors_celltypes(celltype,:))
                 end
-            end
+
+                % -------------------------------------------------------------------------
+                % Linear mixed effects model
+                % -------------------------------------------------------------------------
+                
+                if num_contexts > 1 
+                    % remove NaNs
+                    valid_idx = ~isnan(lme_table.Modulation);
+                
+                    lme_table_valid = lme_table(valid_idx,:);
+                
+                    % categorical variables
+                    lme_table_valid.Mouse = categorical(lme_table_valid.Mouse);
+                    lme_table_valid.Context = categorical(lme_table_valid.Context);
+                    try
+                
+                        % random intercept for mouse
+                        lme = fitlme( ...
+                            lme_table_valid, ...
+                            'Modulation ~ Context + (1|Mouse)');
+                
+                        coef_tbl = lme.Coefficients;
+                
+                        % context term is second row
+                        if height(coef_tbl) > 1
+                            lme_stats(celltype).p_context = coef_tbl.pValue(2);
+                            lme_stats(celltype).t_context = coef_tbl.tStat(2);
+                            lme_stats(celltype).beta_context = coef_tbl.Estimate(2);
+                
+                        else
+                            lme_stats(celltype).p_context = NaN;
+                            lme_stats(celltype).t_context = NaN;
+                            lme_stats(celltype).beta_context = NaN;
+                
+                        end
+                        % pseudo-R
+                        fitted_vals = fitted(lme);
+                        observed_vals = lme_table_valid.Modulation;
+                
+                        r_val = corr(fitted_vals,observed_vals,'rows','complete');
+                
+                        lme_stats(celltype).r = r_val;
+                        lme_stats(celltype).lme = lme;
+                
+                    catch
+                        lme_stats(celltype).p_context = NaN;
+                        lme_stats(celltype).t_context = NaN;
+                        lme_stats(celltype).beta_context = NaN;
+                        lme_stats(celltype).r = NaN;
+                        lme_stats(celltype).lme = [];
+                    end
+                end
+
+                % -------------------------------------------------------------------------
+                % Linear mixed effects model v2
+                % Session-level values with mouse random effect
+                % -------------------------------------------------------------------------
+                
+                valid_idx2 = ~isnan(lme_table_v2.Modulation);
+                
+                lme_table_v2_valid = lme_table_v2(valid_idx2,:);
+                
+                lme_table_v2_valid.Mouse = categorical(lme_table_v2_valid.Mouse);
+                lme_table_v2_valid.Context = categorical(lme_table_v2_valid.Context);
+                lme_table_v2_valid.Dataset = categorical(lme_table_v2_valid.Dataset);
+                
+                try
+                
+                    lme2 = fitlme( ...
+                        lme_table_v2_valid, ...
+                        'Modulation ~ Context + (1|Mouse)');
+                
+                    coef_tbl2 = lme2.Coefficients;
+                
+                    if height(coef_tbl2) > 1
+                
+                        lme_stats_v2(celltype).p_context = coef_tbl2.pValue(2);
+                        lme_stats_v2(celltype).t_context = coef_tbl2.tStat(2);
+                        lme_stats_v2(celltype).beta_context = coef_tbl2.Estimate(2);
+                
+                    else
+                
+                        lme_stats_v2(celltype).p_context = NaN;
+                        lme_stats_v2(celltype).t_context = NaN;
+                        lme_stats_v2(celltype).beta_context = NaN;
+                
+                    end
+                
+                    fitted_vals2 = fitted(lme2);
+                    observed_vals2 = lme_table_v2_valid.Modulation;
+                
+                    r_val2 = corr(fitted_vals2,observed_vals2,'rows','complete');
+                
+                    lme_stats_v2(celltype).r = r_val2;
+                    lme_stats_v2(celltype).lme = lme2;
+                
+                    lme_stats_v2(celltype).n_sessions = ...
+                        length(unique(lme_table_v2_valid.Dataset));
+                
+                    lme_stats_v2(celltype).n_mice = ...
+                        length(unique(lme_table_v2_valid.Mouse));
+                
+                catch
+                
+                    lme_stats_v2(celltype).p_context = NaN;
+                    lme_stats_v2(celltype).t_context = NaN;
+                    lme_stats_v2(celltype).beta_context = NaN;
+                    lme_stats_v2(celltype).r = NaN;
+                    lme_stats_v2(celltype).lme = [];
+                
+                end
 
         end
         mean_cell_all2 = [mean_cell_all2, mean_cell_all];
@@ -330,6 +484,8 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
         mod_stats.difference = diff;
         mod_stats.effectsize = effectsize;
         mod_stats.n_mice = n_mice;
+        mod_stats.lme_stats = lme_stats;
+        mod_stats.lme_stats_v2 = lme_stats_v2;
     end
 
     if num_contexts == 1 && n_celltypes > 2
@@ -340,6 +496,8 @@ function mod_stats = plot_connected_abs_mod_by_mouse(save_dir, mod_index_by_data
         mod_stats.effectsize = effectsize_cells;
         mod_stats.n_mice = n_mice;
         mod_stats.KW = KW;
+        mod_stats.lme_stats = lme_stats;
+        mod_stats.lme_stats_v2 = lme_stats_v2;
         axis normal
         positions(:,3) = positions(:,3)*(2/3);
         positions(:,4) = positions(:,4)*1;

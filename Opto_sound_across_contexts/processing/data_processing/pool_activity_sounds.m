@@ -80,6 +80,7 @@ for dataset_index = 1:length(mouse_date)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if multiple_sounds
+        
         if dataset_index == 5
             active_data.sound_onsets_all_3{1,5}(70:126) = active_data.sound_onsets_all_3{1,5}(69:125);
             active_data.sound_onsets_all_3{1,5}(69) = 1157;

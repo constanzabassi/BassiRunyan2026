@@ -1,4 +1,4 @@
-addpath(genpath('C:\Code\Github\Opto_sounds_analysis'))
+addpath(genpath('C:\Code\Github\BassiRunyan2025'))
 % Setup analysis parameters
 %includes all datasets being analyzed, frame parameters, mod index
 %parameters
@@ -20,6 +20,8 @@ params.plot_info = plot_info;
 % neural data will be sound + ctrl or sound only trials!!!
 [all_celltypes, sound_data, sound_context_data, sound2_context_data, sound3_context_data]  = ...
     pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60],2); %last number is which sound repeat to align neural data to
+[all_celltypes, sound_data, sound_context_data, sound2_context_data, sound3_context_data]  = ...
+    pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60],3); %last number is which sound repeat to align neural data to
 
 % Save basic information
 % Save variables with consistent paths
@@ -78,16 +80,17 @@ generate_neural_heatmaps_difference(dff_st_combined, stim_trials_context, ctrl_t
 %% Calculate modulation indices
 mod_params = params.mod_sounds; %use 'prespose'/'separate'?
 mod_params.savepath = fullfile(params.info.savepath_sounds, 'mod', mod_params.mod_type, mod_params.mode)
-mod_params.savepath = 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2\mod\prepost_sound\separate';
+mod_params.savepath = 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3\mod\prepost_sound\separate';
 params.info.data_type = 'dff';
 
 [mod_index_results, sig_mod_boot, mod_indexm] = ...
     wrapper_mod_index_calculation(params.info, dff_st_combined, mod_params.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
 %% get sig cells
-sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info, mod_params, mod_indexm, sig_mod_boot, sorted_cells,all_celltypes, 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2');
+mod_params.mod_threshold = 0.1;
+sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info, mod_params, mod_indexm, sig_mod_boot, sorted_cells,all_celltypes, 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3');
 
 %% make plots
-savepath_fig2 = ['W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2'];
+savepath_fig2 = ['W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3'];
 % 1) LOAD THE DATA
 % load('context_data.mat'); load('W:\Connie\results\Bassi2025\data\sound.mat'); load('opto.mat');load('avg_responses.mat'); load('axis_results.mat')
 load('W:\Connie\results\Bassi2025\data\sound.mat');
@@ -100,6 +103,7 @@ mod_params = params.mod_sounds;
 mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:25];
 mod_params.min_cells = 0; % >0 so at least 1 modulated neuron per dataset
+params.min_cells = 0;
 
 %%%% sig cells %%%%%%%%%%%
 plot_info.y_lims = [-.4, .4];
@@ -114,10 +118,10 @@ params.string = 'Sounds';
 mod_params.results = sound.results;
 
 %%%% using sig cells %%%%%%%%%%%
-[combined_sig_cells, ~] = union_sig_cells(sound.sig_mod_boot_thr(:,1)', sound.sig_mod_boot_thr(:,2)', sound.mod);
+[combined_sig_cells1, ~] = union_sig_cells(sound.sig_mod_boot_thr(:,1)', sound.sig_mod_boot_thr(:,2)', sound.mod);
 %datasets
 plot_info.y_lims = [-.2, .3];params.plot_info = plot_info;
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, mod_indexm, combined_sig_cells, all_celltypes, params, savepath_fig2);
+mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, mod_indexm, combined_sig_cells1, all_celltypes, params, [savepath_fig2 's1_sig_cells/']);
 %avg traces
 param_sets_traces = { ...
             struct('mod_threshold',  .1, ...
@@ -134,18 +138,30 @@ context_data_sounds = context_data;
 [~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,[savepath_fig2 '/s1_sig_cells'],'sound_dff',plot_info,'param_sets',param_sets_traces);
 [~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,[savepath_fig2 '/s1_sig_cells'],'sound_dff',plot_info);
 %% using own repeat's sig cells
+savepath_fig2 = 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3\'
+[combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', mod_indexm);
+
 [~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,mod_indexm,sig_mod_boot_thr,mod_params,savepath_fig2,'sound_dff',plot_info,'param_sets',param_sets_traces);
+
+plot_info.y_lims = [-.2, .3];params.plot_info = plot_info;
+mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, mod_indexm, combined_sig_cells, all_celltypes, params, savepath_fig2);
 
 
 % calculate overlap of significant neurons between S1 and S2/S3
 contexts_to_compare = [1,2]; 
 overlap_labels = {'Sound 1 Only','Sound 2 Only', 'Both Repeats','Unmodulated'}; 
-[combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', mod_indexm);
 [percent_cells, percent_cells_per_dataset,percent_stats] = calculate_sig1_vs_sig2_overlap(sound.sig_cells(1:24),combined_sig_cells(1:24), mod_indexm(1:24,:), contexts_to_compare);
-plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, savepath_fig2, contexts_to_compare,'save_string','sd_color','SD',[percent_stats.sig1.sd,percent_stats.sig2.sd,percent_stats.both.sd,percent_stats.unmod.sd],'Color',flipud(plot_info.pooled_colors(1:4,:)));
+
+sound_repeat_colors = [0.5 0.5 0.5
+                       [173 185 227] / 255
+                        [163 121 201] / 255
+                            0.3,0.2,0.6];
+plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, savepath_fig2, contexts_to_compare,'save_string','sd_color','SD',[percent_stats.sig1.sd,percent_stats.sig2.sd,percent_stats.both.sd,percent_stats.unmod.sd],'Color',sound_repeat_colors);
 
 %%
 %%%% using all cells %%%%%%%%%%%
+savepath_fig2 = ['W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3\all_cells\'];
+
 %datasets
 plot_info.y_lims = [-.2, .3];params.plot_info = plot_info;
 mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, mod_indexm, [], all_celltypes, params, savepath_fig2);
@@ -160,9 +176,13 @@ plot_info.y_lims = [-.2, .3];
 plot_info.trace_ylims = [0.14,0.3];
 params.plot_info = plot_info;
 context_data_sounds = context_data;
+mod_params.mod_threshold =0;
+mod_params.threshold_single_side =1;
+[num_cells, ~] = organize_pooled_celltypes(context_data_sounds.dff, all_celltypes);
+all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
 %avg traces
-[~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,savepath_fig2,'sound_dff',plot_info,'param_sets',param_sets_traces);
-
+[~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,all_cells,mod_params,savepath_fig2,'sound_dff',plot_info);
+%%
 % %% Compare modulation indices across contexts and cell types
 % mod_params = params.mod_sounds; %use 'prespose'/'separate'?
 % mod_params.savepath = fullfile(params.info.savepath_sounds, 'mod', mod_params.mod_type, mod_params.mode);
