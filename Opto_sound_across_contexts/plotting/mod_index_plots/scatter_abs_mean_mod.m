@@ -154,6 +154,7 @@ if ~isempty(save_dir)
     if nargin > 7
             save_string = varargin{1,2};
             save_string = strrep(save_string, '\', '');
+            save_string = strrep(save_string, '|', '');
             save_string = strrep(save_string, '/', '');
             save_string = strrep(save_string, '(', '');
             save_string = strrep(save_string, ')', '');

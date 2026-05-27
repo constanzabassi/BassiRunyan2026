@@ -14,14 +14,12 @@ params.plot_info = plot_info;
 % [sound_onsets_all, alignment_frames_all, control_output_all, opto_output_all,sound_only_all, loc_trial, all_trial_info_sounds] = compile_trial_data_stim_sound(params.info,{'active','passive'},params.info.savepath);
 
 %below for finding multiple sound onsets
-[sound_onsets_all, alignment_frames_all, control_output_all, opto_output_all,sound_only_all, loc_trial] = compile_trial_data_stim_multiple_sound(params.info,{'active','passive'},params.info.savepath);
+% [sound_onsets_all, alignment_frames_all, control_output_all, opto_output_all,sound_only_all, loc_trial] = compile_trial_data_stim_multiple_sound(params.info,{'active','passive'},params.info.savepath);
 
 %% Pool activity across mice
 % neural data will be sound + ctrl or sound only trials!!!
 [all_celltypes, sound_data, sound_context_data, sound2_context_data, sound3_context_data]  = ...
-    pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60],2); %last number is which sound repeat to align neural data to
-[all_celltypes, sound_data, sound_context_data, sound2_context_data, sound3_context_data]  = ...
-    pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60],3); %last number is which sound repeat to align neural data to
+    pool_activity_sounds(params.info.mouse_date, params.info.serverid, [60,60]); %last number is which sound repeat to align to
 
 % Save basic information
 % Save variables with consistent paths
@@ -40,9 +38,11 @@ save(fullfile(filename, 'stim_info.mat'), 'stim_info');
 %organized context_data.dff{context,mouse};
 [context_data.dff,stim_trials_context,ctrl_trials_context] = organize_2context(sound_data.active.dff_st,sound_data.passive.dff_st);
 [stim_info_combined,dff_st_combined] = combine_stim_info_dff_st(sound2_context_data.active, sound2_context_data.passive, sound_data.active.dff_st,sound_data.passive.dff_st);
+[stim_info_combined,dff_st_combined] = combine_stim_info_dff_st(sound3_context_data.active, sound3_context_data.passive, sound_data.active.dff_st,sound_data.passive.dff_st);
 
 [context_data.deconv,~,~] = organize_2context(sound_data.active.deconv_st_interp,sound_data.passive.deconv_st_interp);
 [~,deconv_st_combined] = combine_stim_info_dff_st(sound2_context_data.active, sound2_context_data.passive, sound_data.active.deconv_st_interp,sound_data.passive.deconv_st_interp);
+[~,deconv_st_combined] = combine_stim_info_dff_st(sound3_context_data.active, sound3_context_data.passive, sound_data.active.deconv_st_interp,sound_data.passive.deconv_st_interp);
 
 filename = fullfile(params.info.savepath, '/multiple_sound_repeats/data_info')
 save(fullfile(filename, "ctrl_trials_context.mat"),"ctrl_trials_context");
@@ -61,11 +61,13 @@ avg_params = struct(...
     'mode', 'separate');
 
 % Get averages
-[avg_results_sounds_stim ,avg_results_by_dataset_sounds_stim,avg_results_sounds, avg_results_by_dataset_sounds] = wrapper_trial_averaging(params.info, dff_st_combined,stim_trials_context,ctrl_trials_context, avg_params, [params.info.savepath_sounds '/avg/']);
+[avg_results_sounds_stim ,avg_results_by_dataset_sounds_stim,avg_results_sounds, avg_results_by_dataset_sounds] = wrapper_trial_averaging(params.info, dff_st_combined,stim_trials_context,ctrl_trials_context, avg_params, ['W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2/avg/']);
 %
-generate_neural_heatmaps(dff_st_combined, stim_trials_context, ctrl_trials_context,sound.sig_cells,[1:25], params, 'sound')
+% generate_neural_heatmaps(dff_st_combined, stim_trials_context, ctrl_trials_context,sound.sig_cells,[1:25], params, 'sound')
 
 %simplified (uses all trials)
+params.savepath = 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2/';
+params.context_labels = {'Active','Passive'};
 context_num = [1,2];
 generate_neural_heatmaps_simple(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'sound',context_num);
 
@@ -74,23 +76,38 @@ generate_neural_heatmaps_simple(dff_st_combined, stim_trials_context, ctrl_trial
 
 % taking the differences
 difference_params.type = 'ctrl_sub_pre'; % options: 'stim_sub_ctrl_all','stim_sub_ctrl_post','stim_sub_pre','ctrl_sub_pre'
-difference_params.pre_frames = 1:60; %params.frames.before;
+difference_params.pre_frames = 59:60;%1:60 %params.frames.before;
 difference_params.post_frames = params.frames.after;
 generate_neural_heatmaps_difference(dff_st_combined, stim_trials_context, ctrl_trials_context,combined_sig_cells,[1:25], params, 'sound',context_num,difference_params);
 %% Calculate modulation indices
 mod_params = params.mod_sounds; %use 'prespose'/'separate'?
-mod_params.savepath = fullfile(params.info.savepath_sounds, 'mod', mod_params.mod_type, mod_params.mode)
-mod_params.savepath = 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3\mod\prepost_sound\separate';
-params.info.data_type = 'dff';
+% mod_params.mod_type = 'post_sound';
+% mod_params.savepath = fullfile('W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2\', 'mod', [mod_params.mod_type '_5before\'], mod_params.mode)
+% mod_params.savepath = fullfile('W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3\', 'mod', mod_params.mod_type, mod_params.mode)
 
+mod_params.savepath = fullfile('W:\Connie\results\Bassi2025\fig3\sounds\', 'mod', [mod_params.mod_type '_30before\'], mod_params.mode)
+
+% mod_params.savepath = 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3\mod\prepost_sound\separate';
+params.info.data_type = 'dff';
+%{[63:93];[55:59]} %mod_params.response_range
 [mod_index_results, sig_mod_boot, mod_indexm] = ...
-    wrapper_mod_index_calculation(params.info, dff_st_combined, mod_params.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
+    wrapper_mod_index_calculation(params.info, dff_st_combined,{[63:93];[30:59]} , mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
+%%
+% mod_params = params.mod_sounds; %use 'prespose'/'separate'?
+% mod_params.savepath = fullfile('W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2', 'mod', 'post_sound', mod_params.mode)
+% % mod_params.savepath = 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\2\mod\prepost_sound\separate';
+% params.info.data_type = 'dff';
+% mod_params.mod_type = 'post_sound';
+% 
+% [mod_index_results, sig_mod_boot, mod_indexm] = ...
+%     wrapper_mod_index_calculation(params.info, dff_st_combined, mod_params.response_range, mod_params.mod_type, mod_params.mode, stim_trials_context, ctrl_trials_context,mod_params.nShuffles,  mod_params.savepath);
+
 %% get sig cells
 mod_params.mod_threshold = 0.1;
-sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info, mod_params, mod_indexm, sig_mod_boot, sorted_cells,all_celltypes, 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3');
+sig_mod_boot_thr = plot_pie_thresholded_mod_index(params.info, mod_params, mod_indexm, sig_mod_boot, sorted_cells,all_celltypes, mod_params.savepath);
 
-%% make plots
-savepath_fig2 = ['W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3'];
+%% make plots using old significant neurons (based on sound 1)
+savepath_fig2 = mod_params.savepath;%['W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3'];
 % 1) LOAD THE DATA
 % load('context_data.mat'); load('W:\Connie\results\Bassi2025\data\sound.mat'); load('opto.mat');load('avg_responses.mat'); load('axis_results.mat')
 load('W:\Connie\results\Bassi2025\data\sound.mat');
@@ -99,7 +116,6 @@ params = experiment_config();
 params.plot_info = plot_info;
 
 % 2) Sound Index Plots
-mod_params = params.mod_sounds;
 mod_params.mod_threshold = .1;% 0 is no threshold applied
 mod_params.chosen_mice = [1:25];
 mod_params.min_cells = 0; % >0 so at least 1 modulated neuron per dataset
@@ -120,8 +136,8 @@ mod_params.results = sound.results;
 %%%% using sig cells %%%%%%%%%%%
 [combined_sig_cells1, ~] = union_sig_cells(sound.sig_mod_boot_thr(:,1)', sound.sig_mod_boot_thr(:,2)', sound.mod);
 %datasets
-plot_info.y_lims = [-.2, .3];params.plot_info = plot_info;
-mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, mod_indexm, combined_sig_cells1, all_celltypes, params, [savepath_fig2 's1_sig_cells/']);
+plot_info.y_lims = [-.2, .2];params.plot_info = plot_info;
+mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, mod_indexm, combined_sig_cells1, all_celltypes, params, [mod_params.savepath '/s1_sig_cells/']);
 %avg traces
 param_sets_traces = { ...
             struct('mod_threshold',  .1, ...
@@ -138,9 +154,12 @@ context_data_sounds = context_data;
 [~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,[savepath_fig2 '/s1_sig_cells'],'sound_dff',plot_info,'param_sets',param_sets_traces);
 [~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,sound.sig_mod_boot_thr,mod_params,[savepath_fig2 '/s1_sig_cells'],'sound_dff',plot_info);
 %% using own repeat's sig cells
-savepath_fig2 = 'W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3\'
-[combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', mod_indexm);
+savepath_fig2 = mod_params.savepath
+mod_params.results = mod_index_results;
 
+[combined_sig_cells, ~] = union_sig_cells(sig_mod_boot_thr(:,1)', sig_mod_boot_thr(:,2)', mod_indexm);
+param_sets_traces{1,1}.mod_threshold = mod_params.mod_threshold;
+plot_info.trace_ylims = [0.14,.3];
 [~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,mod_indexm,sig_mod_boot_thr,mod_params,savepath_fig2,'sound_dff',plot_info,'param_sets',param_sets_traces);
 
 plot_info.y_lims = [-.2, .3];params.plot_info = plot_info;
@@ -160,18 +179,12 @@ plot_sig_overlap_pie(mean(percent_cells_per_dataset)*100, overlap_labels, savepa
 
 %%
 %%%% using all cells %%%%%%%%%%%
-savepath_fig2 = ['W:\Connie\results\Bassi2025\fig3\multiple_sound_repeats\3\all_cells\'];
+savepath_fig2 = [mod_params.savepath '\all_cells\'];
 
 %datasets
-plot_info.y_lims = [-.2, .3];params.plot_info = plot_info;
+plot_info.y_lims = [-.2, .2];params.plot_info = plot_info;
 mod_index_stats_datasets = generate_mod_index_plots_datasets(params.info.chosen_mice, mod_indexm, [], all_celltypes, params, savepath_fig2);
 %avg traces
-param_sets_traces = { ...
-            struct('mod_threshold',  .1, ...
-                   'threshold_single_side', 1, ...
-                   'savestring', 'positive_modulated', ...
-                   'chosen_mice', mod_params.chosen_mice)};
-
 plot_info.y_lims = [-.2, .3];
 plot_info.trace_ylims = [0.14,0.3];
 params.plot_info = plot_info;
@@ -181,7 +194,7 @@ mod_params.threshold_single_side =1;
 [num_cells, ~] = organize_pooled_celltypes(context_data_sounds.dff, all_celltypes);
 all_cells =  repmat(arrayfun(@(n) 1:n, num_cells, 'UniformOutput', false),2,1)';
 %avg traces
-[~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,sound.mod,all_cells,mod_params,savepath_fig2,'sound_dff',plot_info);
+[~,~] = wrapper_avg_cell_type_traces(context_data_sounds.dff,all_celltypes,mod_indexm,all_cells,mod_params,savepath_fig2,'sound_dff',plot_info);
 %%
 % %% Compare modulation indices across contexts and cell types
 % mod_params = params.mod_sounds; %use 'prespose'/'separate'?

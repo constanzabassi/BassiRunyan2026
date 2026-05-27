@@ -26,26 +26,33 @@ for dataset_index = 1:length(mouse_date)
     % Process active context
     
     if multiple_sounds
-        [dff, deconv, deconv_interp] = process_context_sounds(...
-        neural_data, active_data, dataset_index, before_after_frames, 'active',multiple_sounds);
+        [dff, deconv, deconv_interp, relative_sound_frames] = process_context_sounds(...
+        neural_data, active_data, dataset_index, before_after_frames, 'active',multiple_sounds,[0,2]);
     else
-        [dff, deconv, deconv_interp] = process_context_sounds(...
+        [dff, deconv, deconv_interp, relative_sound_frames] = process_context_sounds(...
         neural_data, active_data, dataset_index, before_after_frames, 'active');
     end
      
     sound_data.active.dff_st{1,dataset_index} = dff;
     sound_data.active.deconv_st{1,dataset_index} = deconv;
     sound_data.active.deconv_st_interp{1,dataset_index} = deconv_interp;
+    context_data.active_relative_frames = relative_sound_frames;
 
     clear dff deconv deconv_interp
 
     % Process passive context
-    [dff, deconv, deconv_interp] = process_context_sounds(...
-        neural_data, passive_data, dataset_index, before_after_frames, 'passive');
+    if multiple_sounds
+        [dff, deconv, deconv_interp, relative_sound_frames] = process_context_sounds(...
+            neural_data, passive_data, dataset_index, before_after_frames, 'passive',multiple_sounds,[0,2]);
+    else
+        [dff, deconv, deconv_interp, relative_sound_frames] = process_context_sounds(...
+            neural_data, passive_data, dataset_index, before_after_frames, 'passive');
+    end
     
     sound_data.passive.dff_st{1,dataset_index} = dff;
     sound_data.passive.deconv_st{1,dataset_index} = deconv;
     sound_data.passive.deconv_st_interp{1,dataset_index} = deconv_interp;
+    context_data.passive_relative_frames = relative_sound_frames;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ORIGINAL CONTEXT DATA

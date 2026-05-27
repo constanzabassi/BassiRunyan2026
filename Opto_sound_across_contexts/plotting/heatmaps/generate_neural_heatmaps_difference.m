@@ -15,7 +15,7 @@ nContexts = length(context_to_plot); %size(stim_trials_context{1,1},2);
 data_by_context = cell(1,nContexts);  % To store for each context
 data_by_context_ctrl = cell(1,nContexts);  % To store 
 
-params = get_heatmap_params();
+params = get_heatmap_params([],params.savepath);
 positions = utils.calculateFigurePositions(1, 7, .5, []);
 
 if nargin > 9

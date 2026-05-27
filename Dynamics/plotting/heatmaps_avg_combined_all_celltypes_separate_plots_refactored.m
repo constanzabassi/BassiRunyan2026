@@ -1,5 +1,5 @@
 function heatmaps_avg_combined_all_celltypes_separate_plots_refactored( ...
-        imaging_st, plot_info, alignment, sorting_id, save_data_directory, bin_size)
+        imaging_st, plot_info, alignment, sorting_id, save_data_directory, bin_size,varargin)
 % Two separate figures:
 %   - Figure 90: 3 heatmaps (z_dff), tiled 3×1
 %   - Figure 91: grand-average trace per cell type (alignment.data_type)
@@ -29,9 +29,11 @@ for k = 1:numel(ax_all)
 end
 
 alignment_data_type_original = alignment.data_type;
-alignment.data_type = 'z_dff';
+% alignment.data_type = 'z_dff';
 num_celltypes = 3;
 num_mice = size(imaging_st,2);
+
+
 num_nans = 2;
 last_left_pad = []; last_right_pad = [];ct = 0.03;
 for ce = 1:num_celltypes
@@ -88,6 +90,30 @@ addScaleBar(gca, 30, "1 s")
 alignment.data_type = alignment_data_type_original;
 [binned_data_all, adjusted_onsets_bin, nan_pos_bin, num_nans, binss] = ...
     compute_grand_average_bins(imaging_st, alignment, bin_size, []);
+save_string = '_across_datasets_';
+if nargin > 6
+    mouse_ids = varargin{1};
+    unique_mice = unique(mouse_ids);
+    % size of original data
+    [num_datasets, num_celltypes, num_frames] = size(binned_data_all);
+    % mouse x celltype x frames
+    mouse_data = nan(length(unique_mice), num_celltypes, num_frames);
+    % average datasets within mouse first
+    for ce = 1:num_celltypes
+        for mi = 1:length(unique_mice)
+            dataset_idx = mouse_ids == unique_mice(mi);
+            % average datasets belonging to mouse
+            mouse_data(mi,ce,:) = nanmean( ...
+                binned_data_all(dataset_idx,ce,:), 1);
+        end
+    end
+
+    % replace with mouse-level data
+    binned_data_all_updated = mouse_data;
+    binned_data_all = binned_data_all_updated;
+    % add string
+    save_string = '_across_mice_';
+end
 figure(91); clf;
 ax = axes;
 plot_grand_average(ax, binned_data_all, plot_info, adjusted_onsets_bin, nan_pos_bin, num_nans, [1 length(binss)],alignment);
@@ -114,6 +140,6 @@ if ~isempty(save_data_directory)
     %size 2
     exportgraphics(figure(90),fullfile([save_data_directory '/' image_string1 'sizing2_datasets.pdf']), 'ContentType', 'vector');
     
-    exportgraphics(figure(91),fullfile([save_data_directory '/' image_string2 'sizing2_datasets.pdf']), 'ContentType', 'vector');
+    exportgraphics(figure(91),fullfile([save_data_directory '/' image_string2 save_string 'sizing2_datasets.pdf']), 'ContentType', 'vector');
 end
 end

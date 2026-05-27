@@ -61,7 +61,7 @@ data_type = info.data_type;
 % Total contexts - 3 for photostim (active (1),passive(2),spont(3)// 2 for
 % sounds(active (1),passive(2))
 nContexts = 3;
-if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity') || strcmpi(mod_type,'prepost_sound_num')
+if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity') || strcmpi(mod_type,'prepost_sound_num') ||  strcmpi(mod_type,'post_sound')
     nContexts = 2;
 end
 % Loop through datasets.
@@ -71,7 +71,7 @@ for current_dataset = 1: length(info.mouse_date)
         fprintf('Current context %d...\n', context);
         % Get condition labels from trial info 
         if context == 1
-            if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity') || strcmpi(mod_type,'prepost_sound_num') %for sound alignment I included [control, sound_only trials] so I need to concatenate trial types here)
+            if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity') || strcmpi(mod_type,'prepost_sound_num') ||  strcmpi(mod_type,'post_sound')%for sound alignment I included [control, sound_only trials] so I need to concatenate trial types here)
                 current_conditions = [all_trial_info_sounds(current_dataset).opto.condition];
                 current_conditions_ctrl = [all_trial_info_sounds(current_dataset).ctrl.condition,all_trial_info_sounds(current_dataset).sound_only.condition];
             else
@@ -79,7 +79,7 @@ for current_dataset = 1: length(info.mouse_date)
                 current_conditions_ctrl = [all_trial_info_sounds(current_dataset).ctrl.condition];
             end
         elseif context == 2
-            if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity') || strcmpi(mod_type,'prepost_sound_num')%for sound alignment I included [control, sound_only trials] so I need to concatenate trial types here)
+            if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity') || strcmpi(mod_type,'prepost_sound_num') ||  strcmpi(mod_type,'post_sound')%for sound alignment I included [control, sound_only trials] so I need to concatenate trial types here)
                 current_conditions = [passive_all_trial_info_sounds(current_dataset).opto.condition];
                 current_conditions_ctrl = [passive_all_trial_info_sounds(current_dataset).ctrl.condition,passive_all_trial_info_sounds(current_dataset).sound_only.condition];
             else

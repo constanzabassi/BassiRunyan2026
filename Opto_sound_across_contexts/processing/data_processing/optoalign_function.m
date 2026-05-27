@@ -1,11 +1,18 @@
 %addpath '\\136.142.49.216\runyan2\Connie\Code'
-function [allcells,allcells_nogap,frames] = optoalign_function(stim, ctrl, bad_frames,dff,deconv, before_frames,after_frames)
+function [allcells,allcells_nogap,frames] = optoalign_function(stim, ctrl, bad_frames,dff,deconv, before_frames,after_frames,varargin)
 z_dff=zscore(dff,0,2);
 %number of frames before and after stim
-x1=before_frames+1;
-x2=1;
-y1=2;
-y2=after_frames+2;
+if nargin > 7
+    before_padding = varargin{1}(1);
+    after_padding = varargin{1}(2);
+else
+    after_padding = 2;
+    before_padding = 1;
+end
+x1=before_frames+before_padding;
+x2=before_padding;
+y1=after_padding;
+y2=after_frames+after_padding;
 
 intervals = bad_frames;
 % intervals(:,1)= bad_frames(:,1)-1;

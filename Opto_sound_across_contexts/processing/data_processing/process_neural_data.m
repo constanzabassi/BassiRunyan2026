@@ -12,11 +12,10 @@ function [alignment_frames, dff_struct, deconv_struct, deconv_struct_interp] = p
         data.nonexp = data.right;
     end
     
-
     % Align frames and process data
     [allcells, allcells_nogap, alignment_frames] = optoalign_function(...
         data.exp, data.nonexp, data.bad_frames, data.dff, data.deconv, ...
-        before_after_frames(1), before_after_frames(2));
+        before_after_frames(1), before_after_frames(2),data.padding);
     
     % Process dF/F data
     [matrix1, matrix2, z_matrix1, z_matrix2] = ...

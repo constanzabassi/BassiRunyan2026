@@ -3,7 +3,7 @@ function [cv_mod_index, cv_mod_index_separate, bootstrapResults] = calc_mod_inde
     response_range, mod_type, mode, nRepeats, nShuffles, specified_lr)
 
 % Constants
-VALID_MOD_TYPES = {'ctrl', 'influence', 'prepost', 'prepost_sound','prepost_ctrl','prepost_sound','prepost_num','ctrl_num','prepost_ctrl_abs','prepost_abs','ctrl_abs','signed_ctrl','prepost_sound_num','pre_engagement','pre_engagement_num'};
+VALID_MOD_TYPES = {'ctrl', 'influence', 'prepost', 'prepost_sound','prepost_ctrl','prepost_sound','prepost_num','ctrl_num','prepost_ctrl_abs','prepost_abs','ctrl_abs','signed_ctrl','prepost_sound_num','pre_engagement','pre_engagement_num', 'post_sound'};
 VALID_MODES = {'pooled', 'separate', 'simple', 'selectivity'};
 DEFAULT_REPEATS = 10;
 DEFAULT_SHUFFLES = 0;

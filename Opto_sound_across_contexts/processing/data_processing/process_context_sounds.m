@@ -1,5 +1,5 @@
-function [dff_st, deconv_st, deconv_st_interp] = process_context_sounds(...
-    neural_data, context_info, dataset_index, before_after_frames, context_type, sound_repeat)
+function [dff_st, deconv_st, deconv_st_interp, relative_sound_frames] = process_context_sounds(...
+    neural_data, context_info, dataset_index, before_after_frames, context_type, sound_repeat,varargin)
 
 % Process neural responses to sounds for a specific context
 %
@@ -52,6 +52,51 @@ else
     error('sound_repeat must be 1, 2, or 3');
 end
 
+%%% figure out where other sounds occur
+%%% relative neighboring sound timings
+relative_sound_frames = struct();
+
+all_sound_frames = context_info.extra_sound_frames_all{1,dataset_index};
+
+if sound_repeat == 1
+
+    current_frames = all_sound_frames(1,:);
+    valid_trials = find(~isnan(current_frames));
+    valid_trials2 = find(~isnan(all_sound_frames(2,:)));
+
+    % sound 2 relative to sound 1
+    relative_sound_frames.behind = ...
+        all_sound_frames(2,valid_trials2) - current_frames(valid_trials);
+
+elseif sound_repeat == 2
+
+    current_frames = all_sound_frames(2,:);
+    valid_trials = find(~isnan(all_sound_frames(1,:)));
+    valid_trials2 = find(~isnan(all_sound_frames(2,:)));
+    valid_trials3 = find(~isnan(all_sound_frames(3,:)));
+
+    % sound 1 relative to sound 2
+    relative_sound_frames.front = ...
+        all_sound_frames(1,valid_trials) - current_frames(valid_trials2);
+
+    % sound 3 relative to sound 2
+    relative_sound_frames.behind = ...
+        all_sound_frames(3,valid_trials3) - current_frames(valid_trials2);
+
+elseif sound_repeat == 3
+
+    current_frames = all_sound_frames(3,:);
+    valid_trials = find(~isnan(all_sound_frames(1,:)));
+    valid_trials2 = find(~isnan(all_sound_frames(2,:)));
+    valid_trials3 = find(~isnan(all_sound_frames(3,:)));
+
+    % sound 2 relative to sound 3
+    relative_sound_frames.front = ...
+        all_sound_frames(2,valid_trials2) - current_frames(valid_trials3);
+
+end
+
+
 %%% restrict opto/stim trials to trials with valid alignment for this repeat
 if sound_repeat == 1
     opto_current = context_info.opto_output_all{1,dataset_index};
@@ -93,6 +138,13 @@ data.exp = opto_current';
 data.bad_frames = alignment_frames_current;
 data.dff = neural_data.dff;
 data.deconv = neural_data.deconv;
+
+%add padding if changing
+if nargin > 6
+    data.padding = varargin{1};
+else
+    data.padding = [1,2];
+end
 
 %%% Align stim/control
 [~, dff_st_current, deconv_st_current, deconv_st_interp_current] = ...

@@ -35,12 +35,12 @@ function pVals = bootstrap_mod_index_cv(data_subset1, data_subset2, response_ran
 %
 %   Author: CB, 9/22/25
     %%% Step 1: Compute Averages for Group1 and Group2 %%%
-    if (strcmp(mod_type, 'prepost')|| strcmp(mod_type, 'prepost_num') || strcmp(mod_type, 'prepost_sound') || strcmp(mod_type,'prepost_abs')) && length(response_range) > 1
+    if (strcmp(mod_type, 'prepost')|| strcmp(mod_type, 'prepost_num') || strcmp(mod_type, 'prepost_sound') || strcmp(mod_type,'prepost_abs')) || strcmp(mod_type, 'post_sound') && length(response_range) > 1
         % For prepost comparisons: use two different response windows.
         % using subset1 which is probably stim data
         group1 = mean(data_subset1(:, :, response_range{1}), 3);  % e.g., post period
         group2 = mean(data_subset1(:, :, response_range{2}), 3);  % e.g., pre period (for 'prepost')
-        if strcmp(mod_type, 'prepost_sound') || strcmp(mod_type, 'prepost_sound_num') 
+        if strcmp(mod_type, 'prepost_sound') || strcmp(mod_type, 'prepost_sound_num') || strcmp(mod_type, 'post_sound')
             % For 'prepost_sound', use control data for both groups.
             group1 = mean(data_subset2(:, :, response_range{1}), 3);
             group2 = mean(data_subset2(:, :, response_range{2}), 3);
@@ -79,6 +79,8 @@ function pVals = bootstrap_mod_index_cv(data_subset1, data_subset2, response_ran
         observed_mod = compute_mod_index_ctrl_abs(group1, group2);
     elseif strcmp(mod_type,'signed_ctrl')
         observed_mod = compute_signed_mod_index(group1, group2);
+    elseif strcmp(mod_type,'post_sound')
+        observed_mod = mean(group1,1);
     else
         error('Invalid mod_type. Choose from ''ctrl'', ''influence'', ''prepost'', or ''prepost_sound''.');
     end
@@ -88,35 +90,50 @@ function pVals = bootstrap_mod_index_cv(data_subset1, data_subset2, response_ran
     nNeurons = size(group1, 2);
     combined = [group1; group2];  % Combined data: [nTotal x nNeurons]
     nTotal = nTrials_group1 + nTrials_group2;
-    
+
     %%% Step 4: Bootstrapping %%%
     bootMod = zeros(nShuffles, nNeurons);
-    for shuff = 1:nShuffles
-        permIdx = randperm(nTotal);
-        simGroup1 = combined(permIdx(1:nTrials_group1), :);
-        simGroup2 = combined(permIdx(nTrials_group1+1:end), :);
-
-        %select appropriate calculation
-        if strcmp(mod_type, 'ctrl') || strcmp(mod_type, 'prepost_ctrl') || strcmp(mod_type, 'pre_engagement')
-            bootMod(shuff, :) = compute_mod_index_ctrl(simGroup1, simGroup2);
-        elseif strcmp(mod_type, 'ctrl_num') || strcmp(mod_type,'pre_engagement_num')
-            bootMod(shuff, :) = compute_mod_index_ctrl_numerator(simGroup1, simGroup2);
-        elseif strcmp(mod_type, 'influence')
-            bootMod(shuff, :) = compute_mod_index_influence(simGroup1, simGroup2);
-        elseif strcmp(mod_type, 'prepost') || strcmp(mod_type, 'prepost_sound')
-            bootMod(shuff, :) = compute_mod_index_prepost(simGroup1, simGroup2);
-        elseif strcmp(mod_type, 'prepost_num') || strcmp(mod_type, 'prepost_sound_num')
-            bootMod(shuff, :) = compute_mod_index_prepost_numerator(simGroup1, simGroup2);
-        elseif strcmp(mod_type, 'prepost_ctrl_abs')
-            bootMod(shuff, :) = compute_mod_index_ctrl_abs(simGroup1, simGroup2);
-        elseif strcmp(mod_type,'prepost_abs')
-            bootMod(shuff, :) = compute_mod_index_prepost_abs(simGroup1, simGroup2);
-        elseif strcmp(mod_type,'ctrl_abs')
-            bootMod(shuff, :) = compute_mod_index_ctrl_abs(simGroup1, simGroup2);
-        elseif strcmp(mod_type,'signed_ctrl')
-            bootMod(shuff, :) = compute_signed_mod_index(simGroup1, simGroup2);
-        else
-            error('Invalid mod_type in bootstrapping. Choose from ''ctrl'', ''influence'', ''prepost'', or ''prepost_sound''.');
+    if strcmp(mod_type,'post_sound')
+        group_updated = group1 - group2;
+        % one-sample null distribution via sign flipping
+        for shuff = 1:nShuffles
+            flipSigns = randi([0 1], nTrials_group1, 1)*2 - 1;
+            % randomly flip trial signs
+            simGroup1 = group_updated .* flipSigns;
+            % null statistic
+            bootMod(shuff,:) = mean(simGroup1,1);
+        end
+    
+    else
+        %%% Step 4: Bootstrapping %%%
+        bootMod = zeros(nShuffles, nNeurons);
+        for shuff = 1:nShuffles
+            permIdx = randperm(nTotal);
+            simGroup1 = combined(permIdx(1:nTrials_group1), :);
+            simGroup2 = combined(permIdx(nTrials_group1+1:end), :);
+    
+            %select appropriate calculation
+            if strcmp(mod_type, 'ctrl') || strcmp(mod_type, 'prepost_ctrl') || strcmp(mod_type, 'pre_engagement')
+                bootMod(shuff, :) = compute_mod_index_ctrl(simGroup1, simGroup2);
+            elseif strcmp(mod_type, 'ctrl_num') || strcmp(mod_type,'pre_engagement_num')
+                bootMod(shuff, :) = compute_mod_index_ctrl_numerator(simGroup1, simGroup2);
+            elseif strcmp(mod_type, 'influence')
+                bootMod(shuff, :) = compute_mod_index_influence(simGroup1, simGroup2);
+            elseif strcmp(mod_type, 'prepost') || strcmp(mod_type, 'prepost_sound')
+                bootMod(shuff, :) = compute_mod_index_prepost(simGroup1, simGroup2);
+            elseif strcmp(mod_type, 'prepost_num') || strcmp(mod_type, 'prepost_sound_num')
+                bootMod(shuff, :) = compute_mod_index_prepost_numerator(simGroup1, simGroup2);
+            elseif strcmp(mod_type, 'prepost_ctrl_abs')
+                bootMod(shuff, :) = compute_mod_index_ctrl_abs(simGroup1, simGroup2);
+            elseif strcmp(mod_type,'prepost_abs')
+                bootMod(shuff, :) = compute_mod_index_prepost_abs(simGroup1, simGroup2);
+            elseif strcmp(mod_type,'ctrl_abs')
+                bootMod(shuff, :) = compute_mod_index_ctrl_abs(simGroup1, simGroup2);
+            elseif strcmp(mod_type,'signed_ctrl')
+                bootMod(shuff, :) = compute_signed_mod_index(simGroup1, simGroup2);
+            else
+                error('Invalid mod_type in bootstrapping. Choose from ''ctrl'', ''influence'', ''prepost'', or ''prepost_sound''.');
+            end
         end
     end
     %%% Step 5: Compute p-values %%%
