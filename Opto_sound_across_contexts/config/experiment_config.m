@@ -41,6 +41,7 @@ function mod = get_modulation_params()
     mod.data_type_dff = 1; %dff or deconv
     mod.nShuffles = 10000; %total shuffles for bootstrapping
     mod.simple_or_not = 0; %if simple takes given trials and uses those to compute (no balancing or separating into left and right)
+    mod.chosen_mice = 1:24;
 end
 
 function mod = get_modulation_params_sounds()
