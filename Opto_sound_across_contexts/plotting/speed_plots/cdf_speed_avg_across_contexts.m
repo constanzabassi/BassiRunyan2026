@@ -1,21 +1,42 @@
-function general_stats = cdf_speed_avg_across_contexts(avg_speed_axis_data, function_params,save_data_directory)
+function general_stats = cdf_speed_avg_across_contexts(avg_speed_axis_data, function_params,save_data_directory, varargin)
 %avg_speed_axis_data(context, speed axis) - ROLL = 1, PITCH = 2, BOTH = 3;
 % FRAMES WERE AVERAGE ACROSS LEFT AND RIGHT TRIALS!!!!!!
 
-%0) define bins for cdf
-if function_params.abs == 1
-        binss = 0:2:40;
-        binss2 = 0:2:60;
-        binss3 = 20:2:60;
-    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OPTIONAL INPUTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+p = inputParser;
+
+addParameter(p, 'movement_types', {'Pitch','Roll','Both'});
+addParameter(p, 'bin_struct', []);
+
+parse(p, varargin{:});
+
+movement_types = p.Results.movement_types;
+bin_struct = p.Results.bin_struct;
+
+if isempty(bin_struct)
+    %0) define bins for cdf
+    if function_params.abs == 1
+
+        bin_struct.Pitch = 0:2:60;
+        bin_struct.Roll = 0:2:40;
+        bin_struct.Both = 20:2:60;
+        bin_struct.Acceleration = 0:2:10;
+
     else
-        binss = -40:10:40;
-        binss2 = -10:4:60;
-        binss3 = -10:4:60;
+
+        bin_struct.Pitch = -10:4:60;
+        bin_struct.Roll = -40:10:40;
+        bin_struct.Both = -10:4:60;
+        bin_struct.Acceleration = -10:2:10;
+
+    end
 end
 % Compute CDF for each context and movement type
-movement_types = {'Pitch', 'Roll', 'Both'}; % Define movement types
-bin_sets = {binss2, binss, binss3}; % Corresponding bins for each movement type
+% movement_types = {'Pitch', 'Roll', 'Both'}; % Define movement types
+% bin_sets = {binss2, binss, binss3, binns4}; % Corresponding bins for each movement type
 % Initialize CDF storage dynamically
 cdf_data = struct();
         
@@ -30,24 +51,31 @@ figure(662);clf;
 % Loop through movement types for plotting
 for move_type = 1:length(movement_types)
     movement = movement_types{move_type};
-    bins = bin_sets{move_type}; % Get appropriate binning
-    subplot(3,1,move_type);
+    bins = bin_struct.(movement); % Get appropriate binning
+    subplot(length(movement_types),1,move_type);
     hold on;
     % Plot each context
     for contextIdx = 1:length(function_params.contexts)
-        [cdf_data.(movement)(contextIdx,:), ~] = make_cdf(avg_speed_axis_data{contextIdx, move_type}, bin_sets{move_type});
+        [cdf_data.(movement)(contextIdx,:), ~] = make_cdf(avg_speed_axis_data{contextIdx, move_type}, bins);
         plot(bins, cdf_data.(movement)(contextIdx,:), 'LineWidth', 2, 'LineStyle', '-', ...
             'Color', function_params.contexts_colors(contextIdx,:));
     end
     % Adjust axes and labels
     ylim([0 1]);
     xlim([bins(1), bins(end)]);
-    best_interval = utils.find_x_ticks(bins(1), bins(end), possible_intervals);
-    xticks(bins(1):best_interval:bins(end));
+    if [bins(end) - bins(1)] <= 15
+        xticks('auto');
+    else
+        best_interval = utils.find_x_ticks(bins(1), bins(end), possible_intervals);
+        xticks(bins(1):best_interval:bins(end));
+    end
     if function_params.abs == 1
         xlabel('Speed (cm/s)');
     else
         xlabel('Velocity (cm/s)');
+    end
+    if move_type == 4
+        xlabel('Acc (cm/s^{2})');
     end
     if move_type == 1
         ylabel('CDF');
@@ -57,7 +85,13 @@ for move_type = 1:length(movement_types)
     if move_type == 3
         title('Total Speed', 'FontWeight', 'normal');
     end
-    if move_type == 3
+    if move_type == 3 && length(movement_types) < 4
+        for contextIdx = 1:length(function_params.contexts)
+            fontSize = 7;
+            y_offset_base = 0.4;
+            utils.place_text_labels(function_params.contexts, function_params.contexts_colors, y_offset_base, fontSize);
+        end
+    elseif move_type == 4
         for contextIdx = 1:length(function_params.contexts)
             fontSize = 7;
             y_offset_base = 0.4;
@@ -76,6 +110,9 @@ end
 %where we do paired comparisons for each dataset!
 % Initialize results
 comparisons = {'Pitch across context', 'Roll across context', 'Both across contexts'};
+if length(movement_types) > 3
+    comparisons = {'Pitch across context', 'Roll across context', 'Both across contexts','Acceleration across contexts'};
+end
 
 num_comparisons = numel(comparisons); % Number of comparisons
 alpha = 0.05 / num_comparisons; % Bonferroni-corrected significance level
@@ -94,6 +131,8 @@ for c = 1:num_comparisons
         matching_comparisons = find(contains(comparisons, 'Pitch')); % Get Pitch comparisons
     elseif contains(curr_comp, 'Both')
         matching_comparisons = find(contains(comparisons, 'Both')); % Get both comparisons
+    elseif contains(curr_comp, 'Acceleration')
+        matching_comparisons = find(contains(comparisons, 'Acceleration')); % Get both comparisons
     end
     % Only perform tests within the same category (Roll/Roll or Pitch/Pitch)
     if ismember(c, matching_comparisons)
@@ -125,10 +164,10 @@ general_stats.cdf_running_test = 'paired permutation test';
 
 if ~isempty(save_data_directory)
     
-    exportgraphics(figure(662),fullfile(save_data_directory,['avg_speed_all_axis_cdf_acrosscontext_' strcat(num2str(function_params.frames_before_event),'-', num2str(function_params.frames_after_event),'_abs_',num2str(function_params.abs)) '.pdf']), 'ContentType', 'vector');
-    saveas(figure(662),fullfile(['avg_speed_all_axis_cdf_acrosscontext_' strcat(num2str(function_params.frames_before_event),'-', num2str(function_params.frames_after_event),'_abs_',num2str(function_params.abs)) '.fig']));
+    exportgraphics(figure(662),fullfile(save_data_directory,['avg_speed_all_axis_cdf_acrosscontext_' strcat(num2str(function_params.frames_before_event),'-', num2str(function_params.frames_after_event),'_abs_',num2str(function_params.abs)),'_movements_',num2str(length(movement_types)), '.pdf']), 'ContentType', 'vector');
+    saveas(figure(662),fullfile(save_data_directory,['avg_speed_all_axis_cdf_acrosscontext_' strcat(num2str(function_params.frames_before_event),'-', num2str(function_params.frames_after_event),'_abs_',num2str(function_params.abs)),'_movements_',num2str(length(movement_types)), '.fig']));
 
-    save_str=strcat("stats_cdf_context_stats_avg_speed_all_axis_" ,num2str(function_params.frames_before_event),"-", num2str(function_params.frames_after_event),'_abs_',num2str(function_params.abs), ".mat");
+    save_str=strcat("stats_cdf_context_stats_avg_speed_all_axis_" ,num2str(function_params.frames_before_event),"-", num2str(function_params.frames_after_event),'_abs_',num2str(function_params.abs),'_movements_',num2str(length(movement_types)), ".mat");
     save(fullfile(save_data_directory,save_str), 'general_stats');
 
 end

@@ -64,8 +64,11 @@ nContexts = 3;
 if strcmpi(mod_type,'prepost_sound') || strcmpi(mode,'selectivity') || strcmpi(mod_type,'prepost_sound_num') ||  strcmpi(mod_type,'post_sound')
     nContexts = 2;
 end
+
+nDatasets = 1:length(info.mouse_date);
 % Loop through datasets.
 for current_dataset = 1: length(info.mouse_date)
+%     current_dataset = nDatasets{current_datasets};
     fprintf('Processing dataset %d/%d...\n', current_dataset, length(info.mouse_date));
     for context = 1:nContexts  % Assuming context 1: active, context 2: passive, context 3: spontaneous.
         fprintf('Current context %d...\n', context);

@@ -43,7 +43,7 @@ chosen_cells_all = struct();  % Store chosen cells per field
 cell_fields = fieldnames(all_celltypes{1,1});
 % Compute total cell counts for each chosen dataset using context 1 modulation indices.
 % (Assuming mod_index{m,1} is a vector for dataset m.)
-all_cellCounts = cellfun(@(x) length(x), mod_index(chosen_mice, 1));
+all_cellCounts = cellfun(@(x) length(x), mod_index(:, 1));
 
 % If bootstrap significance is provided, compute the union of significant cells
 % across active (context 1) and passive (context 2) for each dataset.
